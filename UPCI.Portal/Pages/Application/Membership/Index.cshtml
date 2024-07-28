@@ -417,7 +417,7 @@
                                         <div class="col-12 col-md-12 col-lg-5"> 
                                             <div class="card card-info card-outline">
                                                 <div class="card-header card-outline">
-                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Cells</h3>
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Cell Groups</h3>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                             <i class="fas fa-minus"></i>
@@ -436,17 +436,17 @@
                                                                      
                                                                 </thead>
                                                                 <tbody>
-                                                                    <tr v-for="cell in cells" :key="cell.encryptedId"> 
-                                                                        <td class="align-middle" data-title="Cell"> [{{cell.code}}] - {{cell.description}}</td>
-                                                                        <td class="align-middle" data-title="Position"> {{cell.parentName}}</td>
-                                                                        <td class="text-center align-middle">
+                                                                    <tr v-for="selectedCell in selectedCells" :key="selectedCell.id">
+                                                                        <td class="align-middle"> {{selectedCell.cellDesc}}</td>
+                                                                        <td class="align-middle"> {{selectedCell.positionCellDesc}}</td>
+                                                                        <td class="text-right align-middle">
 
-                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(cell)" data-tooltip="tooltip" title="Edit">
+                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(selectedCell)" title="Edit">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </button>
-                                                                          
-                                                                         
-                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="DeleteCell(item);" data-tooltip="tooltip" title="Delete">
+
+
+                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="RemoveCell(selectedCell)"  title="Remove">
                                                                                 <i class="far fa-trash-alt"></i>
                                                                             </button>
                                                                             
@@ -461,7 +461,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-footer">
-                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#cellFormModal"><i class="nav-icon fas fa-plus"></i> Add Cell</button>
+                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#cellFormModal" v-on:click="AddCell()">  <i class="nav-icon fas fa-plus"></i> Add Cell</button>
                                                 </div>
                                             </div>
                                             <div class="card card-warning card-outline">
@@ -484,15 +484,15 @@
                                                                 <thead>
                                                                 </thead>
                                                                 <tbody>
-                                                                    <tr v-for="ministry in ministries" :key="ministry.encryptedId">
-                                                                        <td class="align-middle" data-title="Ministry"> [{{ministry.code}}] - {{ministry.description}}</td>
-                                                                        <td class="align-middle" data-title="Position"> {{ministry.parentName}}</td>
+                                                                    <tr v-for="selectedMinistry in selectedMinistries" :key="selectedMinistry.id">
+                                                                        <td class="align-middle"> {{selectedMinistry.ministryDesc}}</td>
+                                                                        <td class="align-middle"> {{selectedMinistry.positionMinistryDesc}}</td>
                                                                         <td class="text-center align-middle">
 
-                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#ministryFormModal" v-on:click="EditMinistry(cell)" data-tooltip="tooltip" title="Edit">
+                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#ministryFormModal" v-on:click="EditMinistry(selectedMinistry)" title="Edit">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </button>
-                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="DeleteMinistry(cell)" data-tooltip="tooltip" title="Delete">
+                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="RemoveMinistry(selectedMinistry)" title="Remove">
                                                                                 <i class="far fa-trash-alt"></i>
                                                                             </button>
                                                                              
@@ -507,7 +507,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="card-footer">
-                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#ministryFormModal"><i class="nav-icon fas fa-plus"></i> Add Ministry</button>
+                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#ministryFormModal" v-on:click="AddMinistry()"><i class="nav-icon fas fa-plus"></i> Add Ministry</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -522,48 +522,6 @@
                     </div>
                 </div>
             }
-            <div id="ministryFormModal" class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-md" role="document">
-                    <form name="ministryFormModal" id="ministryForm" method="post" autocomplete="off" data-parsley-validate>
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title left"> Ministry</h5>
-                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label>Ministry</label>
-                                            <select class="custom-select" id="ministry">
-                                                <option value="" selected>-- Please Select --</option>
-                                                <option value="IT">IT</option>
-                                                <option value="CHILD">Children Ministry</option>
-                                                <option value="PAW">Praise and Worship Ministry</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label>Position</label>
-                                            <select class="custom-select" id="ministryPosition">
-                                                <option value="" selected>-- Please Select --</option>
-                                                <option value="H">Head</option>
-                                                <option value="A">Assistant</option>
-                                                <option value="M">Member</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer justify-content-between">
-                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
-                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="SaveMinistry()"><i class="nav-icon fas fa-check-circle"></i> Save Ministry</button>
-                            </div>
-                        </div> 
-                    </form>
-                </div>
-            </div>
             <div id="cellFormModal" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-md" role="document">
                     <form name="cellFormModal" id="cellForm" method="post" autocomplete="off" data-parsley-validate>
@@ -577,21 +535,25 @@
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label>Cell</label>
-                                            <select class="custom-select" id="cell">
-                                                <option value="" selected>-- Please Select --</option>
-                                                <option value="MIKE">Mike Cell</option>
-                                                <option value="GEN">Genesis Cell</option>
-                                                <option value="NINA">Pastor Cell</option>
+                                            <select class="custom-select"
+                                                    v-model="formDataGroups.cell"
+                                                    :disabled="disableControl.selectedCell">
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="cell in cells" :key="cell.id">
+                                                    <option :value="cell.code">{{cell.description}} </option>
+                                                </template>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label>Position</label>
-                                            <select class="custom-select" id="cellPosition">
-                                                <option value="" selected>-- Please Select --</option>
-                                                <option value="L">Leader</option> 
-                                                <option value="M">Member</option>
+                                            <select class="custom-select" id="cellPosition"
+                                                    v-model="formDataGroups.positionCell">
+                                                <option value="">-- Please Select --</option> 
+                                                <template v-for="positionCell in positionCells" :key="positionCell.id">
+                                                    <option :value="positionCell.code">{{positionCell.description}} </option>
+                                                </template> 
                                             </select>
                                         </div>
                                     </div>
@@ -599,12 +561,58 @@
                             </div>
                             <div class="modal-footer justify-content-between">
                                 <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
-                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="SaveMinistry()"><i class="nav-icon fas fa-check-circle"></i> Save Ministry</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="SaveCell()"><i class="nav-icon fas fa-check-circle"></i> Save Cell</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+            <div id="ministryFormModal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-md" role="document">
+                    <form name="ministryFormModal" id="ministryForm" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> Ministry</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Ministry</label>
+                                            <select class="custom-select"
+                                                    v-model="formDataGroups.ministry"
+                                                    :disabled="disableControl.selectedMinistry">
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="ministry in ministries" :key="ministry.id">
+                                                    <option :value="ministry.code">{{ ministry.code }} - {{ministry.description}} </option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Position</label>
+                                            <select class="custom-select" id="ministryPosition"
+                                                    v-model="formDataGroups.positionMinistry">
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="positionMinistry in positionMinistries" :key="positionMinistry.id">
+                                                    <option :value="positionMinistry.code">{{positionMinistry.description}} </option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="SaveMinistry()"><i class="nav-icon fas fa-check-circle"></i> Save Ministry</button>
+                            </div>
+                        </div> 
+                    </form>
+                </div>
+            </div>
+            
             <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
                 <div class="modal-dialog modal-xls" role="document">
                     <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
@@ -703,5 +711,6 @@
 <script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/cell.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/position.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/controllers/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>

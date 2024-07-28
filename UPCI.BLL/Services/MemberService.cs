@@ -95,7 +95,7 @@ namespace UPCI.BLL.Services
                 var memberList = _applicationDbContext.Set<Member>().AsQueryable(); 
                 var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
                 var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
-                var pepsolLevel = _applicationDbContext.Set<PEPSOL>().AsQueryable();
+                var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     memberList = memberList.Where(ExpressionBuilder.GetExpression<Member>(model.Filters));
@@ -199,27 +199,27 @@ namespace UPCI.BLL.Services
                     var memberCode = GenerateMemberCode(chapter);
                     data = new()
                     {
-                        Code = memberCode.memberCode,
+                        Code = memberCode.memberCode.Trim(),
                         Sequence = memberCode.lastSequence,
                         Chapter = chapter,
-                        FirstName = model.FirstName,
-                        MiddleName = model.MiddleName,
-                        LastName = model.LastName,
-                        Gender = model.Gender,
-                        CivilStatus = model.CivilStatus,
-                        Address = model.Address,
+                        FirstName = model.FirstName.Trim(),
+                        MiddleName = model.MiddleName.Trim(),
+                        LastName = model.LastName.Trim(),
+                        Gender = model.Gender.Trim(),
+                        CivilStatus = model.CivilStatus.Trim(),
+                        Address = model.Address.Trim(),
                         Birthday = Convert.ToString(model.Birthday) == string.Empty ? null : Convert.ToDateTime(model.Birthday),
                         BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate),
                         FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend),
-                        PEPSOL = model.PEPSOL,
+                        PEPSOL = model.PEPSOL.Trim(),
                         Baptized = model.Baptized,
                         InvolvedToCell = model.InvolvedToCell,
                         ActiveMember = model.ActiveMember,
-                        MemberType = model.MemberType,
-                        Email = model.Email,
-                        ContactNo = model.ContactNo,
+                        MemberType = model.MemberType.Trim(),
+                        Email = model.Email.Trim(),
+                        ContactNo = model.ContactNo.Trim(),
                         ImageContent = model.ImageContent,
-                        ImageType = model.ImageType,
+                        ImageType = model.ImageType.Trim(),
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now 
                     };
@@ -328,24 +328,24 @@ namespace UPCI.BLL.Services
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
                      
-                    data.FirstName = model.FirstName;
-                    data.MiddleName = model.MiddleName;
-                    data.LastName = model.LastName;
-                    data.Gender = model.Gender;
-                    data.CivilStatus = model.CivilStatus;
-                    data.Address = model.Address;
+                    data.FirstName = model.FirstName.Trim();
+                    data.MiddleName = model.MiddleName.Trim();
+                    data.LastName = model.LastName.Trim();
+                    data.Gender = model.Gender.Trim();
+                    data.CivilStatus = model.CivilStatus.Trim();
+                    data.Address = model.Address.Trim();
                     data.Birthday = Convert.ToString(model.Birthday) == string.Empty ? null : Convert.ToDateTime(model.Birthday);
                     data.BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate);
                     data.FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend);
-                    data.PEPSOL = model.PEPSOL;
+                    data.PEPSOL = model.PEPSOL.Trim();
                     data.Baptized = model.Baptized;
                     data.InvolvedToCell = model.InvolvedToCell;
                     data.ActiveMember = model.ActiveMember;
-                    data.MemberType = model.MemberType;
-                    data.Email = model.Email;
-                    data.ContactNo = model.ContactNo;
+                    data.MemberType = model.MemberType.Trim();
+                    data.Email = model.Email.Trim();
+                    data.ContactNo = model.ContactNo.Trim();
                     data.ImageContent = model.ImageContent;
-                    data.ImageType = model.ImageType; 
+                    data.ImageType = model.ImageType.Trim(); 
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 

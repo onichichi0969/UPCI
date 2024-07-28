@@ -303,16 +303,16 @@ namespace UPCI.BLL.Services
 
                     data = new()
                     {
-                        Code = model.Code,
-                        Name = model.Name,
-                        ModuleType = model.ModuleType,
+                        Code = model.Code.Trim(),
+                        Name = model.Name.Trim(),
+                        ModuleType = model.ModuleType.Trim(),
                         DisplayOrder = model.DisplayOrder,
                         ParentId = model.ParentId == "" ? 0: Convert.ToInt32(model.ParentId),
-                        Description = model.Description,
-                        Url = model.Url,
-                        Icon = model.Icon,
-                        Action = model.Action,
-                        AuditContent = model.AuditContent,
+                        Description = model.Description.Trim(),
+                        Url = model.Url.Trim(),
+                        Icon = model.Icon.Trim(),
+                        Action = model.Action.Trim(),
+                        AuditContent = model.AuditContent.Trim(),
                         Show = model.Show,
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now
@@ -423,16 +423,16 @@ namespace UPCI.BLL.Services
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
 
-                    data!.Code = model.Code;
-                    data!.Name = model.Name;
-                    data.ModuleType = model.ModuleType;
+                    data!.Code = model.Code.Trim();
+                    data!.Name = model.Name.Trim();
+                    data.ModuleType = model.ModuleType.Trim();
                     data.DisplayOrder = model.DisplayOrder; 
                     data.ParentId = model.ParentId == "" ? 0 : Convert.ToInt32(model.ParentId);
-                    data.Description = model.Description;
-                    data.Url = model.Url;
-                    data.Icon = model.Icon;
-                    data.Action = model.Action;
-                    data.AuditContent = model.AuditContent;
+                    data.Description = model.Description.Trim();
+                    data.Url = model.Url.Trim();
+                    data.Icon = model.Icon.Trim();
+                    data.Action = model.Action.Trim();
+                    data.AuditContent = model.AuditContent.Trim();
                     data.Show = model.Show;
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;

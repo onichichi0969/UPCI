@@ -8,7 +8,7 @@ using System.Transactions;
 
 namespace UPCI.BLL.Services
 {
-    public class PositionService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<PositionCell> positionCellRepository, IRepository<PositionMinistry> positionMinistryRepository, ILogService logService) //: IPositionService
+    public class PositionService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<PositionCell> positionCellRepository, IRepository<PositionMinistry> positionMinistryRepository, ILogService logService) : IPositionService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IRepository<PositionCell> _positionCellRepository = positionCellRepository;
@@ -83,7 +83,7 @@ namespace UPCI.BLL.Services
         /// <summary>
         /// //////////
         /// </summary> 
-        public async Task<UPCI.DAL.DTO.Response.VPositionCell> Filter(UPCI.DAL.DTO.Request.FParam model)
+        public async Task<UPCI.DAL.DTO.Response.VPositionCell> FilterCell(UPCI.DAL.DTO.Request.FParam model)
         {
             try
             {
@@ -91,28 +91,28 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VPositionCell vCell = new();
                  
-                var CellList = _applicationDbContext.Set<PositionCell>().AsQueryable();
+                var cellList = _applicationDbContext.Set<PositionCell>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
-                    CellList = CellList.Where(ExpressionBuilder.GetExpression<PositionCell>(model.Filters));
+                    cellList = cellList.Where(ExpressionBuilder.GetExpression<PositionCell>(model.Filters));
 
                 if (model.Descending)
                 {
-                    CellList = CellList.OrderByDescending(propertySelector);
+                    cellList = cellList.OrderByDescending(propertySelector);
                 }
                 else
                 {
-                    CellList = CellList.OrderBy(propertySelector);
+                    cellList = cellList.OrderBy(propertySelector);
                 }
 
                
 
                 vCell.CurrentPage = model.PageNum;
-                vCell.TotalRecord = CellList.Count();
+                vCell.TotalRecord = cellList.Count();
                 vCell.TotalPage = (int)Math.Ceiling((double)vCell.TotalRecord / model.PageSize);
 
                 int recordsToSkip = (model.PageNum - 1) * model.PageSize;
-                var pagedQuery = CellList.Skip(recordsToSkip).Take(model.PageSize);
+                var pagedQuery = cellList.Skip(recordsToSkip).Take(model.PageSize);
                  
                 var result = (from u in pagedQuery
                               select new UPCI.DAL.DTO.Response.FPositionCell
@@ -133,7 +133,60 @@ namespace UPCI.BLL.Services
                 return new ();
             }
         }
-        public async Task<UPCI.DAL.DTO.Response.Result> Create(UPCI.DAL.DTO.Request.Cell model)
+        public async Task<UPCI.DAL.DTO.Response.VPositionMinistry> FilterMinistry(UPCI.DAL.DTO.Request.FParam model)
+        {
+            try
+            {
+                var propertySelector = EFramework.BuildPropertySelector<PositionMinistry>(model.SortColumn);
+
+                UPCI.DAL.DTO.Response.VPositionMinistry vCell = new();
+
+                var ministryList = _applicationDbContext.Set<PositionMinistry>().AsQueryable();
+
+                if (model.Filters != null && model.Filters.Count != 0)
+                    ministryList = ministryList.Where(ExpressionBuilder.GetExpression<PositionMinistry>(model.Filters));
+
+                if (model.Descending)
+                {
+                    ministryList = ministryList.OrderByDescending(propertySelector);
+                }
+                else
+                {
+                    ministryList = ministryList.OrderBy(propertySelector);
+                }
+
+
+
+                vCell.CurrentPage = model.PageNum;
+                vCell.TotalRecord = ministryList.Count();
+                vCell.TotalPage = (int)Math.Ceiling((double)vCell.TotalRecord / model.PageSize);
+
+                int recordsToSkip = (model.PageNum - 1) * model.PageSize;
+                var pagedQuery = ministryList.Skip(recordsToSkip).Take(model.PageSize);
+
+                var result = (from u in pagedQuery
+                              select new UPCI.DAL.DTO.Response.FPositionMinistry
+                              {
+                                  Id = u.Id.ToString(),
+                                  Code = u.Code,
+                                  Description = u.Description,
+                                  Deleted = u.Deleted
+                              }
+                               ).ToList();
+
+                vCell.Data = result;
+                return await Task.FromResult(vCell);
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                return new();
+            }
+        }
+        /// <summary>
+        /// //////
+        /// </summary> 
+        public async Task<UPCI.DAL.DTO.Response.Result> CreateCell(UPCI.DAL.DTO.Request.PositionCell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
 
@@ -151,20 +204,20 @@ namespace UPCI.BLL.Services
                     Action = action
                 };
 
-                var data = _applicationDbContext.Cell!.FirstOrDefault(d => d.Code == model.Code);
+                var data = _applicationDbContext.PositionCell!.FirstOrDefault(d => d.Code == model.Code);
 
                 if (data == null)
                 {
 
                     data = new()
                     { 
-                        Code = model.Code,
-                        Description = model.Description, 
+                        Code = model.Code.Trim(),
+                        Description = model.Description.Trim(), 
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now
                     };
 
-                    await _CellRepository.AddAsync(data);
+                    await _positionCellRepository.AddAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {
@@ -173,7 +226,86 @@ namespace UPCI.BLL.Services
                         Action = action,
                         UserId = data.CreatedBy!,
                         ActionDate = (DateTime)data.CreatedDate,
-                        TableName = _moduleName,
+                        TableName = _moduleName+"Cell",
+                        OldValues = "",
+                        NewValues = EFramework.GetEntityProperties(data)
+                    };
+
+                    activityLog.Details = string.Format("[code: {0}] created.", data.Code);
+
+                    result = new UPCI.DAL.DTO.Response.Result() { Status = "SUCCESS", Message = string.Format("{0} created.", _moduleName ) };
+
+                    _logService.LogActivity(activityLog);
+                    _logService.LogAudit(auditTrail!);
+
+                }
+                else
+                {
+                    result = new UPCI.DAL.DTO.Response.Result() { Status = "FAILED", Message = string.Format("{0} already exist.", _moduleName ) };
+                }
+
+                transactionScope.Complete();
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName + "Cell");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName + "Cell");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
+        }
+        public async Task<UPCI.DAL.DTO.Response.Result> CreateMinistry(UPCI.DAL.DTO.Request.PositionMinistry model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
+
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var action = "ADD";
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!.Username.ToString().ToUpper();
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = userId.ToString(),
+                    ModuleName = _moduleName,
+                    Action = action
+                };
+
+                var data = _applicationDbContext.PositionMinistry!.FirstOrDefault(d => d.Code == model.Code);
+
+                if (data == null)
+                {
+
+                    data = new()
+                    {
+                        Code = model.Code.Trim(),
+                        Description = model.Description.Trim(),
+                        CreatedBy = userId.ToString(),
+                        CreatedDate = DateTime.Now
+                    };
+
+                    await _positionMinistryRepository.AddAsync(data);
+
+                    var auditTrail = new AuditTrail()
+                    {
+                        RecordId = data.Id.ToString(),
+                        Terminal = model.Terminal!,
+                        Action = action,
+                        UserId = data.CreatedBy!,
+                        ActionDate = (DateTime)data.CreatedDate,
+                        TableName = _moduleName + "Ministry",
                         OldValues = "",
                         NewValues = EFramework.GetEntityProperties(data)
                     };
@@ -196,12 +328,12 @@ namespace UPCI.BLL.Services
             }
             catch (TransactionAbortedException ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Ministry");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             catch (Exception ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Ministry");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             finally
@@ -212,8 +344,10 @@ namespace UPCI.BLL.Services
 
             return await Task.FromResult(result);
         }
-
-        public async Task<UPCI.DAL.DTO.Response.Result> Update(UPCI.DAL.DTO.Request.Cell model)
+        /// <summary>
+        /// /////////
+        /// </summary> 
+        public async Task<UPCI.DAL.DTO.Response.Result> UpdateCell(UPCI.DAL.DTO.Request.PositionCell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
 
@@ -233,7 +367,7 @@ namespace UPCI.BLL.Services
                     Action = action
                 };
 
-                var data = _applicationDbContext.Cell!.Where(d => d.Code == model.Code!).FirstOrDefault();
+                var data = _applicationDbContext.PositionCell!.Where(d => d.Code == model.Code!).FirstOrDefault();
 
                 if (data != null)
                 {
@@ -243,7 +377,7 @@ namespace UPCI.BLL.Services
                     }
                     else
                     {
-                        var x = _applicationDbContext.Cell!.Any(d => d.Code == model.Code);
+                        var x = _applicationDbContext.PositionCell!.Any(d => d.Code == model.Code);
 
                         if (!x)
                             updateStatus = 1;
@@ -268,12 +402,12 @@ namespace UPCI.BLL.Services
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
 
-                    data!.Code = model.Code;
-                    data.Description = model.Description;
+                    data!.Code = model.Code.Trim();
+                    data.Description = model.Description.Trim();
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 
-                    await _CellRepository.UpdateAsync(data);
+                    await _positionCellRepository.UpdateAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {
@@ -282,7 +416,7 @@ namespace UPCI.BLL.Services
                         Action = action,
                         UserId = data.UpdatedBy!,
                         ActionDate = (DateTime)data.UpdatedDate,
-                        TableName = _moduleName,
+                        TableName = _moduleName + "Cell",
                         OldValues = oldValue,
                         NewValues = EFramework.GetEntityProperties(data)
                     };
@@ -300,12 +434,12 @@ namespace UPCI.BLL.Services
             }
             catch (TransactionAbortedException ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Cell");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             catch (Exception ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Cell");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             finally
@@ -316,8 +450,113 @@ namespace UPCI.BLL.Services
 
             return await Task.FromResult(result);
         }
+        public async Task<UPCI.DAL.DTO.Response.Result> UpdateMinistry(UPCI.DAL.DTO.Request.PositionMinistry model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
 
-        public async Task<UPCI.DAL.DTO.Response.Result> Delete(UPCI.DAL.DTO.Request.Cell model)
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var action = "EDIT";
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!.Username;
+
+                int updateStatus = 0;
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = model.OpUser!,
+                    ModuleName = _moduleName,
+                    Action = action
+                };
+
+                var data = _applicationDbContext.PositionMinistry!.Where(d => d.Code == model.Code!).FirstOrDefault();
+
+                if (data != null)
+                {
+                    if (data.Id == Convert.ToInt32(model.Id!) && data.Code == model.Code)
+                    {
+                        updateStatus = 1;
+                    }
+                    else
+                    {
+                        var x = _applicationDbContext.PositionMinistry!.Any(d => d.Code == model.Code);
+
+                        if (!x)
+                            updateStatus = 1;
+                        else
+                        {
+                            updateStatus = -1;
+                            result.Status = "FAILED";
+                            result.Message = string.Format("{0} [code: {1}] already exist.", _moduleName, model.Code);
+                        }
+                    }
+
+                }
+                else
+                {
+                    updateStatus = 0;
+                    result.Status = "FAILED";
+                    result.Message = string.Format("{0} not exist.", _moduleName);
+                }
+
+
+                if (updateStatus == 1)
+                {
+                    var oldValue = EFramework.GetEntityProperties(data!);
+
+                    data!.Code = model.Code.Trim();
+                    data.Description = model.Description.Trim();
+                    data.UpdatedBy = userId.ToString();
+                    data.UpdatedDate = DateTime.Now;
+
+                    await _positionMinistryRepository.UpdateAsync(data);
+
+                    var auditTrail = new AuditTrail()
+                    {
+                        RecordId = data.Id.ToString(),
+                        Terminal = model.Terminal!,
+                        Action = action,
+                        UserId = data.UpdatedBy!,
+                        ActionDate = (DateTime)data.UpdatedDate,
+                        TableName = _moduleName + "Ministry",
+                        OldValues = oldValue,
+                        NewValues = EFramework.GetEntityProperties(data)
+                    };
+
+                    activityLog.Details = string.Format("[code: {0}] updated.", model.Code);
+                    result.Status = "SUCCESS";
+                    result.Message = string.Format("{0} updated.", _moduleName);
+
+                    _logService.LogActivity(activityLog);
+                    _logService.LogAudit(auditTrail!);
+                }
+
+                transactionScope.Complete();
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName + "Ministry");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName + "Ministry");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
+        }
+        /// <summary>
+        /// ///
+        /// </summary> 
+        public async Task<UPCI.DAL.DTO.Response.Result> DeleteCell(UPCI.DAL.DTO.Request.PositionCell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
             TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
@@ -334,7 +573,7 @@ namespace UPCI.BLL.Services
                     Action = _action
                 };
 
-                var data = _applicationDbContext.Cell!.FirstOrDefault(l => l.Id.ToString() == model.Id);
+                var data = _applicationDbContext.PositionCell!.FirstOrDefault(l => l.Id.ToString() == model.Id);
 
                 if (data != null)
                 {
@@ -344,7 +583,7 @@ namespace UPCI.BLL.Services
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 
-                    await _CellRepository.DeleteAsync(data);
+                    await _positionCellRepository.DeleteAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {
@@ -353,7 +592,7 @@ namespace UPCI.BLL.Services
                         Action = _action,
                         UserId = data.UpdatedBy!,
                         ActionDate = (DateTime)data.UpdatedDate,
-                        TableName = _moduleName,
+                        TableName = _moduleName+"Cell",
                         OldValues = "[deleted :false]",
                         NewValues = "[deleted :true]"
                     };
@@ -377,12 +616,89 @@ namespace UPCI.BLL.Services
             }
             catch (TransactionAbortedException ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Cell");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             catch (Exception ex)
             {
-                _logService.LogException(ex, _moduleName);
+                _logService.LogException(ex, _moduleName + "Cell");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
+
+        }
+        public async Task<UPCI.DAL.DTO.Response.Result> DeleteMinistry(UPCI.DAL.DTO.Request.PositionMinistry model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var _action = "DELETE";
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!.Id;
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = userId.ToString(),
+                    ModuleName = _moduleName,
+                    Action = _action
+                };
+
+                var data = _applicationDbContext.PositionMinistry!.FirstOrDefault(l => l.Id.ToString() == model.Id);
+
+                if (data != null)
+                {
+                    var oldValue = EFramework.GetEntityProperties(data!);
+
+                    data.Deleted = true;
+                    data.UpdatedBy = userId.ToString();
+                    data.UpdatedDate = DateTime.Now;
+
+                    await _positionMinistryRepository.DeleteAsync(data);
+
+                    var auditTrail = new AuditTrail()
+                    {
+                        RecordId = data.Id.ToString(),
+                        Terminal = model.Terminal!,
+                        Action = _action,
+                        UserId = data.UpdatedBy!,
+                        ActionDate = (DateTime)data.UpdatedDate,
+                        TableName = _moduleName + "Ministry",
+                        OldValues = "[deleted :false]",
+                        NewValues = "[deleted :true]"
+                    };
+
+                    activityLog.Details = string.Format("[code: {0}] deleted.", data.Code);
+                    result.Status = "SUCCESS";
+                    result.Message = string.Format("{0} deleted.", _moduleName);
+
+                    _logService.LogActivity(activityLog);
+                    _logService.LogAudit(auditTrail!);
+
+                }
+                else
+                {
+                    result.Status = "FAILED";
+                    result.Message = string.Format("{0} not exist.", _moduleName);
+                }
+
+                transactionScope.Complete();
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName + "Ministry");
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName + "Ministry");
                 result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
             }
             finally

@@ -164,9 +164,9 @@ namespace UPCI.BLL.Services
                 { 
                     data = new()
                     {
-                        Code = model.Code,
-                        Name = model.Name,
-                        Description = model.Description,
+                        Code = model.Code.Trim(),
+                        Name = model.Name.Trim(),
+                        Description = model.Description.Trim(),
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now
                     };
@@ -302,9 +302,9 @@ namespace UPCI.BLL.Services
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
 
-                    data!.Code = model.Code;
-                    data!.Name = model.Name;
-                    data.Description = model.Description;
+                    data!.Code = model.Code.Trim();
+                    data!.Name = model.Name.Trim();
+                    data.Description = model.Description.Trim();
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 

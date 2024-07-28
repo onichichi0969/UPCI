@@ -28,6 +28,8 @@ namespace UPCI.DAL.Models
         public string? Email { get; set; } = string.Empty;
         public string? ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; }
-        public string? ImageType { get; set; } = string.Empty;  
+        public string? ImageType { get; set; } = string.Empty;
+        public virtual List<Cell> Cells { get; set; } = new List<Cell>();
+       // public virtual List<Ministry> Ministries { get; set; } = new List<Ministry>();
     }
 }

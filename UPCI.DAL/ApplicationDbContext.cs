@@ -22,7 +22,9 @@ namespace UPCI.DAL
         public virtual DbSet<Ministry>? Ministry { get; set; }
         public virtual DbSet<Module>? Module { get; set; } 
         public virtual DbSet<ModuleAction>? ModuleAction { get; set; }
-        public virtual DbSet<PEPSOL>? PEPSOLLevel { get; set; }
+        public virtual DbSet<PEPSOLLevel>? PEPSOLLevel { get; set; }
+        public virtual DbSet<PositionCell>? PositionCell { get; set; }
+        public virtual DbSet<PositionMinistry>? PositionMinistry { get; set; }
         public virtual DbSet<User>? User { get; set; }
         
         public virtual DbSet<Role>? Role { get; set; }
@@ -49,6 +51,16 @@ namespace UPCI.DAL
                 .WithOne(rm => rm.Module)
                 .HasForeignKey(rm => rm.ModuleCode)
                 .HasPrincipalKey(m => m.Code);
+
+            modelBuilder.Entity<Cell>()
+            .HasOne(c => c.Member)
+            .WithMany(m => m.Cells)
+            .HasForeignKey(c => c.Code) // Code is used as the foreign key here
+            .HasPrincipalKey(m => m.Code); // Code in Member class is the principal key
+
+
+
+
 
             modelBuilder.Entity<ApiClient>()
                 .Property(e => e.CompanyId)

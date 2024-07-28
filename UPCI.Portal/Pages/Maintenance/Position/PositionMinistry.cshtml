@@ -1,5 +1,5 @@
 ﻿@page
-@model UPCI.Portal.Pages.Maintenance.Ministry.IndexModel
+@model UPCI.Portal.Pages.Maintenance.Position.PositionMinistry.PositionMinistryModel
 @{
     ViewData["Title"] = Model.PageTitle;
     Layout = "~/Pages/Shared/_Layout.cshtml";
@@ -7,7 +7,7 @@
 
 @* @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor *@
-<div id="MinistryController">
+<div id="PositionMinistryController">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -171,5 +171,5 @@
      
 </script>
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
-<script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
-<script src="~/js/app/controllers/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/position.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/controllers/positionministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

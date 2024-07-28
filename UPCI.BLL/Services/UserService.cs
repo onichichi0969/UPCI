@@ -7,7 +7,7 @@ using UPCI.DAL.Helpers;
 using UPCI.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Transactions;
+using System.Transactions; 
 
 namespace UPCI.BLL.Services
 {
@@ -25,6 +25,7 @@ namespace UPCI.BLL.Services
         readonly SystemParameters _systemParameters = configuration.GetSection("SystemParameters").Get<SystemParameters>()!;
         public async Task<DAL.DTO.Response.User> Login(DAL.DTO.Request.User user)
         {
+            //var x = StringManipulation.Encrypt("1", configuration["AppContext:EncryptionKey"]!);
             try
             {
                 var result = _applicationDbContext.User!.Include(u => u.Role).FirstOrDefault(
@@ -473,13 +474,13 @@ namespace UPCI.BLL.Services
                     var randomPassword = StringManipulation.Random(10);
                     User user = new()
                     {
-                        Username = model.Username.ToUpper(),
-                        //Password = UPCI.DAL.Helpers.StringManipulation.Encrypt(randomPassword, _encryptionKey),
-                        Password = UPCI.DAL.Helpers.StringManipulation.Encrypt("123456", _encryptionKey),
-                        FirstName = model.FirstName,
-                        MiddleName = model.MiddleName,
-                        LastName = model.LastName,
-                        Email = model.Email,
+                        Username = model.Username.Trim().ToUpper(),
+                        Password = UPCI.DAL.Helpers.StringManipulation.Encrypt(randomPassword, _encryptionKey),
+                        //Password = UPCI.DAL.Helpers.StringManipulation.Encrypt("123456", _encryptionKey),
+                        FirstName = model.FirstName.Trim(),
+                        MiddleName = model.MiddleName.Trim(),
+                        LastName = model.LastName.Trim(),
+                        Email = model.Email.Trim(),
                         RoleId = int.Parse(UPCI.DAL.Helpers.StringManipulation.Decrypt(model.EncryptedRoleId!, _encryptionKey)),
                         Status = 0,
                         PasswordExpirationDate = DateTime.Now.AddMonths(3),
@@ -596,11 +597,11 @@ namespace UPCI.BLL.Services
 
                     var oldValue = EFramework.GetEntityProperties(user!);
 
-                    user!.FirstName = model.FirstName;
-                    user.MiddleName = model.MiddleName;
-                    user.LastName = model.LastName;
+                    user!.FirstName = model.FirstName.Trim();
+                    user.MiddleName = model.MiddleName.Trim();
+                    user.LastName = model.LastName.Trim();
                     user.RoleId = int.Parse(UPCI.DAL.Helpers.StringManipulation.Decrypt(model.EncryptedRoleId!, _encryptionKey));
-                    user.UpdatedBy = model.OpUser;
+                    user.UpdatedBy = model.OpUser.Trim();
                     user.UpdatedDate = DateTime.Now;
 
                     await _userRepository.UpdateAsync(user);

@@ -82,17 +82,19 @@ CheckSession = function () {
         type: 'get',
         success: function (data) {
             if (data === 'true') {
-                Swal.fire({
-                    toast: true,
-                    titleText: "You have forcefuly logged out due to session timeout.",
-                    type: "success",
-                    icon: 'success',
-                    position: "top",
-                    showConfirmButton: false,
-                    timer: 5000
-                }).then(() => {
-                    window.location.href = appUrl;
-                });
+                //Swal.fire({
+                //    toast: true,
+                //    titleText: "You have forcefuly logged out due to session timeout.",
+                //    type: "success",
+                //    icon: 'success',
+                //    position: "top",
+                //    showConfirmButton: false,
+                //    timer: 5000
+                //}).then(() => {
+                //    window.location.href = appUrl;
+                //});
+
+                window.location.href = appUrl;
             }
         },
         error: function () {

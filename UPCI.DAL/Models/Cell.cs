@@ -12,5 +12,7 @@ namespace UPCI.DAL.Models
         public string? Description { get; set; } = string.Empty;
         public string? Leader { get; set; } = string.Empty;
         public DateTime? FormDate { get; set; } = default;
+
+        public virtual Member Member{ get; set; }
     }
 }

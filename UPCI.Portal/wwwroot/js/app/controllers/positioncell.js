@@ -1,21 +1,11 @@
 const { createApp, reactive, ref, computed, onMounted, filter } = Vue;
-const userController = createApp({
+const positionCellController = createApp({
     setup() {
         let isFormValid = ref(false);
         onMounted(() => {
 
         });
-        const actionMode = ref('');
-        //const datatable = reactive({
-        //    pageNum: 1,
-        //    pageSize: 10,
-        //    column: '',
-        //    reverse: false,
-        //    show_table: null,
-        //    sortOrder: null,
-        //    filter: [],
-        //    fields: '*',
-        //});
+        const actionMode = ref(''); 
         const datatable = reactive({
             pageNum: 1,
             pageSize: 10,
@@ -28,9 +18,7 @@ const userController = createApp({
         const disableControl = reactive({});
 
         const formData = reactive({
-        });
-        const formDataSecurity = reactive({
-        });
+        }); 
         const search = reactive({});
 
         const checkBoxes = reactive({
@@ -38,14 +26,13 @@ const userController = createApp({
             childCheckBox: []
         });
         const items = ref([]); 
-        const roles = ref([]);  
-
+ 
         const Search = () => {
             $(".preloader").show(); 
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
-                datatable.filter.push({ "Property": "FirstName", "Value": search.description, "Operator": "Contains" });
-            GetUser();
+                datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
+            GetPositionCell ();
             $('.preloader').fadeOut('slow');
         };
         const addFilterIfNotExists = (filters, newFilter) => {
@@ -57,11 +44,11 @@ const userController = createApp({
                 filters.push(newFilter);
             }
         };
-        const GetUser = async () => {
+        const GetPositionCell = async () => {
 
-            //var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
-            //addFilterIfNotExists(datatable.filter, filterDeleted);
-            const result = await UserService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
+            var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
+            addFilterIfNotExists(datatable.filter, filterDeleted);
+            const result = await PositionCellService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
 
             if (result.data != null && result.data.data.length != 0) {
                 items.value = result.data.data;
@@ -88,69 +75,15 @@ const userController = createApp({
             }
              
         };
-        const GetRole = async () => {
-            const result = await RoleService.All()
-
-            if (result.data != null) {
-                roles.value = result.data;
-            }
-            else {
-                roles.value = [];
-            }
-
-        }; 
-        const Sync = async () => {
-            if (formData.username.trim() == "")
-            {
-                swal.fire({
-                    text: "Fill out the USERNAME field!",
-                    icon: "error"
-                });
-                return;
-            }
-            const result = await UserService.CheckAD(formData);
-            if (result.data != null) {
-                if (result.data.username != "") {
-                    formData.firstName = result.data.firstName;
-                    formData.middleName = result.data.middleName;
-                    formData.lastName = result.data.lastName;
-                    formData.email = result.data.email;
-                    swal.fire({
-                        text: "AD User latest details successfully retrieved!",
-                        icon: "success"
-                    });
-                }
-                else
-                {
-                    formData.firstName = result.data.firstName;
-                    formData.middleName = result.data.middleName;
-                    formData.lastName = result.data.lastName;
-                    formData.email = result.data.email;
-                    swal.fire({
-                        text: "AD User not exists!",
-                        icon: "error"
-                    });
-
-                }
-                
-            }
-            else {
-                
-                swal.fire({
-                    text: "Error occured!",
-                    icon: "error"
-                });
-            }
-        }
         const Save = async () => {
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) { 
                 $(".preloader").show(); 
-                const result = await UserService.Save(formData);
+                const result = await PositionCellService.Save(formData);
                 if (result.data.status === 'SUCCESS') {
                     $('#formModal').modal('hide');
                     swal.fire({
-                        text: "User successfully saved!",
+                        text: "Cell Position successfully saved!",
                         icon: "success"
                     });
                     Search();
@@ -190,87 +123,11 @@ const userController = createApp({
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    UserService.Delete(item)
+                    PositionCellService.Delete(item)
                         .then((result) => {
                             if (result.data.status === 'SUCCESS') {
                                 swal.fire({
-                                    text: "User successfully deleted!",
-                                    icon: "success"
-                                });
-
-                                Search();
-                            }
-                            else if (result.data.status === 'FAILED') {
-                                swal.fire({
-                                    icon: 'error',
-                                    text: result.data.message
-                                });
-                            }
-                            else {
-                                swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Error encountered'
-                                });
-                            }
-                        });
-                }
-            });
-        }
-        const ResetPassword = (item) => {
-            swal.fire({
-                title: "Are you sure?",
-                text: "This will reset the user's password",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    UserService.ResetPassword(item)
-                        .then((result) => {
-                            if (result.data.status === 'SUCCESS') {
-                                swal.fire({
-                                    text: "User password successfully reset!",
-                                    icon: "success"
-                                });
-
-                                Search();
-                            }
-                            else if (result.data.status === 'FAILED') {
-                                swal.fire({
-                                    icon: 'error',
-                                    text: result.data.message
-                                });
-                            }
-                            else {
-                                swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Error encountered'
-                                });
-                            }
-                        });
-                }
-            });
-        }
-        const UnlockUser = (item) => {
-            swal.fire({
-                title: "Are you sure?",
-                text: "This will unlock the user access",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    UserService.UnlockUser(item)
-                        .then((result) => {
-                            if (result.data.status === 'SUCCESS') {
-                                swal.fire({
-                                    text: "User access successfully unlocked!",
+                                    text: "Cell Position successfully deleted!",
                                     icon: "success"
                                 });
 
@@ -307,7 +164,7 @@ const userController = createApp({
                 startPage: datatable.pageNum,
                 onPageClick: (evt, page) => {
                     datatable.pageNum = page;
-                    GetUser();
+                    GetCellPosition();
                 }
             });
         };
@@ -366,50 +223,37 @@ const userController = createApp({
         const Add = () => {
             $('#form').parsley().reset();
             actionMode.value = 'Add'
-            disableControl.code = false;  
+            disableControl.code = false; 
             formData.id = ''; 
-            formData.encryptedRoleId = ''; 
-            formData.username = '';
-            formData.firstName = '';
-            formData.middleName = '';
-            formData.lastName = '';
-            formData.email = '';
+            formData.code = '';
+            formData.description = '';
             //formData = {};
         };
 
         const Edit = (item) => {
             $('#form').parsley().reset();
             actionMode.value = 'Modify' 
-            disableControl.code = true;
-            disableControl.firstName = true;
-            disableControl.middleName = true;
-            disableControl.lastName = true;
-            disableControl.email = true;
+            disableControl.code = true; 
             formData.id = item.id; 
-            formData.encryptedRoleId = item.encryptedRoleId; 
-            formData.username = item.username; 
-            formData.firstName = item.firstName;
-            formData.middleName = item.middleName;
-            formData.lastName = item.lastName;
-            formData.email = item.email;
+            formData.code = item.code; 
+            formData.description = item.description;
+             
         };
 
 
 
         // Execute function when Vue instance is created  
-        GetUser();
-        GetRole();
+        GetPositionCell();
         const returnProps = {
             actionMode,
             isFormValid,
             datatable,
             disableControl,
             search,
-            formData,
-            formDataSecurity,
+            formData, 
             items,
             checkBoxes,  
-            roles, 
+            
         };
 
         // Return methods
@@ -422,11 +266,8 @@ const userController = createApp({
             Edit,
             Delete, 
             Save,
-            ResetPassword,
-            UnlockUser,
             Sort,
             SortClass,
-            Sync,
         };
         return {
             ...returnProps,
@@ -436,4 +277,4 @@ const userController = createApp({
     }
 });
 
-userController.mount('#UserController');
+positionCellController.mount('#PositionCellController');

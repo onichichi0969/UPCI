@@ -8,6 +8,8 @@ const membershipController = createApp({
         });
         const formData = reactive({
         });
+        const formDataGroups = reactive({
+        });
         const initializeDatepickerForm = (selector, modelKey) => {
             $(selector).datepicker({
                 changeMonth: true,
@@ -44,18 +46,19 @@ const membershipController = createApp({
         });
 
         const disableControl = reactive({});
-
-       
-        const formDataSecurity = reactive({
-        });
+         
+        
         const checkBoxes = reactive({
             mainCheckBox: false,
             childCheckBox: []
         });
         const items = ref([]);  
-        const cell = ref([]);
-        const ministry = ref([]);
-
+        const cells = ref([]);
+        const positionCells = ref([]);
+        const ministries = ref([]);
+        const positionMinistries = ref([]);
+        const selectedMinistries = ref([]); 
+        const selectedCells = ref([]);
 
         const Search = () => {
             $(".preloader").show();
@@ -110,23 +113,44 @@ const membershipController = createApp({
         const GetCell = async () => { 
             const result = await CellService.All() 
             if (result.data != null) {
-                cell.value = result.data;
+                cells.value = result.data;
             }
             else {
-                cell.value = [];
+                cells.value = [];
+            }
+
+        };
+        const GetPositionCell = async () => {
+            const result = await PositionCellService.All()
+            if (result.data != null) {
+                positionCells.value = result.data;
+            }
+            else {
+                positionCells.value = [];
             }
 
         };
         const GetMinistry = async () => {
             const result = await MinistryService.All()
             if (result.data != null) {
-                ministry.value = result.data;
+                ministries.value = result.data;
             }
             else {
-                ministry.value = [];
+                ministries.value = [];
             }
 
         };
+        const GetPositionMinistries = async () => {
+            const result = await PositionMinistryService.All()
+            if (result.data != null) {
+                positionMinistries.value = result.data;
+            }
+            else {
+                positionMinistries.value = [];
+            }
+
+        };
+        
         const Save = async () => {
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) {
@@ -200,6 +224,164 @@ const membershipController = createApp({
                 }
             });
         }
+        const SaveCell = () =>
+        {
+            var cellcode = formDataGroups.cell.trim();
+            var positioncode = formDataGroups.positionCell.trim();
+            var cell = {};
+            var positionCell = {};
+            var selectedCell = {
+                "cellCode": '',
+                "cellDesc": '',
+                "positionCellCode": '',
+                "positionCellDesc": '',
+            };
+
+            for (let x = 0; x < cells.value.length; x++) {
+                if (cellcode == cells.value[x].code)
+                    cell = cells.value[x];
+            }
+
+            for (let x = 0; x < positionCells.value.length; x++) {
+                if (positioncode == positionCells.value[x].code)
+                    positionCell = positionCells.value[x];
+            }
+            if (disableControl.selectedCell)
+            { 
+                var index = selectedCells.value.findIndex(c => c.cellCode === cellcode);
+
+                if (index !== -1) {
+                    // Update the cell at the found index
+                    selectedCells.value[index].positionCellCode = positionCell.code;
+                    selectedCells.value[index].positionCellDesc = positionCell.description;
+
+                    swal.fire({
+                        text: "Cell modified!",
+                        icon: "success"
+                    });
+                    $('#cellFormModal').modal('hide');
+                }
+                
+            }
+            else
+            { 
+                if (!selectedCells.value.find(c => c.cellCode === cellcode)) {
+
+                    selectedCell.cellCode = cell.code;
+                    selectedCell.cellDesc = cell.description;
+                    selectedCell.positionCellCode = positionCell.code;
+                    selectedCell.positionCellDesc = positionCell.description;
+
+                    selectedCells.value.push(selectedCell);
+                    swal.fire({
+                        text: "Cell added!",
+                        icon: "success"
+                    });
+                    formDataGroups.cell = "";
+                    formDataGroups.positionCell = "";
+                } else {
+                    swal.fire({
+                        text: "Cell is already selected!",
+                        icon: "error"
+                    });
+                }   
+            }
+            
+        }
+        const SaveMinistry = () => {
+            var ministrycode = formDataGroups.ministry.trim();
+            var positioncode = formDataGroups.positionMinistry.trim();
+            var ministry = {};
+            var positionMinistry = {};
+            var selectedMinistry = {
+                "ministryCode": '',
+                "ministryDesc": '',
+                "positionMinistryCode": '',
+                "positionMinistryDesc": '',
+            };
+
+            for (let x = 0; x < ministries.value.length; x++) {
+                if (ministrycode == ministries.value[x].code)
+                    ministry = ministries.value[x];
+            }
+
+            for (let x = 0; x < positionMinistries.value.length; x++) {
+                if (positioncode == positionMinistries.value[x].code)
+                    positionMinistry = positionMinistries.value[x];
+            }
+            if (disableControl.selectedMinistry) {
+                var index = selectedMinistries.value.findIndex(c => c.ministryCode === ministrycode);
+
+                if (index !== -1) { 
+                    selectedMinistries.value[index].positionMinistryCode = positionMinistry.code;
+                    selectedMinistries.value[index].positionMinistryDesc = positionMinistry.description;
+
+                    swal.fire({
+                        text: "Ministry modified!",
+                        icon: "success"
+                    });
+                    $('#ministryFormModal').modal('hide');
+                }
+
+            }
+            else {
+                if (!selectedMinistries.value.find(c => c.ministryCode === ministrycode)) {
+
+                    selectedMinistry.ministryCode = ministry.code;
+                    selectedMinistry.ministryDesc = ministry.description;
+                    selectedMinistry.positionMinistryCode = positionMinistry.code;
+                    selectedMinistry.positionMinistryDesc = positionMinistry.description;
+
+                    selectedMinistries.value.push(selectedMinistry);
+                    swal.fire({
+                        text: "Ministry added!",
+                        icon: "success"
+                    });
+                    formDataGroups.ministry = "";
+                    formDataGroups.positionMinistry = "";
+                } else {
+                    swal.fire({
+                        text: "Ministry is already selected!",
+                        icon: "error"
+                    });
+                }
+            }
+
+        }
+        const AddCell = () => {
+            disableControl.selectedCell = false;
+            formDataGroups.cell = '';
+            formDataGroups.positionCell = '';
+        };
+        const AddMinistry = () => {
+            disableControl.selectedMinistry = false;
+            formDataGroups.ministry = '';
+            formDataGroups.positionMinistry = '';
+        };
+        const EditCell = (cell) => {
+            disableControl.selectedCell = true;
+            formDataGroups.cell = cell.cellCode;
+            formDataGroups.positionCell = cell.positionCellCode;
+             
+        }
+        const EditMinistry = (ministry) => {
+            disableControl.selectedMinistry = true;
+            formDataGroups.ministry = ministry.ministryCode;
+            formDataGroups.positionMinistry = ministry.positionMinistryCode;
+
+        }
+        const RemoveCell = (cell) => {
+            if (selectedCells.value.includes(cell)) {
+                const index = selectedCells.value.indexOf(cell);
+                selectedCells.value.splice(index, 1);
+            }
+        } 
+        const RemoveMinistry = (ministry) => {
+            if (selectedMinistries.value.includes(ministry)) {
+                const index = selectedMinistries.value.indexOf(ministry);
+                selectedMinistries.value.splice(index, 1);
+            }
+        } 
         // Table Events
         const itemCountChange = () => {
             Search();
@@ -213,7 +395,7 @@ const membershipController = createApp({
                 startPage: datatable.pageNum,
                 onPageClick: (evt, page) => {
                     datatable.pageNum = page;
-                    GetItems();
+                    GetMember();
                 }
             });
         };
@@ -268,54 +450,7 @@ const membershipController = createApp({
 
             }
         };
-        const Add = () => {
-            $('#form').parsley().reset();
-            actionMode.value = 'Add'
-            disableControl.code = false;
-            formData.id = '';
-            formData.activeMember = false;
-            formData.involvedToCell = false;
-            formData.baptized = false;
-            formData.memberType = 'NEW';
-            formData.pepsol = '';
-            formData.baptismDate = '';
-            formData.firstAttend = '';
-            formData.gender = '';
-            formData.civilStatus = '';
-            formData.firstName = '';
-            formData.middleName = '';
-            formData.lastName = '';
-            formData.birthday = '';
-            formData.email = '';
-            formData.contactNo = '';
-            formData.address = '';
-            //formData = {};
-        };
-
-        const Edit = (item) => {
-            $('#form').parsley().reset();
-            actionMode.value = 'Modify'
-            disableControl.code = true;
-            formData.id = item.id; 
-            formData.code = item.code;
-            formData.activeMember = item.activeMember;
-            formData.involvedToCell = item.involvedToCell;
-            formData.baptized = item.baptized;
-            formData.memberType = item.memberType;
-            formData.pepsol = item.pepsol;
-            formData.baptismDate = item.baptismDate;
-            formData.firstAttend = item.firstAttend;
-            formData.gender = item.gender;
-            formData.civilStatus = item.civilStatus;
-            formData.firstName = item.firstName;
-            formData.middleName = item.middleName;
-            formData.lastName = item.lastName;
-            formData.birthday = item.birthday;
-            formData.email = item.email;
-            formData.contactNo = item.contactNo;
-            formData.address = item.address;
-
-        };
+        
         const FormatDate = (dateString) => {
             if (!dateString) return ''; // Check for blank date value
             try {
@@ -364,8 +499,69 @@ const membershipController = createApp({
                 return 'Invalid date '; // Return empty string if an error occurs
             }
         }
+        const Add = () => {
+            $('#form').parsley().reset();
+            actionMode.value = 'Add'
+            disableControl.code = false;
+            formData.id = '';
+            formData.activeMember = false;
+            formData.involvedToCell = false;
+            formData.baptized = false;
+            formData.memberType = 'NEW';
+            formData.pepsol = '';
+            formData.baptismDate = '';
+            formData.firstAttend = '';
+            formData.gender = '';
+            formData.civilStatus = '';
+            formData.firstName = '';
+            formData.middleName = '';
+            formData.lastName = '';
+            formData.birthday = '';
+            formData.email = '';
+            formData.contactNo = '';
+            formData.address = '';
+            formDataGroups.cell = '';
+            formDataGroups.positionCell = '';
+            formDataGroups.ministry = '';
+            formDataGroups.positionMinistry = '';
+            //formData = {};
+        };
+
+        const Edit = (item) => {
+            $('#form').parsley().reset();
+            actionMode.value = 'Modify'
+            disableControl.code = true;
+            formDataGroups.cell = '';
+            formDataGroups.positionCell = '';
+            formDataGroups.ministry = '';
+            formDataGroups.positionMinistry = '';
+            formData.id = item.id;
+            formData.code = item.code;
+            formData.activeMember = item.activeMember;
+            formData.involvedToCell = item.involvedToCell;
+            formData.baptized = item.baptized;
+            formData.memberType = item.memberType;
+            formData.pepsol = item.pepsol;
+            formData.baptismDate = item.baptismDate;
+            formData.firstAttend = item.firstAttend;
+            formData.gender = item.gender;
+            formData.civilStatus = item.civilStatus;
+            formData.firstName = item.firstName;
+            formData.middleName = item.middleName;
+            formData.lastName = item.lastName;
+            formData.birthday = item.birthday;
+            formData.email = item.email;
+            formData.contactNo = item.contactNo;
+            formData.address = item.address;
+
+
+        };
+
+       
         GetCell();
+        GetPositionCell();
         GetMinistry();
+        GetPositionMinistries();
         GetMember();
         const returnProps = {
             actionMode,
@@ -374,9 +570,14 @@ const membershipController = createApp({
             disableControl,
             search,
             formData, 
+            formDataGroups,
             items,
-            cell,
-            ministry,
+            cells,
+            ministries,
+            selectedMinistries,
+            selectedCells,
+            positionCells,
+            positionMinistries,
 
         };
 
@@ -396,6 +597,14 @@ const membershipController = createApp({
             Edit,
             FormatDate,
             FormatDateBirthday,
+            AddCell,
+            AddMinistry,
+            SaveCell,
+            SaveMinistry,
+            RemoveCell,
+            RemoveMinistry,
+            EditCell,
+            EditMinistry,
         };
         return {
             ...returnProps,

@@ -10,29 +10,31 @@ namespace UPCI.BLL
         {
          
             services.AddScoped<IApiClientService, ApiClientService>();
-            services.AddScoped<IMinistryService, MinistryService>();
+            
             services.AddScoped<ICompanyService, CompanyService>();
 
+
             services.AddScoped<ICellService, CellService>();
-
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IMemberService, MemberService>();
-
+            services.AddScoped<IMinistryService, MinistryService>();
             services.AddScoped<IModuleService, ModuleService>();
-
-            services.AddScoped<IRouteService, RouteService>();
-
+            services.AddScoped<IPositionService, PositionService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IRouteService, RouteService>(); 
             services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped<IRoleService, RoleService>();
-
-            services.AddScoped<ILogService, LogService>();
-
-            services.AddScoped<IMailerService, MailerService>();
-
-            services.AddScoped<IReportService, ReportService>();
-             
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+
+
+
+
+
+
 
 
         }
