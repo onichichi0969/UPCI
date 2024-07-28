@@ -18,8 +18,10 @@ namespace UPCI.DAL
         public DbSet<AuditTrail>? AuditTrail { get; set; } 
         public virtual DbSet<Ministry>? Ministry { get; set; }
         public virtual DbSet<Cell>? Cell { get; set; }
+        public virtual DbSet<CivilStatus>? CivilStatus { get; set; }
         public virtual DbSet<Company>? Company { get; set; } 
         public virtual DbSet<Member>? Member { get; set; }
+        public virtual DbSet<MemberType>? MemberType { get; set; }
         public virtual DbSet<Module>? Module { get; set; } 
         public virtual DbSet<ModuleAction>? ModuleAction { get; set; }
         public virtual DbSet<User>? User { get; set; }

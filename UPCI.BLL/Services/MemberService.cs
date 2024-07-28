@@ -93,6 +93,8 @@ namespace UPCI.BLL.Services
                 UPCI.DAL.DTO.Response.VMember vCell = new();
                  
                 var memberList = _applicationDbContext.Set<Member>().AsQueryable(); 
+                var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
+                var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     memberList = memberList.Where(ExpressionBuilder.GetExpression<Member>(model.Filters));
@@ -118,6 +120,10 @@ namespace UPCI.BLL.Services
                 //vCell.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FCell>>(pagedQuery.ToList());
 
                 var result = (from u in pagedQuery
+                              join c in civilStatus on u.CivilStatus equals c.Code into civilGroup
+                              from c in civilGroup.DefaultIfEmpty()
+                              join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
+                              from mt in memberTypeGroup.DefaultIfEmpty()
                               select new UPCI.DAL.DTO.Response.FMember
                               {
                                   Id = StringManipulation.Encrypt(Convert.ToString(u.Id), _encryptionKey) ,
@@ -129,6 +135,7 @@ namespace UPCI.BLL.Services
                                   LastName = u.LastName,
                                   Gender = u.Gender,
                                   CivilStatus = u.CivilStatus,
+                                  CivilStatusDesc = c.Description,
                                   Address = u.Address,
                                   Birthday = u.Birthday! == null ? "" : Convert.ToDateTime(u.Birthday!).ToString("yyyy-MM-dd"),
                                   BaptismDate = u.BaptismDate! == null ? "" : Convert.ToDateTime(u.BaptismDate!).ToString("yyyy-MM-dd"),
@@ -137,6 +144,7 @@ namespace UPCI.BLL.Services
                                   InvolvedToCell = (bool)u.InvolvedToCell,
                                   PEPSOL = u.PEPSOL,
                                   MemberType = u.MemberType,
+                                  MemberTypeDesc = mt.Description,
                                   Email = u.Email,
                                   ContactNo = u.ContactNo,
                                   ActiveMember = (bool)u.ActiveMember,
