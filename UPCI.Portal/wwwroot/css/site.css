@@ -1,0 +1,329 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.btn-upload { 
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+ 
+/*
+    File upload button End
+*/
+.dark-mode .text-danger {
+    color: #e74c3c !important; 
+}
+ @keyframes animate {
+    0% {
+        transform: scale(1) rotate(0);
+    }
+
+    20%, 25% {
+        transform: scale(1.3) rotate(90deg);
+    }
+
+    45%, 50% {
+        transform: scale(1) rotate(180deg);
+    }
+
+    70%, 75% {
+        transform: scale(1.3) rotate(270deg);
+    }
+
+    95%, 100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+/**/
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+/* tooltip*/
+.tooltip-inner {
+    background-color: #17a2b8 !important;
+    color: #fff;
+}
+
+.bs-tooltip-bottom .arrow::before,
+.bs-tooltip-auto[x-placement^="bottom"] .arrow::before {
+    border-bottom-color: #17a2b8 !important;
+}
+.dark-mode .page-item:not(.active) .page-link {
+    
+    color: #fff;
+}
+.dark-mode .page-item.active .page-link {
+    background-color: #3f6791;
+    border-color: #3f6791;
+    color: #fff;
+}
+ 
+
+@font-face {
+    font-family: 'poppins-regular';
+    src: url('../fonts/poppins/poppins-regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'poppins-light';
+    src: url('../fonts/poppins/poppins-light.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'poppins-bold';
+    src: url('../fonts/poppins/poppins-bold.ttf') format('truetype'); 
+}
+body {
+    font-family: 'poppins-regular', sans-serif !important;
+}
+
+
+/*  page preloader*/
+.pagePreloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1002;
+    background-color: rgba(0,0,0,0);
+    background-position: center;
+}
+
+/* -------------- loader8 -------------- */
+
+.loader8 {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    top: 28%;
+    top: -webkit-calc(50% - 43px);
+    top: calc(50% - 43px);
+    left: 35%;
+    left: -webkit-calc(50% - 43px);
+    left: calc(50% - 43px);
+    border-radius: 50px;
+    background-color: #ffffff;
+    border-width: 40px;
+    border-style: double;
+    border-color: transparent #00bc8c;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-animation: loader8 2s linear infinite;
+    animation: loader8 2s linear infinite;
+}
+
+
+
+/* preloader*/
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999999 !important;
+    background-position: center;
+}
+
+.dark-mode .loader1 {
+    position: relative;
+    height: 100px;
+    width: 100px;
+    border-radius: 80px;
+    border: 3px solid white;
+    top: 28%;
+    top: -webkit-calc(50% - 43px);
+    top: calc(50% - 43px);
+    left: 35%;
+    left: -webkit-calc(50% - 43px);
+    left: calc(50% - 43px);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-animation: loader1 .7s linear infinite;
+    animation: loader1 .7s linear infinite;
+    z-index: 9999999 !important;
+}
+
+.dark-mode .loader1:after {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: #00bc8c;
+    z-index: 9999999 !important;
+}
+
+.loader1 {
+    position: relative;
+    height: 100px;
+    width: 100px;
+    border-radius: 80px;
+    border: 3px solid #6c757d;
+    top: 28%;
+    top: -webkit-calc(50% - 43px);
+    top: calc(50% - 43px);
+    left: 35%;
+    left: -webkit-calc(50% - 43px);
+    left: calc(50% - 43px);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-animation: loader1 .7s linear infinite;
+    animation: loader1 .7s linear infinite;
+    z-index: 9999999 !important;
+}
+
+    .loader1:after {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 20px;
+        width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        background-color: #28a745;
+        z-index: 9999999 !important;
+    }
+
+@-webkit-keyframes loader1 {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes loader1 {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* override BS font size*/
+.text-xs {
+    font-size: 11px !important; /* Override to a different font size */
+}
+.text-sm {
+    font-size: 13px !important; /* Override to a different font size */
+}
+.text-md {
+    font-size: 15px !important; /* Override to a different font size */
+}
+
+.parsley-errors-list {
+    /* Default styling for parsley errors */
+    color: red; /* Example text color */ 
+}
+
+/* Styling for .parsley-errors-list within .dark-mode body */
+.dark-mode .parsley-errors-list {
+    /* Override styles for dark mode */
+    color: #FF726B; /* Example text color for dark mode */
+}
+
+ 
+/* Your CSS from Step 1 here */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --dark-primary-color: #1AD9FF; /* Adjust these values for dark mode */
+    --dark-secondary-color: #adb5bd;
+    --dark-danger-color: #FF726B;
+    --dark-success-color: #2ecc71;
+    --dark-warning-color: #ffca2b;
+    --dark-info-color: #3ba2b8;
+    --dark-light-color: #e2e6ea;
+    --dark-dark-color: #121416;
+}
+
+body.dark-mode {
+    --primary-color: var(--dark-primary-color);
+    --secondary-color: var(--dark-secondary-color);
+    --danger-color: var(--dark-danger-color);
+    --success-color: var(--dark-success-color);
+    --warning-color: var(--dark-warning-color);
+    --info-color: var(--dark-info-color);
+    --light-color: var(--dark-light-color);
+    --dark-color: var(--dark-dark-color);
+}
+
+/* Applying the custom properties to Bootstrap text color classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-color) !important;
+}
+
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.text-warning {
+    color: var(--warning-color) !important;
+}
+
+.text-info {
+    color: var(--info-color) !important;
+}
+
+.text-light {
+    color: var(--light-color) !important;
+}
+
+.text-dark {
+    color: var(--dark-color) !important;
+}
+
+ 

@@ -1,0 +1,702 @@
+﻿@page
+@model UPCI.Portal.Pages.Membership.IndexModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="MembersController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b>@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" v-model="search.code" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        }
+                        @if (Model.Actions.Contains("ACN06"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" v-on:click="Filter()" data-target="#filterModal">
+                                <i class="nav-icon fas fa-filter"></i> Advance Filter
+                            </button>
+                        }
+                        @if (Model.Actions.Contains("ACN01"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal" v-on:click="Add();">
+                                <i class="nav-icon fas fa-plus-circle"></i> Add
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span class="text-danger">No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped table-hover text-sm" >
+                        <thead class="bg-secondary">
+                            <tr>
+                                <th width="5%"> Active <i :class="['fas', SortClass('ActiveMember')]" style="cursor:pointer" v-on:click="Sort('ActiveMember')"></i></th>
+                                <th width="15%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
+                                <th width="15%">Name <i :class="['fas', SortClass('LastName')]" style="cursor:pointer" v-on:click="Sort('LastName')"></i></th>
+                                <th width="20%">Personal Info</th>
+                                <th width="20%">Church Info</th>
+                                <th width="15%">Groups</th> 
+                                <th class="text-center" width="10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.encryptedId">
+                                <td class="text-center align-middle">
+                                    <span class="badge badge-pill badge-success" v-if="item.activeMember">Active</span>
+                                    <span class="badge badge-pill badge-danger" v-else>Inactive</span>
+                                </td>
+                                <td class="align-middle" data-title="Code">{{item.code}}</td>
+                                <td class="align-middle" data-title="Name">
+                                    {{item.firstName}}   <br />
+                                    {{item.middleName}} <br />
+                                   {{item.lastName}}
+                                </td>
+                                <td class="align-middle" data-title="Personal Info">
+                                    <div v-if="item.gender == 'M'">
+                                        <i class="fa-solid fa-mars text-primary"></i>&nbsp;&nbsp;Male
+                                    </div>
+                                    <div v-if="item.gender == 'F'">
+                                        <i class="fa-solid fa-venus text-danger"></i>&nbsp;&nbsp;Female
+                                    </div>
+                                    <div v-if="item.gender == ''">
+                                        <i class="fa-solid fa-venus-mars text-warning"></i>&nbsp;&nbsp;Not Specified
+                                    </div>
+                                    <div v-if="item.birthday != ''">
+                                        <i class="fas fa-birthday-cake text-success"></i>&nbsp;&nbsp;{{FormatDateBirthday(item.birthday)}}
+                                    </div>
+                                    <div v-if="item.civilStatus != ''">
+                                        <i class="fas fa-heart text-danger"></i>&nbsp;&nbsp;{{item.civilStatus}}
+                                    </div> 
+                                    <div v-if="item.email != ''">
+                                        <i class="fas fa-paper-plane text-info"></i>&nbsp;&nbsp;{{item.email}}
+                                    </div>
+                                    <div v-if="item.contactNo != ''">
+                                        <i class="fas fa-mobile-alt text-info"></i>&nbsp;&nbsp;{{item.contactNo}}
+                                    </div>
+                                    <div v-if="item.address != ''">
+                                        <i class="fas fa-home text-warning"></i> {{item.address}}
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Church Info">
+                                    <div>
+                                        Baptized: <template v-if="item.baptized">
+                                                        <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                                                  </template>
+                                                  <template v-else>
+                                                    <span class="text-danger"><i class="fas fa-x"></i> No</span>
+                                                  </template>
+                                    </div>
+                                    <div>
+                                        Involved to Cell: <template v-if="item.involvedToCell">
+                                            <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                                        </template>
+                                        <template v-else>
+                                            <span class="text-danger"><i class="fas fa-x"></i> No</span>
+                                        </template>
+                                    </div>
+                                    <div v-if="item.pepsol != ''">
+                                        PEPSOL:  {{item.pepsol}}
+                                    </div>
+                                    <div v-if="item.firstAttend != ''">
+                                        First Attend: {{FormatDate(item.firstAttend)}}
+                                    </div>
+                                    <div v-if="item.baptismDate != ''">
+                                        Baptism Date: {{FormatDate(item.baptismDate)}}
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Groups">
+                                    <div>
+                                        Cell Groups: <br />
+                                    </div>
+                                    <br />
+                                    <div>
+                                        Ministries: <br />
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    
+                                    @if (Model.Actions.Contains("ACN05"))
+                                    {
+                                        <button type="button" class="btn btn-info btn-sm mr-1" data-toggle="modal" data-target="#formModalView" v-on:click="View(item)" data-tooltip="tooltip" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    }
+                                    @if (Model.Actions.Contains("ACN02"))
+                                    {
+                                        <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    }
+
+                                    @if (Model.Actions.Contains("ACN03"))
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="Delete(item);" data-tooltip="tooltip" title="Delete">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" ng-show="show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
+            {
+                <div id="formModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-dialog-scrollable align-items-center justify-content-center" style="min-width:90%" role="document">
+                        <form name="formModal" id="form" method="post" style="min-width:90%" autocomplete="off" data-parsley-validate>
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title left"> <i :class="['fa',ActionModeIcon()]"> </i>   {{ actionMode }} @ViewData["Title"]</h5>
+                                    <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-12 col-md-12 col-lg-7">
+                                            <div class="card card-success card-outline">
+                                                <div class="card-header">
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-user"></i> Personal Details</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body" >
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">First Name</label>
+                                                                <input type="text" class="form-control" name="firstname"
+                                                                    v-model="formData.firstName">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Middle Name</label>
+                                                                <input type="text" class="form-control" name="middleName" placeholder="(optional)"
+                                                                       v-model="formData.middleName">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Last Name</label>
+                                                                <input type="text" class="form-control" name="lastName"
+                                                                       v-model="formData.lastName">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Birthday</label>
+                                                                <input type="text" class="form-control datetimepicker-input" id="dateBday" name="birthday" placeholder="(optional)"
+                                                                       v-model="formData.birthday">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label>Gender</label>
+                                                                <select class="custom-select" id="gender"
+                                                                        v-model="formData.gender">
+                                                                    <option value="" selected>Not specified</option>
+                                                                    <option value="M">Male</option>
+                                                                    <option value="F">Female</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label>Civil Status</label>
+                                                                <select class="custom-select" id="civilStatus"
+                                                                        v-model="formData.civilStatus">
+                                                                    <option value="" selected>Not specified</option>
+                                                                    <option value="SNG">Single</option>
+                                                                    <option value="MAR">Married</option>
+                                                                    <option value="SEP">Separated</option>
+                                                                    <option value="WDW">Widow</option>
+                                                                    <option value="WDR">Widower</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Contact #</label>
+                                                                <input type="text" class="form-control" name="contact" placeholder="(optional)"
+                                                                       v-model="formData.contactNo">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Email</label>
+                                                                <input type="text" class="form-control" name="email" placeholder="(optional)"
+                                                                       v-model="formData.email">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="form-group">
+                                                                <label for="code">Address</label>
+                                                                <input type="text" class="form-control" name="address" placeholder="(optional)"
+                                                                       v-model="formData.address">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div> 
+                                            </div>
+                                            <div class="card card-primary card-outline">
+                                                <div class="card-header card-outline">
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-church"></i> Church Information</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Member Type</label>
+                                                                <select class="custom-select" id="memberType"
+                                                                        v-model="formData.memberType"> 
+                                                                    <option value="NEW">New Comer</option>
+                                                                    <option value="MEMBER">Member</option>
+                                                                    <option value="WORKER">Worker</option>
+                                                                    <option value="LEADER">Leader</option>
+                                                                    <option value="PASTOR">Pastor</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">PEPSOL Level</label>
+                                                                <select class="custom-select" id="civilStatus"
+                                                                        v-model="formData.pepsol">
+                                                                    <option value="" selected>Not Involved</option>
+                                                                    <option value="CONSO">Consolidation</option>
+                                                                    <option value="LIFE">Life Class</option>
+                                                                    <option value="SOL1">SOL1</option>
+                                                                    <option value="SOL2">SOL2</option>
+                                                                    <option value="SOL3">SOL3</option>
+                                                                    <option value="GRAD">Graduate</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Is an <b class="text-danger">Active</b> member?</label>
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="false" v-model="formData.activeMember" name="rdbActive">
+                                                                        No
+                                                                    </label>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="true" v-model="formData.activeMember" name="rdbActive">
+                                                                        Yes
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Already <b class="text-danger">Baptized</b> by a Pastor?</label>
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="false" v-model="formData.baptized" name="rdbBaptized">
+                                                                        No
+                                                                    </label>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="true" v-model="formData.baptized" name="rdbBaptized">
+                                                                        Yes
+                                                                    </label>
+                                                                </div> 
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Involved to a <b class="text-danger">Cell Group</b>?</label>
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="false" v-model="formData.involvedToCell" name="rdbInvolvedCell">
+                                                                        No
+                                                                    </label>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="true" v-model="formData.involvedToCell" name="rdbInvolvedCell">
+                                                                        Yes
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Date of First Attend</label>
+                                                                <input type="text" id="dateFirstAttend" class="form-control" name="datefirstAttend" placeholder="(optional)"
+                                                                       v-model="formData.firstAttend">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Date of Baptism</label>
+                                                                <input type="text" id="dateBaptized" class="form-control" name="dateBaptized" placeholder="(optional)"
+                                                                       v-model="formData.baptismDate">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                   
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-12 col-lg-5"> 
+                                            <div class="card card-info card-outline">
+                                                <div class="card-header card-outline">
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Cells</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                                                            <span class="text-danger">No record(s) found!</span>
+                                                        </div>
+                                                        <div class="col-12 table-responsive" v-show="datatable.show_table">
+                                                     
+                                                            <table class="table table-striped">
+                                                                <thead>
+                                                                     
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr v-for="cell in cells" :key="cell.encryptedId"> 
+                                                                        <td class="align-middle" data-title="Cell"> [{{cell.code}}] - {{cell.description}}</td>
+                                                                        <td class="align-middle" data-title="Position"> {{cell.parentName}}</td>
+                                                                        <td class="text-center align-middle">
+
+                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(cell)" data-tooltip="tooltip" title="Edit">
+                                                                                <i class="fas fa-edit"></i>
+                                                                            </button>
+                                                                          
+                                                                         
+                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="DeleteCell(item);" data-tooltip="tooltip" title="Delete">
+                                                                                <i class="far fa-trash-alt"></i>
+                                                                            </button>
+                                                                            
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-12 table-responsive" ng-show="show_table">
+                                                            <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#cellFormModal"><i class="nav-icon fas fa-plus"></i> Add Cell</button>
+                                                </div>
+                                            </div>
+                                            <div class="card card-warning card-outline">
+                                                <div class="card-header card-outline">
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Ministries</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                                                            <span class="text-danger">No record(s) found!</span>
+                                                        </div>
+                                                        <div class="col-12 table-responsive" v-show="datatable.show_table">
+
+                                                            <table class="table table-striped">
+                                                                <thead>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr v-for="ministry in ministries" :key="ministry.encryptedId">
+                                                                        <td class="align-middle" data-title="Ministry"> [{{ministry.code}}] - {{ministry.description}}</td>
+                                                                        <td class="align-middle" data-title="Position"> {{ministry.parentName}}</td>
+                                                                        <td class="text-center align-middle">
+
+                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#ministryFormModal" v-on:click="EditMinistry(cell)" data-tooltip="tooltip" title="Edit">
+                                                                                <i class="fas fa-edit"></i>
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="DeleteMinistry(cell)" data-tooltip="tooltip" title="Delete">
+                                                                                <i class="far fa-trash-alt"></i>
+                                                                            </button>
+                                                                             
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-12 table-responsive" ng-show="show_table">
+                                                            <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer">
+                                                    <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#ministryFormModal"><i class="nav-icon fas fa-plus"></i> Add Ministry</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                    <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="Save()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+            <div id="ministryFormModal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-md" role="document">
+                    <form name="ministryFormModal" id="ministryForm" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> Ministry</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Ministry</label>
+                                            <select class="custom-select" id="ministry">
+                                                <option value="" selected>-- Please Select --</option>
+                                                <option value="IT">IT</option>
+                                                <option value="CHILD">Children Ministry</option>
+                                                <option value="PAW">Praise and Worship Ministry</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Position</label>
+                                            <select class="custom-select" id="ministryPosition">
+                                                <option value="" selected>-- Please Select --</option>
+                                                <option value="H">Head</option>
+                                                <option value="A">Assistant</option>
+                                                <option value="M">Member</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="SaveMinistry()"><i class="nav-icon fas fa-check-circle"></i> Save Ministry</button>
+                            </div>
+                        </div> 
+                    </form>
+                </div>
+            </div>
+            <div id="cellFormModal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-md" role="document">
+                    <form name="cellFormModal" id="cellForm" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> Cell</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Cell</label>
+                                            <select class="custom-select" id="cell">
+                                                <option value="" selected>-- Please Select --</option>
+                                                <option value="MIKE">Mike Cell</option>
+                                                <option value="GEN">Genesis Cell</option>
+                                                <option value="NINA">Pastor Cell</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Position</label>
+                                            <select class="custom-select" id="cellPosition">
+                                                <option value="" selected>-- Please Select --</option>
+                                                <option value="L">Leader</option> 
+                                                <option value="M">Member</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="SaveMinistry()"><i class="nav-icon fas fa-check-circle"></i> Save Ministry</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xls" role="document">
+                    <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"><i class="nav-icon fas fa-search-plus"></i> Advance Search</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col">
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="MemberId">Member ID</label>
+                                            <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" v-model="search.code" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col">
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="DateFrom">Date From</label>
+                                            <input type="text" class="form-control"
+                                                   id="dateFrom"
+                                                   v-model="search.dateFrom"
+                                                   data-parsley-id="dateFrom"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field
+                                                   data-parsley-date-format
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="DateTo">Date To</label>
+                                            <input type="text" class="form-control"
+                                                   id="dateTo"
+                                                   v-model="search.dateTo"
+                                                   data-parsley-id="dateTo"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field
+                                                   data-parsley-date-format
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API User</label>
+                                            <input type="text" class="form-control" name="Client"
+                                                   v-model="search.apiUser"
+                                                   id="apiUser"
+                                                   data-parsley-id="apiUser"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-alphanumeric-only>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API Name</label>
+                                            <input type="text" class="form-control" name="API Name"
+                                                   v-model="search.apiName"
+                                                   id="apiName"
+                                                   data-parsley-id="apiName"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-alphanumeric-only>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="ApplyFilter()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div> 
+<style>
+    .modal-xl {
+        /*min-width: 80% !important;*/
+        max-width: 95%!important;
+    } 
+    .modal-xls {
+        /*min-width: 80% !important;*/
+        max-width: 70% !important;
+    }
+</style>
+
+<script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/controllers/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>

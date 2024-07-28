@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<!-- Navbar -->
+<nav class="main-header navbar navbar-expand navbar-success">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link text-light" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="#" class="nav-link text-light">UPCI Portal</a>
+        </li>
+    </ul>
+    @if ( @Convert.ToString(ViewData["Navigation"]) != "")
+    {
+        <ul class="navbar-nav ml-auto"  >
+            <li class="nav-item dropdown" >
+                <a class="nav-link text-light" data-toggle="dropdown" href="#">
+                    <i class="fas fa-user-circle"></i> @HttpContextAccessor.HttpContext.Session.GetString("FullName")  <i class="fas fa-caret-down"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="width: 350px !important;">
+                    
+                    <a href="#" class="dropdown-item text-xs">
+                        <i class="fas fa-desktop mr-2"></i> Terminal |
+                        <span class="text-muted">@HttpContextAccessor.HttpContext.Session.GetString("Terminal")</span>
+                    </a> 
+                    <a href="#" onclick="ChangePassword();" class="dropdown-item  text-xs">
+                        <i class="fas fa-key mr-2"></i> Change Password
+                    </a>
+                    <a href="#" onclick="ChangeProfileImage();" class="dropdown-item  text-xs">
+                        <i class="fas fa-image mr-2"></i> Change Profile Image
+                    </a>
+                  @*   <a href="#" onclick="ActivityLog();" class="dropdown-item  text-xs">
+                        <i class="fas fa-list-alt mr-2"></i> Activity Log
+                    </a> *@
+                    <div class="dropdown-divider"></div>
+                    <a href="#" onclick="Logout();" class="dropdown-item  text-xs">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+            </li>
+        <li class="nav-item">
+            <div class="container mt-2">
+                <div id="toggleButton" class="toggle-button">
+                    <i id="moonIcon" class="far fa-moon"></i> <!-- Font Awesome moon icon -->
+                </div>
+            </div>
+        </li>
+    </ul>
+    }
+</nav>
+
+<style> 
+</style>

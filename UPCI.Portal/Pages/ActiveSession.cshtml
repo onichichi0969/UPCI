@@ -1,0 +1,45 @@
+﻿@page
+@model UPCI.Portal.Pages.ActiveSessionModel
+@{
+    ViewData["Title"] = "Active Session";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@ViewData["Title"]</h1>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="error-page">
+
+        <div class="error-content">
+            <h3><i class="fas fa-exclamation-triangle text-warning"></i> Active session detected</h3>
+            <p>
+                The system has detected that you have an active session from different workstation.
+            </p>
+            <form method="post" asp-page="ActiveSession">
+                <button type="submit" class="btn btn-primary" asp-page-handler="Continue">
+                    <i class="nav-icon fas fa-arrow-alt-circle-right"></i> Continue
+                </button>
+                <button type="submit" class="btn btn-default" asp-page-handler="Logout">
+                    <i class="nav-icon fas fa-sign-out-alt"></i> Logout
+                </button>
+
+            </form>
+        </div>
+    </div>
+</section>
+<script> 
+    $(function () {
+        $(".preloader").hide();
+    });
+</script>

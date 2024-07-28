@@ -1,0 +1,267 @@
+﻿@page
+@model UPCI.Portal.Pages.Reports.LogHTTP.LogHTTPModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="LogHTTPController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b class="text-lg">@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Trace ID" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        }
+                        @if (Model.Actions.Contains("ACN06"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" data-toggle="modal" v-on:click="Filter()" data-target="#filterModal">
+                                <i class="nav-icon fas fa-filter"></i> Advance Filter
+                            </button>
+                        }
+                    </div>
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN08"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" v-on:click="Download();" v-show="datatable.show_table">
+                                <i class="nav-icon fas fa-file-download"></i> Download
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span>No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped table-hover text-sm">
+                        <thead class="bg-secondary">
+                            <tr> 
+                                <th width="10%">Trace ID <i :class="['fas', SortClass('TraceId')]" style="cursor:pointer" v-on:click="Sort('TraceId')"></i></th>
+                                <th width="15%">Name <i :class="['fas', SortClass('Name')]" style="cursor:pointer" v-on:click="Sort('Name')"></i></th> 
+                                <th width="10%">Client <i :class="['fas', SortClass('Client')]" style="cursor:pointer" v-on:click="Sort('Client')"></i></th>
+                                <th width="25%">Upstream <i :class="['fas', SortClass('UpstreamURL')]" style="cursor:pointer" v-on:click="Sort('UpstreamURL')"></i></th>
+                                <th width="10%">Status <i :class="['fas', SortClass('Status')]" style="cursor:pointer" v-on:click="Sort('Status')"></i></th>
+                                <th width="15%">Date <i :class="['fas', SortClass('RequestDate')]" style="cursor:pointer" v-on:click="Sort('RequestDate')"></i></th>
+                                <th width="10%">Time Taken @* <i :class="['fas', SortClass('TimeTaken')]" style="cursor:pointer" v-on:click="Sort('TimeTaken')"></i> *@</th>
+                                <th width="5%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+                                <td class="align-middle" data-title="TraceId"> {{item.traceId}}</td>
+                                <td class="align-middle" data-title="Name"> {{item.name}}</td>
+                                <td class="align-middle" data-title="Client">
+                                    <div>
+                                        <p>{{item.company}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{item.client}}</p>
+                                    </div>
+                                </td> 
+                                <td class="align-middle" data-title="Upstream">
+                                    <div>
+                                        <p>{{item.upstreamURL}}</p>
+                                    </div>
+                                    <div v-if="item.httpMethod == 'GET'">
+                                        <span class="badge badge-primary">GET</span> 
+                                    </div>
+                                    <div v-if="item.httpMethod == 'POST'">
+                                        <span class="badge badge-success">POST</span>
+                                    </div>
+                                    <div v-if="item.httpMethod == 'PUT'">
+                                        <span class="badge badge-warning">PUT</span>
+                                    </div>
+                                    <div v-if="item.httpMethod == 'DELETE'">
+                                        <span class="badge badge-danger">DELETE</span>
+                                    </div>
+                                    <div v-if="item.httpMethod == 'PATCH'">
+                                        <span class="badge badge-info">PATCH</span>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Status">
+                                    <div v-if="item.responseCode == '200'">
+                                        <h4>
+                                            <span class="badge badge-pill badge-success">{{item.responseCode}}</span>
+                                        </h4>
+                                    </div>
+                                    <div v-if="item.responseCode == '400'">
+                                        <h4>
+                                            <span class="badge badge-pill badge-danger">{{item.responseCode}}</span>
+                                        </h4>
+                                    </div>
+                                    <div v-if="item.responseCode == '401'">
+                                        <h4>
+                                            <span class="badge badge-pill badge-warning">{{item.responseCode}}</span>
+                                        </h4>
+                                    </div>
+                                    <div v-if="item.responseCode == '503'">
+                                        <h4>
+                                            <span class="badge badge-pill badge-primary">{{item.responseCode}}</span>
+                                        </h4>
+                                    </div>
+                                    <div>
+                                        <p>{{item.status}}</p>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Date">
+                                    <div>
+                                        <p>{{item.requestDate}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{item.responseDate}}</p>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Time Taken"> {{item.timeTaken}}</td>
+                                <td class="text-center align-middle">
+                                  
+                                    <button type="button" class="btn btn-info btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="View(item)" data-tooltip="tooltip" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                   
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div> 
+            <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"><i class="nav-icon fas fa-search-plus"></i> Advance Search</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="TraceId">Trace ID</label>
+                                            <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Trace ID" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="DateFrom">Date From</label>
+                                            <input type="text" class="form-control"
+                                                   id="dateFrom"
+                                                   v-model="search.dateFrom"
+                                                   data-parsley-id="dateFrom"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field  
+                                                   data-parsley-date-format
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div>
+                                   
+                                    
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="DateTo">Date To</label>
+                                            <input type="text" class="form-control"
+                                                   id="dateTo"
+                                                   v-model="search.dateTo"
+                                                   data-parsley-id="dateTo"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field 
+                                                   data-parsley-date-format
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API User</label>
+                                            <input type="text" class="form-control" name="Client"
+                                                   v-model="search.apiUser"
+                                                   id="apiUser"
+                                                   data-parsley-id="apiUser"
+                                                   data-parsley-trigger="change focusout" 
+                                                   data-parsley-restrict-alphanumeric-only >
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API Name</label>
+                                            <input type="text" class="form-control" name="API Name"
+                                                   v-model="search.apiName"
+                                                   id="apiName"
+                                                   data-parsley-id="apiName"
+                                                   data-parsley-trigger="change focusout" 
+                                                   data-parsley-restrict-alphanumeric-only >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="ApplyFilter()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div> 
+          
+        </div>
+    </section> 
+</div>
+<style>
+    /*for multiple modal - fixes scrolling in first modal*/
+    .modal {
+        overflow: auto !important;
+    } 
+</style> 
+ 
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/report.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/controllers/report/logHTTP.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

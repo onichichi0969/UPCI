@@ -1,0 +1,246 @@
+﻿@page
+@model UPCI.Portal.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>UPCI Portal System - @ViewData["Title"]</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="~/assets/images/EQB_Logo_Inverted_small.png" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome-free/css/all.min.css" />
+    <link href="~/lib/sweetalert2/sweetalert2.css" rel="stylesheet" /> 
+</head>
+
+<body>
+    @Html.AntiForgeryToken()
+    <div class="container h-100">
+        <div class="row justify-content-center h-100 align-items-center">
+            <div class="col-lg-offset-4 col-lg-7 col-md-offset-2 col-md-9">
+                <div class="form-container">
+                    <div class="form-icon">
+                        <div class="row text-center h-50  align-items-center">
+                            <img src="~/assets/login/images/eqb_logo_reverse.png" class="img-fluid mx-auto d-block" alt="EQB Logo" />
+                        </div>
+                    </div>
+                    <form class="user validate-form form-horizontal" action="" method="post" autocomplete="off">
+                        <h3 class="title">UPCI Portal System</h3>
+                        <div class="form-group form-input">
+                            <span class="input-icon"><i class="fa fa-user"></i></span>
+                            @Html.TextBoxFor(m => Model.Username, new { @class = "form-control form-control-user", placeholder = "Username", required = "required" })
+                        </div>
+                        <div class="form-group form-input">
+                            <span class="input-icon"><i class="fa fa-lock"></i></span>
+                            @Html.PasswordFor(m => Model.Password, new { @class = "form-control form-control-user", placeholder = "Password", required = "required" })
+                        </div>
+                        <button class="btn signin">Login</button>
+                        <div class="row justify-content-center">
+                            <span class="footerText col-md-12">
+                                Version 1.0
+                            </span>
+                            <span class="footerText col-md-12">
+                                <i class="fa fa-light fa-copyright"></i>
+                                2024 UPCI
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+     
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
+    <script type="text/javascript">
+        @Model.JavascriptToRun
+
+
+            function ShowPopup() {
+                Swal.fire(
+                    '@Model.SweetAlertMessage.Title',
+                    '@Model.SweetAlertMessage.Message',
+                    '@Model.SweetAlertMessage.MessageType'
+                )
+            }
+
+    </script>
+
+    @if (Model.IsLogout)
+    {
+        <script type="text/javascript">
+            $(window).on('load', function () {
+
+                Swal.fire({
+                    toast: true,
+                    titleText: "You have logged out successfully.",
+                    type: "success",
+                    icon: 'success',
+                    position: "top",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+
+            });
+
+        </script>
+
+    }
+</body>
+</html>
+
+<style>
+    body, html {
+        height: 100%;
+    }
+
+    .footerText {
+        color: #716969;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .form-container {
+        background: linear-gradient(#E9374C,#D31128);
+        font-family: 'Roboto', sans-serif;
+        font-size: 0;
+        padding: 0 15px;
+        border: 1px solid #DC2036;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .form-container .form-icon {
+        color: #fff;
+        font-size: 13px;
+        text-align: center;
+        text-shadow: 0 0 20px rgba(0,0,0,0.2);
+        width: 40%;
+        padding: 70px 0;
+        vertical-align: top;
+        display: inline-block;
+    }
+
+    .form-container .form-icon i {
+        font-size: 124px;
+        margin: 0 0 15px;
+        display: block;
+    }
+
+    .form-container .form-icon .signup a {
+        color: #fff;
+        text-transform: capitalize;
+        transition: all 0.3s ease;
+    }
+
+    .form-container .form-icon .signup a:hover {
+        text-decoration: underline;
+    }
+
+    .form-container .form-horizontal {
+        background: rgba(255,255,255,0.99);
+        width: 60%;
+        padding: 60px 30px;
+        margin: -20px 0;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        display: inline-block;
+    }
+
+    .form-container .title {
+        color: #454545;
+        font-size: 23px;
+        font-weight: 900;
+        text-align: center;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+        margin: 0 0 30px 0;
+    }
+
+    .form-horizontal .form-input {
+        background-color: rgba(255,255,255,0.15);
+        margin: 0 0 15px;
+        border: 1px solid #b5b5b5;
+        border-radius: 20px;
+    }
+
+    .form-horizontal .input-icon {
+        color: #dd1616;
+        font-size: 15px;
+        text-align: center;
+        line-height: 38px;
+        height: 35px;
+        width: 40px;
+        vertical-align: top;
+        display: inline-block;
+    }
+
+    .form-horizontal .form-control {
+        color: black;
+        background-color: transparent;
+        font-size: 14px;
+        letter-spacing: 1px;
+        width: calc(100% - 55px);
+        height: 33px;
+        padding: 2px 10px 0 0;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+    .form-horizontal .form-control:focus {
+        box-shadow: none;
+        border: none;
+    }
+
+    .form-horizontal .form-control::placeholder {
+        color: #b5b5b5;
+        font-size: 13px;
+        text-transform: capitalize;
+    }
+
+    .form-horizontal .btn {
+        color: rgba(255,255,255,0.8);
+        background: #E9374C;
+        font-size: 15px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin: 0 0 10px 0;
+        border: none;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .form-horizontal .btn:hover,
+    .form-horizontal .btn:focus {
+        color: #fff;
+        background-color: #D31128;
+        box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    @@media only screen and (max-width:576px) {
+        .form-container {
+            padding-bottom: 15px;
+        }
+
+            .form-container .form-icon {
+                width: 100%;
+                padding: 20px 0;
+            }
+
+            .form-container .form-horizontal {
+                width: 100%;
+                margin: 0;
+            }
+    }
+</style>

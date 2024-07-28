@@ -1,0 +1,175 @@
+﻿@page
+@model UPCI.Portal.Pages.Maintenance.Company.IndexModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="CompanyController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b class="text-lg">@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Enter Description" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        }
+
+                        @if (Model.Actions.Contains("ACN01"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal" v-on:click="Add()">
+                                <i class="nav-icon fas fa-plus-circle"></i> Add
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span>No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped text-xs">
+                        <thead>
+                            <tr> 
+                                <th width="45%">Code <i :class="['fas', SortClass('Name')]" style="cursor:pointer" v-on:click="Sort('Name')"></i></th>
+                                <th width="45%">Name <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
+                                <th class="text-center" width="10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+                                 
+                                <td class="align-middle" data-title="Code">{{ item.name }}</td>
+                                <td class="align-middle" data-title="Name">{{ item.description }}</td>
+                                <td class="text-center align-middle">
+                                    @if (Model.Actions.Contains("ACN02"))
+                                    {
+                                        <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    }
+
+                                    @if (Model.Actions.Contains("ACN03"))
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="Delete(item);" data-tooltip="tooltip" title="Delete">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
+            {
+            <div id="formModal" class="modal fade text-xs" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <form name="formModal" id="form" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> <i :class="['fa',ActionModeIcon()]"> </i>   {{ actionMode }} @ViewData["Title"]</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Code">Code</label>
+                                            <input type="text" class="form-control" name="Code"
+                                                   v-model="formData.name"
+                                                   :disabled="disableControl.code"
+                                                   data-parsley-id="name"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Description">Name</label>
+                                            <input type="text" class="form-control" name="Description"
+                                                   v-model="formData.description"
+                                                   data-parsley-id="description"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                </div>
+                                 
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="Save()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
+            
+        </div>
+    </section> 
+</div>
+<style>
+    /*for multiple modal - fixes scrolling in first modal*/
+    .modal {
+        overflow: auto !important;
+    } 
+</style>
+<script>
+     
+</script>
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/company.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/controllers/company.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

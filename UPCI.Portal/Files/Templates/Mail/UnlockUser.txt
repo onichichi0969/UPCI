@@ -1,0 +1,14 @@
+﻿<p>Hi {0} {1},</p>
+<p><br/></p>
+<p>Your account has been unlocked.&nbsp;</p>
+<p><br/></p>
+<p>User ID: <b>{2}</b></p> 
+<p><br/><br/></p>
+<p>*** This is a system generated email. Please do not reply. ***</p>
+<p><br></p>
+<p><b>Equicom Savings IT Team</b></p><p></p>
+<p>G/F ODC International Plaza 219 Salcedo St.
+Legaspi Village, Makati City
+<p>8828-EQUI (3784) loc 257</p>
+<p>Mobile No.: +639285591620</p>
+<p>www.equicomsavings.com</p>

@@ -1,0 +1,101 @@
+﻿@page
+@model UPCI.Portal.Pages.HomeModel
+@{
+    ViewData["Title"] = "Home page";
+    Layout = "_Layout";
+}
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1> @ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                @*<ol class="breadcrumb float-sm-right">
+                @foreach (var item in Model.PageUrl.Split('/'))
+                {
+                if (!String.IsNullOrEmpty(@item))
+                {
+                <li class="breadcrumb-item">@item</li>
+                }
+                }
+                </ol>*@
+            </div>
+        </div>
+    </div>
+</section>
+<section class="content">
+    <div class="container-fluid text-sm" id="HomeController" autocomplete="off"> 
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card" style="min-height:200px">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="nav-icon fas fa-clipboard-list"></i> Route Summary</h3>
+                    </div>
+                    <div class="card-body p-0 text-xs">
+                        <table class="table table-striped text-xs">
+                            <thead>
+                                <tr>
+                                    <th class="align-middle" width="40%">Route Name</th>
+                                    <th class="text-center align-middle" width="20%">Downstream Path</th>
+                                    <th class="text-center align-middle" width="20%">Upstream Path</th>
+                                    <th class="text-center align-middle" width="5%">Unauthorized</th>
+                                    <th class="text-center align-middle" width="5%">Success</th>
+                                    <th class="text-center align-middle" width="5%">Failed</th>
+                                    <th class="text-center align-middle" width="5%">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in items">
+                                    <td>{{item.name}}</td>
+                                    <td class="text-center align-middle">{{item.downstreamPathTemplate}}</td>
+                                    <td class="text-center align-middle">{{item.upstreamPathTemplate}}</td>
+                                    <td class="text-center align-middle">{{item.unauthorized}}</td>
+                                    <td class="text-center align-middle">{{item.success}}</td>
+                                    <td class="text-center align-middle">{{item.failed}}</td>
+                                    <td class="text-center align-middle">{{item.total}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card" style="min-height:200px">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="nav-icon fas fa-list-alt"></i> Recent Activity</h3>
+
+                        <div class="card-tools">
+                        </div>
+                    </div>
+                    <div class="card-body p-0 text-xs">
+                        <table class="table text-xs">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Log Date</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in recentActivities">
+                                    <td class="align-middle">{{item.logDate}}</td>
+                                    <td class="align-middle">
+                                        <b>{{item.action}}</b><br />
+                                        {{item.details}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/route.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/services/user.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/controllers/home.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

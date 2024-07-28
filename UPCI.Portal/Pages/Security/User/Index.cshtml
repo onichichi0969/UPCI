@@ -1,0 +1,232 @@
+﻿@page
+@model UPCI.Portal.Pages.Maintenance.User.IndexModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="UserController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b class="text-lg">@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Enter Description" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        }
+
+                        @if (Model.Actions.Contains("ACN01"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal" v-on:click="Add()">
+                                <i class="nav-icon fas fa-plus-circle"></i> Add
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span>No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped table-hover text-sm">
+                        <thead class ="bg-secondary">
+                            <tr> 
+                                <th width="10%"></th>
+                                <th width="20%">Username <i :class="['fas', SortClass('Username')]" style="cursor:pointer" v-on:click="Sort('Username')"></i></th>
+                                <th width="25%">Name <i :class="['fas', SortClass('LastName')]" style="cursor:pointer" v-on:click="Sort('LastName')"></i></th>
+                                <th width="25%">Role <i :class="['fas', SortClass('RoleDescription')]" style="cursor:pointer" v-on:click="Sort('Role.Description')"></i></th>
+                                <th class="text-center" width="20%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+                                <td> <img :src="`data:${item.imageType};base64,${item.imageContent}`" alt="user" class="rounded-circle thumb-lg align-self-center" style="width: 60px; height: 60px;"></td>
+                                <td class="align-middle" data-title="Code">{{ item.username }}</td>
+                                <td class="align-middle" data-title="Description">{{ item.lastName }}, {{ item.firstName }} {{ item.middleName }}</td>
+                                <td class="align-middle" data-title="Description">{{ item.roleDescription }}</td>
+                                <td class="text-center align-middle">
+
+                                    
+                                   
+                                   @*  @if (Model.Actions.Contains("ACN02"))
+                                    { *@
+                                        <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    @* } *@
+
+                                    @* @if (Model.Actions.Contains("ACN03"))
+                                    { *@
+                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="Delete(item);" data-tooltip="tooltip" title="Delete">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                   @*  } *@
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            
+
+             <div id="formModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <form name="formModal" id="form" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> <i :class="['fa',ActionModeIcon()]"> </i>   {{ actionMode }} @ViewData["Title"]</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col"> 
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Code">Username</label>
+                                            <input type="text" class="form-control" name="Username"
+                                                   v-model="formData.username"
+                                                   :disabled="disableControl.code"
+                                                   data-parsley-id="code"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="FirstName">First name</label>
+                                            <input type="text" class="form-control" name="FirstName"
+                                                   v-model="formData.firstName" 
+                                                   data-parsley-id="firstName"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="MiddleName">Middle name</label>
+                                            <input type="text" class="form-control" name="MiddleName"
+                                                   v-model="formData.middleName" 
+                                                   data-parsley-id="middleName"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="LastName">Last name</label>
+                                            <input type="text" class="form-control" name="LastName"
+                                                   v-model="formData.lastName" 
+                                                   data-parsley-id="lastName"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Email">Email</label>
+                                            <input type="text" class="form-control" name="Email"
+                                                   v-model="formData.email" 
+                                                   data-parsley-id="email"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-email-validator>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Role">Role</label>
+                                            <select class="custom-select"
+                                                    v-model="formData.encryptedRoleId"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="role in roles" :key="role.encryptedId">
+                                                    <option :value="role.encryptedId">{{ role.name }} - {{role.description}}</option>
+                                                </template>
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="Save()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+             </div>
+          
+            
+        </div>
+    </section> 
+</div>
+<style>
+    /*for multiple modal - fixes scrolling in first modal*/
+    .modal {
+        overflow: auto !important;
+    } 
+</style>
+<script>
+     
+</script>
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/user.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/services/role.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/controllers/user.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

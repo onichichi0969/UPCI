@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>GatewayPortal</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\lib\bulma-calendar\**" />
+    <Compile Remove="wwwroot\lib\moment\**" />
+    <Content Remove="wwwroot\lib\bulma-calendar\**" />
+    <Content Remove="wwwroot\lib\moment\**" />
+    <EmbeddedResource Remove="wwwroot\lib\bulma-calendar\**" />
+    <EmbeddedResource Remove="wwwroot\lib\moment\**" />
+    <None Remove="wwwroot\lib\bulma-calendar\**" />
+    <None Remove="wwwroot\lib\moment\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Files\Templates\Mail\ChangePassword.txt" />
+    <None Remove="Files\Templates\Mail\CreateUser.txt" />
+    <None Remove="Files\Templates\Mail\CreateUserPasswordless.txt" />
+    <None Remove="Files\Templates\Mail\LogException.txt" />
+    <None Remove="Files\Templates\Mail\ResetPassword.txt" />
+    <None Remove="Files\Templates\Mail\UnlockUser.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Files\Templates\Mail\CreateUserPasswordless.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Templates\Mail\CreateUser.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Templates\Mail\LogException.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Templates\Mail\ChangePassword.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Templates\Mail\UnlockUser.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Templates\Mail\ResetPassword.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UPCI.BLL\UPCI.BLL.csproj" />
+    <ProjectReference Include="..\UPCI.DAL\UPCI.DAL.csproj" />
+  </ItemGroup>
+
+</Project>

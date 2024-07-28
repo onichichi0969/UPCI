@@ -1,0 +1,685 @@
+﻿@page
+@model UPCI.Portal.Pages.Application.Route.IndexModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="RouteController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b class="text-lg">@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Enter Name" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        }
+
+                        @if (Model.Actions.Contains("ACN01"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal" v-on:click="Add()">
+                                <i class="nav-icon fas fa-plus-circle"></i> Add
+                            </button>
+                        }
+                    </div> 
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3 pr-4 d-flex justify-content-end">
+                    <div class="input-group-prepend">
+                        <button type="button" class="btn btn-info mr-1" v-on:click="Publish();" data-tooltip="tooltip" title="Publish">
+                            <i class="far fa-newspaper"></i> Publish
+                        </button>
+                    </div> 
+                </div>
+               
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span>No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped text-xs">
+                        <thead>
+                            <tr> 
+                                <th width="15%">Name <i :class="['fas', SortClass('Name')]" style="cursor:pointer" v-on:click="Sort('Name')"></i></th>
+                                <th width="30%">Stream</th> 
+                                <th width="20%">Limit</th>  
+                                <th width="25%">Security</th>
+                                <th class="text-center" width="10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+                                 
+                                <td  data-title="Name">{{ item.name }}</td>
+                                <td data-title="Stream">
+                                    <div>
+                                        <b>Downstream</b> <br />
+                                        Host & Port: {{ item.downstreamHostAndPorts }} <br />
+                                        Path: {{ item.downstreamPathTemplate }}<br />
+                                        Scheme: {{ item.downstreamScheme }} <br />
+                                        <b>Upstream</b> <br />
+                                        Path: {{ item.upstreamPathTemplate }} <br />
+                                        Method: {{ item.upstreamHttpMethod }} <br />
+                                    </div>
+                                </td> 
+                                <td data-title="Limit">
+                                    <div class="row">
+                                        
+                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                            <div class="form-group">
+                                                <b>Rate Limit</b> <br />
+                                                Enabled: {{ item.enableRateLimiting }}<br />
+                                                Period: {{ item.ratePeriod }} <br />
+                                                TimeSpan: {{ item.ratePeriodTimespan }} <br />
+                                                Limit: {{ item.rateLimit }} <br />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                            <div class="form-group">
+                                                <b>Time Limit</b> <br />
+                                                Enabled: {{ item.enableTimeLimit }} <br />
+                                                From: {{ item.timeFrom }} <br />
+                                                To: {{ item.timeTo }} <br />
+                                            </div>
+                                        </div> 
+                                    </div> 
+                                </td>
+                                <td data-title="Security Whitelist">
+                                    <div class="row"> 
+                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                            <div class="form-group">
+                                                <b>Client</b> <br /> 
+                                                <template v-for="(client, index) in item.clientWhitelist.split('|')" :key="index">
+                                                    {{ client }} <br/>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                            <div class="form-group">
+                                                <b>IP Address</b> <br />
+                                                <template v-for="(client, index) in item.ipAllowedList.split('|')" :key="index">
+                                                    {{ client }} <br />
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                <td class="text-center align-middle">
+                                    @if (Model.Actions.Contains("ACN02"))
+                                    { 
+                                        <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    } 
+
+                                    @if (Model.Actions.Contains("ACN03"))
+                                    {
+                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="Delete(item);" data-tooltip="tooltip" title="Delete">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    } 
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" v-show="show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
+            { 
+            <div id="formModal" class="modal fade text-xs" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <form name="formModal" id="form" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> <i :class="['fa',ActionModeIcon()]"> </i>   {{ actionMode }} @ViewData["Title"]</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="Name">Name</label>
+                                            <input type="text" class="form-control" name="Name" value=""
+                                                   v-model="formData.name"
+                                                   data-parsley-id="name"
+                                                   data-parsley-required-field
+                                                   data-parsley-validate-if-empty
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                     <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Authentication Provider Key</label>
+                                                <select class="custom-select text-xs" id="Scheme" v-model="formData.authenticationProviderKey"
+                                                        data-parsley-trigger="change focusout">
+                                                    <option value="" selected>None</option>
+                                                    <option value="Bearer">Bearer Token</option> 
+                                                </select>
+                                            </div>
+                                     </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-success card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-arrow-down"></i> DownStream</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" >
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body" >
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="form-group">
+                                                            <label for="host">Host</label>
+                                                            <input type="text" class="form-control" name="Host and Port" 
+                                                                   v-model="formData.downstreamHostAndPorts"
+                                                                   data-parsley-id="downstreamHostAndPorts"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                       data-parsley-multihost>
+                                                        </div>
+                                                    </div> 
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-9">
+                                                        <div class="form-group">
+                                                            <label for="pathTemplate">Path Template</label>
+                                                            <input type="text" class="form-control" name="pathTemplate" 
+                                                                   v-model="formData.downstreamPathTemplate"
+                                                                   data-parsley-id="downstreamPathTemplate"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-restrict-path>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-3">
+                                                        <div class="form-group">
+                                                            <label>SCHEME</label>
+                                                            <select class="custom-select text-xs" id="Scheme" v-model="formData.downstreamScheme"
+                                                                    data-parsley-trigger="change focusout"
+                                                                    data-parsley-required-message="Required field"
+                                                                    required>
+                                                                <option value="" selected>-- Select --</option>
+                                                                <option value="HTTP">HTTP</option>
+                                                                <option value="HTTPS">HTTPS</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                        </div>  
+                                    </div>
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-success card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-arrow-up"></i> UpStream</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="form-group">
+                                                            <label for="pathTemplate">Path Template</label>
+                                                            <input type="text" class="form-control" name="pathTemplate"
+                                                                   v-model="formData.upstreamPathTemplate"
+                                                                   data-parsley-id="upstreamPathTemplate"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-restrict-path>
+                                                        </div>
+                                                    </div>
+                                                   
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        
+                                                        <div class="form-group badge-checkboxes">
+                                                            <label>HTTP Methods</label>
+                                                            <div>
+                                                                <label class="checkbox-inline text-lg">
+                                                                    <input type="checkbox" v-model="formData.get" name="httpMethods" v-on:click="validateCheckboxes()">
+                                                                    <span class="badge badge-primary">GET</span>
+                                                                </label> &nbsp;&nbsp;
+                                                                <label class="checkbox-inline text-lg">
+                                                                    <input type="checkbox" v-model="formData.post" name="httpMethods" v-on:click="validateCheckboxes()">
+                                                                    <span class="badge badge-success">POST</span>
+                                                                </label> &nbsp;&nbsp;
+                                                                <label class="checkbox-inline text-lg">
+                                                                    <input type="checkbox" v-model="formData.put" name="httpMethods" v-on:click="validateCheckboxes()">
+                                                                    <span class="badge badge-warning">PUT</span>
+                                                                </label> &nbsp;&nbsp;
+                                                                <label class="checkbox-inline text-lg">
+                                                                    <input type="checkbox" v-model="formData.patch" name="httpMethods" v-on:click="validateCheckboxes()">
+                                                                    <span class="badge badge-info">PATCH</span>
+                                                                </label> &nbsp;&nbsp;
+                                                                <label class="checkbox-inline text-lg">
+                                                                    <input type="checkbox" v-model="formData.delete" name="httpMethods" v-on:click="validateCheckboxes()">
+                                                                    <span class="badge badge-danger">DELETE</span>
+                                                                </label>
+                                                            </div>
+                                                            <div v-show="!httpMethodValid" class="parsley-errors-list">At least one must be selected.</div>
+                                                        </div>
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                        </div>
+                                         
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-warning card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-hand-paper"></i> Rate Limit</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-9">
+                                                        <div class="form-group">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="chkEnableRateLimit" 
+                                                                    v-model="formData.enableRateLimiting">
+                                                                <label class="form-check-label" for="chkEnableRateLimit">Enable Rate Limit</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                        <div class="form-group">
+                                                            <label for="ratePeriod">Period</label>
+                                                            <input type="text" class="form-control" name="ratePeriod"
+                                                                   v-model="formData.ratePeriod"
+                                                                   data-parsley-id="ratePeriod"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-duration-format>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                        <div class="form-group">
+                                                            <label for="ratePeriodTimeSpan">Time Span</label>
+                                                            <input type="text" class="form-control" name="ratePeriodTimeSpan"
+                                                                   v-model="formData.ratePeriodTimespan"
+                                                                   data-parsley-id="ratePeriodTimespan"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-restrict-numeric-only>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                                                        <div class="form-group">
+                                                            <label for="rateLimit">Limit</label>
+                                                            <input type="text" class="form-control" name="rateLimit"
+                                                                   v-model="formData.rateLimit"
+                                                                   data-parsley-id="rateLimit"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-restrict-numeric-only>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-warning card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-clock"></i> Time Limit</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-9">
+                                                        <div class="form-group">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="chkEnableTimeLimit"
+                                                                       v-model="formData.enableTimeLimit">
+                                                                <label class="form-check-label" for="chkEnableTimeLimit">Enable Time Limit</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                                        <div class="form-group">
+                                                            <label for="timeLimitFrom">Time From</label>
+                                                            <input type="text" class="form-control" name="timeLimitFrom"
+                                                                   v-model="formData.timeFrom"
+                                                                   data-parsley-id="timeFrom"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-military-time>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                                                        <div class="form-group">
+                                                            <label for="timeLimitTo">Time To</label>
+                                                            <input type="text" class="form-control" name="timeLimitTo"
+                                                                   v-model="formData.timeTo"
+                                                                   data-parsley-id="timeTo"
+                                                                   data-parsley-required-field
+                                                                   data-parsley-validate-if-empty
+                                                                   data-parsley-trigger="change focusout"
+                                                                   data-parsley-military-time>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-info card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-user"></i> Client Whitelist</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-12 table-responsive" v-show="!true">
+                                                        <span class="text-danger">No users set!</span>
+                                                    </div>
+                                                    <div class="col-12 table-responsive" v-show="true">
+                                                      
+                                                        <table class="table table-striped text-xs">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="20%">Company</th>
+                                                                    <th width="60%">Client Name</th>  
+                                                                    <th class="text-center" width="20%"></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody> 
+                                                                <tr v-for="client in selectedClients" :key="index"> 
+                                                                    <td class="align-middle" data-title="Company">{{ client.companyDescription }}</td>
+                                                                    <td class="align-middle" data-title="Client Name">{{ client.description }}</td>
+                                                                    <td class="text-center align-middle"> 
+                                                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="RemoveClient(client);">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </button> 
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div> 
+                                                </div>
+                                            </div>
+                                            <div class="card-footer">
+                                                <button type="button" class="btn btn-primary btn-sm float-right" v-on:click="AddClient()" data-toggle="modal" data-target="#formModalClientWhitelist"><i class="nav-icon fas fa-plus"></i> Add Client</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-12 col-lg-6">
+                                        <div class="card card-info card-outline">
+                                            <div class="card-header">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-globe"></i> IP Whitelist</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-12 table-responsive" v-show="!true">
+                                                        <span class="text-danger">No IP's' set!</span>
+                                                    </div>
+                                                    <div class="col-12 table-responsive" v-show="true">
+
+                                                        <table class="table table-striped text-xs">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="80%">IP Address</th>
+                                                                    <th class="text-center" width="20%"></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="(ip,index) in selectedIPallowed" :key="index">
+
+                                                                    <td class="align-middle" data-title="Name">{{ ip }}</td>
+                                                                    <td class="text-center align-middle">
+                                                                        <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="RemoveIP(ip);">
+                                                                            <i class="fa fa-times"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div> 
+                                                </div>
+                                            </div>
+                                            <div class="card-footer">
+                                                <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#formModalIPWhitelist"><i class="nav-icon fas fa-plus"></i> Add IP</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="Save()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
+            <div id="formModalClientWhitelist" class="modal fade text-xs" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title left">  Add Client </h5>
+                            <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 col-md-12 col-lg-12">
+                                    <div class="card card-success card-outline">
+
+                                        <div class="card-body">
+                                            <div class="row">
+
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="form-group">
+                                                        <label>Select from the list</label> 
+                                                        <select class="custom-select"
+                                                                v-model="formDataSecurity.client">
+                                                            <option value="">-- Please Select --</option>
+                                                            <template v-for="client in allClients" :key="client.id" >
+                                                                <option :value="client.id" v-if="!client.deleted">{{ client.companyDescription }} - {{client.description}} </option>
+                                                            </template>
+                                                           
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="button" class="btn btn-default btn-sm" onclick="$('#formModalClientWhitelist').modal('hide');"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                            <button type="button" class="btn btn-success btn-sm" v-on:click="SaveClient()"><i class="nav-icon fas fa-check-circle"></i> Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="formModalIPWhitelist" class="modal fade text-xs" tabindex="-1" role="dialog" data-parsley-validate>
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title left">  Add IP </h5>
+                            <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12 col-md-12 col-lg-12">
+                                    <div class="card card-success card-outline">
+
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="form-group">
+                                                        <label for="securityIPAddress">IP Address</label>
+                                                        <input type="text" class="form-control" name="securityIPAddress" value="" 
+                                                            v-model="formDataSecurity.ip"
+                                                               data-parsley-id="ip"
+                                                               data-parsley-required-field
+                                                               data-parsley-validate-if-empty
+                                                               data-parsley-trigger="change focusout"
+                                                               data-parsley-ip> 
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer justify-content-between">
+                                            <button type="button" class="btn btn-default btn-sm" onclick="$('#formModalIPWhitelist').modal('hide');"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                            <button type="button" class="btn btn-success btn-sm" v-on:click="SaveIP()"><i class="nav-icon fas fa-check-circle"></i> Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> 
+</div>
+<style>
+    /*for multiple modal - fixes scrolling in first modal*/
+    .modal {
+        overflow: auto !important;
+    }
+
+    .badge-checkboxes .checkbox input[type="checkbox"],
+    .badge-checkboxes label.checkbox-inline input[type="checkbox"] {
+        /*  Hide the checkbox, but keeps tabbing to it possible. */
+        position: absolute;
+        clip: rect(0 0 0 0);
+    }
+
+    .badge-checkboxes .checkbox label,
+    .badge-checkboxes label.checkbox-inline {
+        padding-left: 0; /* Remove space normally used for the checkbox */
+    }
+
+        .badge-checkboxes .checkbox input[type="checkbox"]:checked:focus + .badge,
+        .badge-checkboxes label.checkbox-inline input[type="checkbox"]:checked:focus + .badge {
+            box-shadow: 0 0 2pt 1pt #333; /* Outline when checkbox is focused/tabbed to */
+        }
+
+        .badge-checkboxes .checkbox input[type="checkbox"]:focus + .badge,
+        .badge-checkboxes label.checkbox-inline input[type="checkbox"]:focus + .badge {
+            box-shadow: 0 0 2pt 1pt #999; /* Outline when checkbox is focused/tabbed to */
+        }
+
+        .badge-checkboxes .checkbox input[type="checkbox"] + .badge,
+        .badge-checkboxes label.checkbox-inline input[type="checkbox"] + .badge {
+            border: 1px solid #999; /* Add outline to badge */
+            /* Make text in badge not selectable */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Remove badge background-color and set text color for not checked options */
+        .badge-checkboxes .checkbox input[type="checkbox"]:not(:checked) + .badge,
+        .badge-checkboxes label.checkbox-inline input[type="checkbox"]:not(:checked) + .badge {
+            background-color: Transparent;
+            color: #999;
+        }
+</style>
+<script>
+     
+</script> 
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/route.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/apiclient.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/controllers/route.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

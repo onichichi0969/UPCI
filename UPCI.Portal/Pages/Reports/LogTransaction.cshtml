@@ -1,0 +1,214 @@
+﻿@page
+@model UPCI.Portal.Pages.Reports.LogTransactionModel.LogTransactionModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+<div id="LogTransactionController">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1><button type="button" class="btn btn-md" onclick="GoBack();"><i class="nav-icon fa fa-lg fa-arrow-circle-left text-info"></i></button> <b class="text-lg">@ViewData["Title"]</b> </h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        @foreach (var item in Model.PageUrl.Split('/'))
+                        {
+                            if (!String.IsNullOrEmpty(@item))
+                            {
+                                <li class="breadcrumb-item">@item</li>
+                            }
+                        }
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid" autocomplete="off">
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-6  input-group mb-3">
+                    @if (Model.Actions.Contains("ACN04"))
+                    {
+                        <input type="text" id="searchDescription" autocomplete="off" class="form-control" placeholder="Enter Name" v-model="search.description" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                    }
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN04"))
+                        {
+                            <button type="button" class="btn btn-default btn-sm" v-on:click="Search();">
+                                <i class="nav-icon fas fa-search"></i> Search
+                            </button>
+                        } 
+                    </div>
+                    <div class="input-group-prepend">
+                        @if (Model.Actions.Contains("ACN08"))
+                        {
+                            <button type="button" class="btn btn-success btn-sm" v-on:click="Download();" v-show="datatable.show_table">
+                                <i class="nav-icon fas fa-file-download"></i> Download
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 table-responsive" v-show="!datatable.show_table">
+                    <span>No record(s) found!</span>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <div class="row form-group">
+                        &nbsp;
+                        &nbsp;
+                        Show
+                        &nbsp;
+                        <select name="datatable_length" v-model="datatable.pageSize" class="custom-select-sm" v-on:change="itemCountChange()" style="height: auto;line-height: 12px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;
+                        records
+                    </div>
+                    <table class="table table-striped table-hover text-sm">
+                        <thead class="bg-secondary">
+                            <tr> 
+                                
+                                <th width="15%">Name <i :class="['fas', SortClass('Name')]" style="cursor:pointer" v-on:click="Sort('Name')"></i></th> 
+                                <th width="15%">Client <i :class="['fas', SortClass('Client')]" style="cursor:pointer" v-on:click="Sort('Client')"></i></th>
+                                <th width="20%">Upstream <i :class="['fas', SortClass('UpstreamURL')]" style="cursor:pointer" v-on:click="Sort('UpstreamURL')"></i></th>
+                                <th width="15%">Status <i :class="['fas', SortClass('Status')]" style="cursor:pointer" v-on:click="Sort('Status')"></i></th>
+                                <th width="20%">Date <i :class="['fas', SortClass('RequestDate')]" style="cursor:pointer" v-on:click="Sort('RequestDate')"></i></th>
+                                <th width="15%">Time Taken @* <i :class="['fas', SortClass('TimeTaken')]" style="cursor:pointer" v-on:click="Sort('TimeTaken')"></i> *@</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in items" :key="item.id">
+
+                                <td class="align-middle" data-title="Name"> {{item.name}}</td>
+                                <td class="align-middle" data-title="Client">
+                                    <div>
+                                        <p>{{item.company}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{item.client}}</p>
+                                    </div>
+                                </td> 
+                                <td class="align-middle" data-title="Upstream">
+                                    <div>
+                                        <p>{{item.upstreamURL}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{item.httpMethod}}</p>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Status">
+                                    <div v-if="item.responseCode == '200'">
+                                        <span class="badge badge-success">{{item.responseCode}}</span> 
+                                    </div>
+                                    <div v-if="item.responseCode == '400'">
+                                        <span class="badge badge-danger">{{item.responseCode}}</span>
+                                    </div>
+                                    <div v-if="item.responseCode == '401'">
+                                        <span class="badge badge-warning">{{item.responseCode}}</span>
+                                    </div>
+                                    <div v-if="item.responseCode == '503'">
+                                        <span class="badge badge-primary">{{item.responseCode}}</span>
+                                    </div>
+                                    <div>
+                                        <p>{{item.status}}</p>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Date">
+                                    <div>
+                                        <p>{{item.requestDate}}</p>
+                                    </div>
+                                    <div>
+                                        <p>{{item.responseDate}}</p>
+                                    </div>
+                                </td>
+                                <td class="align-middle" data-title="Time Taken"> {{item.timeTaken}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12 table-responsive" v-show="datatable.show_table">
+                    <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
+            {
+            <div id="formModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <form name="formModal" id="form" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> <i :class="['fa',ActionModeIcon()]"> </i>   {{ actionMode }} @ViewData["Title"]</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Username">Username</label>
+                                            <input type="text" class="form-control" name="Username"
+                                                   v-model="formData.username"
+                                                   :disabled="disableControl.username"
+                                                   data-parsley-id="username"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field
+                                                   data-parsley-restrict-alphanumeric-only
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div> 
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Description">Name</label>
+                                            <input type="text" class="form-control" name="Description"
+                                                   v-model="formData.description"
+                                                   data-parsley-id="description"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-required-field
+                                                   data-parsley-restrict-alphanumeric-only
+                                                   data-parsley-validate-if-empty>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="Company">Company</label>
+                                            <select name="moduleType" class="form-control" v-model="formData.companyId"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
+                                                <option value="">-- Please Select --</option>
+                                                <option v-for="company in allCompany" :key="company.id" :value="company.id">{{ company.description }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="Save()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
+            
+        </div>
+    </section> 
+</div>
+<style>
+    /*for multiple modal - fixes scrolling in first modal*/
+    .modal {
+        overflow: auto !important;
+    } 
+</style> 
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
+<script src="~/js/app/services/report.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script src="~/js/app/controllers/report/logTransaction.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
