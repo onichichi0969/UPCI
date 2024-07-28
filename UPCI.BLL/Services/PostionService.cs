@@ -4,61 +4,25 @@ using UPCI.BLL.Services.IService;
 using UPCI.DAL;
 using UPCI.DAL.Helpers;
 using UPCI.DAL.Models;
-using System.Transactions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using NPOI.SS.Formula.Functions;
-using System.Reflection;
+using System.Transactions; 
 
 namespace UPCI.BLL.Services
 {
-    public class MemberService(IConfiguration configuration, ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Member> memberRepository, ILogService logService) : IMemberService
+    public class PositionService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<PositionCell> positionCellRepository, IRepository<PositionMinistry> positionMinistryRepository, ILogService logService) //: IPositionService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
-        private readonly IRepository<Member> _memberRepository = memberRepository;
+        private readonly IRepository<PositionCell> _positionCellRepository = positionCellRepository;
+        private readonly IRepository<PositionMinistry> _positionMinistryRepository = positionMinistryRepository;
         private readonly ILogService _logService = logService;
         private readonly IMapper _mapper = mapper;
-        IConfiguration _configuration;
-        private readonly string _moduleName = "Member";
-        readonly Chapter chapter = configuration.GetSection("Chapter").Get<Chapter>()!;
-        readonly string _encryptionKey = configuration["AppContext:EncryptionKey"]!;
+        private readonly string _moduleName = "Position";
 
-        public (string memberCode,int lastSequence) GenerateMemberCode(string chapterCode)
-        {
-            string memberCode; 
-            string year = DateTime.Now.ToString("yyyy");
-            int lastSequence = LastGetSequence();
-            string sequence = ("0000" + lastSequence.ToString());
-            
-            chapterCode = chapterCode == "" ? "PUNTURIN" : chapterCode; 
-            memberCode = "UPCI" + "-" + chapterCode.ToUpper() + "-" + year + "-" + sequence.Substring(Math.Max(0, sequence.Length - 4)); ;
-
-            return (memberCode,lastSequence);
-        }
-        public int LastGetSequence()
-        {
-            int currentYear = DateTime.Now.Year;
-            int sequence = 0;
-            var member = _applicationDbContext.Member!
-                .Where(m => m.CreatedDate.Value.Year == currentYear)
-                .OrderByDescending(m => m.Sequence).FirstOrDefault();
-            if (member == null || member.Sequence == 9999)
-            {
-                sequence = 1;
-            }
-            else 
-            {
-                sequence = (int)member.Sequence + 1;
-            }
-            return sequence;
-        }
-        public async Task<List<UPCI.DAL.DTO.Response.Member>> Get()
+        public async Task<List<UPCI.DAL.DTO.Response.PositionCell>> GetCell()
         {
             try
             {
-                var result = _applicationDbContext.Set<Member>()
-                    .Where(e => e.Deleted != true).ProjectTo<UPCI.DAL.DTO.Response.Member>(_mapper.ConfigurationProvider)!.ToList();
+                var result = _applicationDbContext.Set<UPCI.DAL.Models.PositionCell>()
+                    .Where(e => e.Deleted != true).ProjectTo<UPCI.DAL.DTO.Response.PositionCell>(_mapper.ConfigurationProvider)!.ToList();
 
                 return await Task.FromResult(result);
             }
@@ -68,14 +32,46 @@ namespace UPCI.BLL.Services
                 throw;
             }
         }
-
-        public async Task<UPCI.DAL.DTO.Response.Member> ById(string id)
+        public async Task<List<UPCI.DAL.DTO.Response.PositionMinistry>> GetMinistry()
         {
             try
             {
-                var result = _applicationDbContext.Cell!.FirstOrDefault(b => b.Id.ToString().ToUpper() == StringManipulation.Decrypt(id!, _encryptionKey) && b.Deleted != true);
+                var result = _applicationDbContext.Set<UPCI.DAL.Models.PositionMinistry>()
+                    .Where(e => e.Deleted != true).ProjectTo<UPCI.DAL.DTO.Response.PositionMinistry>(_mapper.ConfigurationProvider)!.ToList();
 
-                return await Task.FromResult(_mapper.Map<UPCI.DAL.DTO.Response.Member>(result));
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                throw;
+            }
+        }
+        /// <summary>
+        /// //////////////////////
+        /// </summary>
+        public async Task<UPCI.DAL.DTO.Response.PositionCell> ByIdCell(string id)
+        {
+            try
+            {
+                var result = _applicationDbContext.Cell!.FirstOrDefault(b => b.Id.ToString().ToUpper() == id && b.Deleted != true);
+
+                return await Task.FromResult(_mapper.Map<UPCI.DAL.DTO.Response.PositionCell>(result));
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                throw;
+            }
+
+        } 
+        public async Task<UPCI.DAL.DTO.Response.PositionMinistry> ByIdMinistry(string id)
+        {
+            try
+            {
+                var result = _applicationDbContext.Cell!.FirstOrDefault(b => b.Id.ToString().ToUpper() == id && b.Deleted != true);
+
+                return await Task.FromResult(_mapper.Map<UPCI.DAL.DTO.Response.PositionMinistry>(result));
             }
             catch (Exception ex)
             {
@@ -84,80 +80,46 @@ namespace UPCI.BLL.Services
             }
 
         }
-        public async Task<UPCI.DAL.DTO.Response.VMember> Filter(UPCI.DAL.DTO.Request.FParam model)
+        /// <summary>
+        /// //////////
+        /// </summary> 
+        public async Task<UPCI.DAL.DTO.Response.VPositionCell> Filter(UPCI.DAL.DTO.Request.FParam model)
         {
             try
             {
-                var propertySelector = EFramework.BuildPropertySelector<Member>(model.SortColumn);
+                var propertySelector = EFramework.BuildPropertySelector<PositionCell>(model.SortColumn);
 
-                UPCI.DAL.DTO.Response.VMember vCell = new();
+                UPCI.DAL.DTO.Response.VPositionCell vCell = new();
                  
-                var memberList = _applicationDbContext.Set<Member>().AsQueryable(); 
-                var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
-                var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
-                var pepsolLevel = _applicationDbContext.Set<PEPSOL>().AsQueryable();
+                var CellList = _applicationDbContext.Set<PositionCell>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
-                    memberList = memberList.Where(ExpressionBuilder.GetExpression<Member>(model.Filters));
+                    CellList = CellList.Where(ExpressionBuilder.GetExpression<PositionCell>(model.Filters));
 
                 if (model.Descending)
                 {
-                    memberList = memberList.OrderByDescending(propertySelector);
+                    CellList = CellList.OrderByDescending(propertySelector);
                 }
                 else
                 {
-                    memberList = memberList.OrderBy(propertySelector);
+                    CellList = CellList.OrderBy(propertySelector);
                 }
 
                
 
                 vCell.CurrentPage = model.PageNum;
-                vCell.TotalRecord = memberList.Count();
+                vCell.TotalRecord = CellList.Count();
                 vCell.TotalPage = (int)Math.Ceiling((double)vCell.TotalRecord / model.PageSize);
 
                 int recordsToSkip = (model.PageNum - 1) * model.PageSize;
-                var pagedQuery = memberList.Skip(recordsToSkip).Take(model.PageSize);
-
-                //vCell.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FCell>>(pagedQuery.ToList());
-
+                var pagedQuery = CellList.Skip(recordsToSkip).Take(model.PageSize);
+                 
                 var result = (from u in pagedQuery
-                              join c in civilStatus on u.CivilStatus equals c.Code into civilGroup
-                              from c in civilGroup.DefaultIfEmpty()
-                              join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
-                              from mt in memberTypeGroup.DefaultIfEmpty()
-                              join pl in pepsolLevel on u.PEPSOL equals pl.Code into pepsolLevelGroup
-                              from pl in pepsolLevelGroup.DefaultIfEmpty()
-                              select new UPCI.DAL.DTO.Response.FMember
+                              select new UPCI.DAL.DTO.Response.FPositionCell
                               {
-                                  Id = StringManipulation.Encrypt(Convert.ToString(u.Id), _encryptionKey) ,
+                                  Id = u.Id.ToString(),
                                   Code = u.Code,
-                                  Sequence = Convert.ToString(u.Sequence),
-                                  Chapter = u.Chapter,
-                                  FirstName = u.FirstName,
-                                  MiddleName = u.MiddleName,
-                                  LastName = u.LastName,
-                                  Gender = u.Gender,
-                                  CivilStatus = u.CivilStatus,
-                                  CivilStatusDesc = c.Description,
-                                  Address = u.Address,
-                                  Birthday = u.Birthday! == null ? "" : Convert.ToDateTime(u.Birthday!).ToString("yyyy-MM-dd"),
-                                  BaptismDate = u.BaptismDate! == null ? "" : Convert.ToDateTime(u.BaptismDate!).ToString("yyyy-MM-dd"),
-                                  FirstAttend = u.FirstAttend! == null ? "" : Convert.ToDateTime(u.FirstAttend!).ToString("yyyy-MM-dd"),
-                                  Baptized = (bool)u.Baptized,
-                                  InvolvedToCell = (bool)u.InvolvedToCell,
-                                  PEPSOL = u.PEPSOL,
-                                  PEPSOLDesc = pl.Description,
-                                  MemberType = u.MemberType,
-                                  MemberTypeDesc = mt.Description,
-                                  Email = u.Email,
-                                  ContactNo = u.ContactNo,
-                                  ActiveMember = (bool)u.ActiveMember,
-                                  //ImageContent = u.ImageContent,
-                                  //ImageType = u.ImageType,
-                                  CreatedBy = u.CreatedBy,
-                                  CreatedDate = u.CreatedDate,
-                                  UpdatedBy = u.UpdatedBy,
-                                  UpdatedDate = u.UpdatedDate,
+                                  Description = u.Description,
                                   Deleted = u.Deleted
                               }
                                ).ToList();
@@ -171,7 +133,7 @@ namespace UPCI.BLL.Services
                 return new ();
             }
         }
-        public async Task<UPCI.DAL.DTO.Response.Result> Create(UPCI.DAL.DTO.Request.Member model)
+        public async Task<UPCI.DAL.DTO.Response.Result> Create(UPCI.DAL.DTO.Request.Cell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
 
@@ -189,42 +151,20 @@ namespace UPCI.BLL.Services
                     Action = action
                 };
 
-                var data = _applicationDbContext.Member!.FirstOrDefault(d => d.LastName.Trim().ToUpper() == model.LastName.Trim().ToUpper() 
-                    && d.FirstName.Trim().ToUpper() == model.FirstName.Trim().ToUpper() 
-                    && (d.Birthday! == null? Convert.ToDateTime("1900-01-01") : d.Birthday!) == Convert.ToDateTime(model.Birthday == ""? "1900-01-01" : model.Birthday).Date);
+                var data = _applicationDbContext.Cell!.FirstOrDefault(d => d.Code == model.Code);
 
                 if (data == null)
                 {
-                    var chapter = "PUNTURIN";
-                    var memberCode = GenerateMemberCode(chapter);
+
                     data = new()
-                    {
-                        Code = memberCode.memberCode,
-                        Sequence = memberCode.lastSequence,
-                        Chapter = chapter,
-                        FirstName = model.FirstName,
-                        MiddleName = model.MiddleName,
-                        LastName = model.LastName,
-                        Gender = model.Gender,
-                        CivilStatus = model.CivilStatus,
-                        Address = model.Address,
-                        Birthday = Convert.ToString(model.Birthday) == string.Empty ? null : Convert.ToDateTime(model.Birthday),
-                        BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate),
-                        FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend),
-                        PEPSOL = model.PEPSOL,
-                        Baptized = model.Baptized,
-                        InvolvedToCell = model.InvolvedToCell,
-                        ActiveMember = model.ActiveMember,
-                        MemberType = model.MemberType,
-                        Email = model.Email,
-                        ContactNo = model.ContactNo,
-                        ImageContent = model.ImageContent,
-                        ImageType = model.ImageType,
+                    { 
+                        Code = model.Code,
+                        Description = model.Description, 
                         CreatedBy = userId.ToString(),
-                        CreatedDate = DateTime.Now 
+                        CreatedDate = DateTime.Now
                     };
 
-                    await _memberRepository.AddAsync(data);
+                    await _CellRepository.AddAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {
@@ -273,7 +213,7 @@ namespace UPCI.BLL.Services
             return await Task.FromResult(result);
         }
 
-        public async Task<UPCI.DAL.DTO.Response.Result> Update(UPCI.DAL.DTO.Request.Member model)
+        public async Task<UPCI.DAL.DTO.Response.Result> Update(UPCI.DAL.DTO.Request.Cell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
 
@@ -293,11 +233,11 @@ namespace UPCI.BLL.Services
                     Action = action
                 };
 
-                var data = _applicationDbContext.Member!.Where(d => d.Code == model.Code!).FirstOrDefault();
+                var data = _applicationDbContext.Cell!.Where(d => d.Code == model.Code!).FirstOrDefault();
 
                 if (data != null)
                 {
-                    if (data.Id == Convert.ToInt32(StringManipulation.Decrypt(model.Id!, _encryptionKey)) && data.Code == model.Code)
+                    if (data.Id == Convert.ToInt32(model.Id!) && data.Code == model.Code)
                     {
                         updateStatus = 1;
                     }
@@ -327,29 +267,13 @@ namespace UPCI.BLL.Services
                 if (updateStatus == 1)
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
-                     
-                    data.FirstName = model.FirstName;
-                    data.MiddleName = model.MiddleName;
-                    data.LastName = model.LastName;
-                    data.Gender = model.Gender;
-                    data.CivilStatus = model.CivilStatus;
-                    data.Address = model.Address;
-                    data.Birthday = Convert.ToString(model.Birthday) == string.Empty ? null : Convert.ToDateTime(model.Birthday);
-                    data.BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate);
-                    data.FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend);
-                    data.PEPSOL = model.PEPSOL;
-                    data.Baptized = model.Baptized;
-                    data.InvolvedToCell = model.InvolvedToCell;
-                    data.ActiveMember = model.ActiveMember;
-                    data.MemberType = model.MemberType;
-                    data.Email = model.Email;
-                    data.ContactNo = model.ContactNo;
-                    data.ImageContent = model.ImageContent;
-                    data.ImageType = model.ImageType; 
+
+                    data!.Code = model.Code;
+                    data.Description = model.Description;
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 
-                    await _memberRepository.UpdateAsync(data);
+                    await _CellRepository.UpdateAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {
@@ -393,7 +317,7 @@ namespace UPCI.BLL.Services
             return await Task.FromResult(result);
         }
 
-        public async Task<UPCI.DAL.DTO.Response.Result> Delete(UPCI.DAL.DTO.Request.Member model)
+        public async Task<UPCI.DAL.DTO.Response.Result> Delete(UPCI.DAL.DTO.Request.Cell model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
             TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
@@ -410,7 +334,7 @@ namespace UPCI.BLL.Services
                     Action = _action
                 };
 
-                var data = _applicationDbContext.Member!.FirstOrDefault(l => l.Id.ToString() == StringManipulation.Decrypt(model.Id!, _encryptionKey));
+                var data = _applicationDbContext.Cell!.FirstOrDefault(l => l.Id.ToString() == model.Id);
 
                 if (data != null)
                 {
@@ -420,7 +344,7 @@ namespace UPCI.BLL.Services
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 
-                    await _memberRepository.DeleteAsync(data);
+                    await _CellRepository.DeleteAsync(data);
 
                     var auditTrail = new AuditTrail()
                     {

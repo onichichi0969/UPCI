@@ -13,25 +13,29 @@ namespace UPCI.DAL
         }
         public DbSet<ActivityLog>? ActivityLog { get; set; }
         public DbSet<ExceptionLog>? ExceptionLog { get; set; }
-        public DbSet<HttpLog>? HttpLog { get; set; }
-        public DbSet<TransactionLog>? TransactionLog { get; set; }
-        public DbSet<AuditTrail>? AuditTrail { get; set; } 
-        public virtual DbSet<Ministry>? Ministry { get; set; }
+        public DbSet<AuditTrail>? AuditTrail { get; set; }
+        public virtual DbSet<ActiveUser>? ActiveUser { get; set; }
         public virtual DbSet<Cell>? Cell { get; set; }
-        public virtual DbSet<CivilStatus>? CivilStatus { get; set; }
-        public virtual DbSet<Company>? Company { get; set; } 
+        public virtual DbSet<CivilStatus>? CivilStatus { get; set; } 
         public virtual DbSet<Member>? Member { get; set; }
-        public virtual DbSet<MemberType>? MemberType { get; set; }
+        public virtual DbSet<MemberType>? MemberType { get; set; } 
+        public virtual DbSet<Ministry>? Ministry { get; set; }
         public virtual DbSet<Module>? Module { get; set; } 
         public virtual DbSet<ModuleAction>? ModuleAction { get; set; }
+        public virtual DbSet<PEPSOL>? PEPSOLLevel { get; set; }
         public virtual DbSet<User>? User { get; set; }
-        public virtual DbSet<ActiveUser>? ActiveUser { get; set; }
+        
         public virtual DbSet<Role>? Role { get; set; }
         public virtual DbSet<RoleModule>? RoleModule { get; set; }
+
         public virtual DbSet<ApiClient>? ApiClient{ get; set; }
+        public virtual DbSet<Company>? Company { get; set; }
         public virtual DbSet<Route>? Route { get; set; }
         public virtual DbSet<MapRouteClient>? MapRouteClient { get; set; }
         public virtual DbSet<MapRouteIp>? MapRouteIp { get; set; }
+
+        public DbSet<HttpLog>? HttpLog { get; set; }
+        public DbSet<TransactionLog>? TransactionLog { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>()

@@ -53,6 +53,9 @@ const membershipController = createApp({
             childCheckBox: []
         });
         const items = ref([]);  
+        const cell = ref([]);
+        const ministry = ref([]);
+
 
         const Search = () => {
             $(".preloader").show();
@@ -100,6 +103,27 @@ const membershipController = createApp({
                     $('#sync-pagination').twbsPagination('destroy');
                 }
                 catch (error) { }
+            }
+
+        };
+       
+        const GetCell = async () => { 
+            const result = await CellService.All() 
+            if (result.data != null) {
+                cell.value = result.data;
+            }
+            else {
+                cell.value = [];
+            }
+
+        };
+        const GetMinistry = async () => {
+            const result = await MinistryService.All()
+            if (result.data != null) {
+                ministry.value = result.data;
+            }
+            else {
+                ministry.value = [];
             }
 
         };
@@ -340,6 +364,8 @@ const membershipController = createApp({
                 return 'Invalid date '; // Return empty string if an error occurs
             }
         }
+        GetCell();
+        GetMinistry();
         GetMember();
         const returnProps = {
             actionMode,
@@ -349,6 +375,8 @@ const membershipController = createApp({
             search,
             formData, 
             items,
+            cell,
+            ministry,
 
         };
 

@@ -129,10 +129,10 @@
                                 </td>
                                 <td class="align-middle" data-title="Church Info">
                                     <div v-if="item.memberType != ''">
-                                        MemberType:  {{item.memberTypeDesc}}
+                                        <b>Member Type:</b>  {{item.memberTypeDesc}}
                                     </div>
                                     <div>
-                                        Baptized: <template v-if="item.baptized">
+                                        <b>Baptized:</b> <template v-if="item.baptized">
                                                         <span class="text-success"><i class="fas fa-check"></i> Yes</span>
                                                   </template>
                                                   <template v-else>
@@ -140,7 +140,7 @@
                                                   </template>
                                     </div>
                                     <div>
-                                        Involved to Cell: <template v-if="item.involvedToCell">
+                                        <b>Involved to Cell:</b> <template v-if="item.involvedToCell">
                                             <span class="text-success"><i class="fas fa-check"></i> Yes</span>
                                         </template>
                                         <template v-else>
@@ -148,22 +148,22 @@
                                         </template>
                                     </div>
                                     <div v-if="item.pepsol != ''">
-                                        PEPSOL:  {{item.pepsol}}
+                                        <b>PEPSOL:</b>  {{item.pepsolDesc}}
                                     </div>
                                     <div v-if="item.firstAttend != ''">
-                                        First Attend: {{FormatDate(item.firstAttend)}}
+                                        <b>First Attend:</b> {{FormatDate(item.firstAttend)}}
                                     </div>
                                     <div v-if="item.baptismDate != ''">
-                                        Baptism Date: {{FormatDate(item.baptismDate)}}
+                                        <b>Baptism Date:</b> {{FormatDate(item.baptismDate)}}
                                     </div>
                                 </td>
                                 <td class="align-middle" data-title="Groups">
                                     <div>
-                                        Cell Groups: <br />
+                                        <b>Cell Groups:</b> <br />
                                     </div>
                                     <br />
                                     <div>
-                                        Ministries: <br />
+                                        <b>Ministries:</b> <br />
                                     </div>
                                 </td>
                                 <td class="text-center align-middle">
@@ -701,5 +701,7 @@
 </style>
 
 <script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/cell.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/controllers/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
