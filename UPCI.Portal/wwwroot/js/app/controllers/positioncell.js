@@ -28,12 +28,12 @@ const positionCellController = createApp({
         const items = ref([]); 
  
         const Search = () => {
-            $(".preloader").show(); 
+            
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
             GetPositionCell ();
-            $('.preloader').fadeOut('slow');
+           
         };
         const addFilterIfNotExists = (filters, newFilter) => {
             if (!filters.some(filter =>
@@ -48,6 +48,7 @@ const positionCellController = createApp({
 
             var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
             addFilterIfNotExists(datatable.filter, filterDeleted);
+            $(".preloader").show(); 
             const result = await PositionCellService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
 
             if (result.data != null && result.data.data.length != 0) {
@@ -73,7 +74,7 @@ const positionCellController = createApp({
                 }
                 catch (error) { }
             }
-             
+            $('.preloader').fadeOut('slow');
         };
         const Save = async () => {
             $('#form').parsley().validate();

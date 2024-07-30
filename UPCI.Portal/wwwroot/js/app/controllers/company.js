@@ -40,12 +40,12 @@ const companyController = createApp({
         const items = ref([]); 
  
         const Search = () => {
-            $(".preloader").show(); 
+            
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
             GetCompany();
-            $('.preloader').fadeOut('slow');
+            
         };
         const addFilterIfNotExists = (filters, newFilter) => {
             if (!filters.some(filter =>
@@ -60,6 +60,7 @@ const companyController = createApp({
 
             var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
             addFilterIfNotExists(datatable.filter, filterDeleted);
+            $(".preloader").show(); 
             const result = await CompanyService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
 
             if (result.data != null && result.data.data.length != 0) {
@@ -85,7 +86,7 @@ const companyController = createApp({
                 }
                 catch (error) { }
             }
-             
+            $('.preloader').fadeOut('slow');
         };
         const Save = async () => {
             $('#form').parsley().validate();

@@ -33,12 +33,12 @@ const moduleController = createApp({
         const selectedModuleActions = ref([]);
 
         const Search = () => {
-            $(".preloader").show(); 
+            
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Name", "Value": search.description, "Operator": "Contains" });
             GetModule();
-            $('.preloader').fadeOut('slow');
+           
         };
         const addFilterIfNotExists = (filters, newFilter) => {
             if (!filters.some(filter =>
@@ -52,7 +52,7 @@ const moduleController = createApp({
         const GetModule = async () => {
             var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
             addFilterIfNotExists(datatable.filter, filterDeleted);
-             
+            $(".preloader").show(); 
             const result = await ModuleService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
 
             if (result.data != null && result.data.data.length != 0) {
@@ -78,7 +78,7 @@ const moduleController = createApp({
                 }
                 catch (error) { }
             }
-             
+            $('.preloader').fadeOut('slow');
         };
         const GetModuleAction = async () => {
             const result = await ModuleService.AllModuleAction()

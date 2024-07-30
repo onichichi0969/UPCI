@@ -35,13 +35,11 @@ const roleController = createApp({
         var moduleActions = [];
         var roleModules = [];
 
-        const Search = () => {
-            $(".preloader").show(); 
+        const Search = () => { 
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetRole();
-            $('.preloader').fadeOut('slow');
+            GetRole(); 
         };
         const addFilterIfNotExists = (filters, newFilter) => {
             if (!filters.some(filter =>
@@ -53,7 +51,7 @@ const roleController = createApp({
             }
         };
         const GetRole = async () => {
-
+            $(".preloader").show(); 
             var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
             addFilterIfNotExists(datatable.filter, filterDeleted);
             const result = await RoleService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
@@ -82,7 +80,7 @@ const roleController = createApp({
                 }
                 catch (error) { }
             }
-             
+            $('.preloader').fadeOut('slow');
         };
         const GetModules = async () =>
         {
