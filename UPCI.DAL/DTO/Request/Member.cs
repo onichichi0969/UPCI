@@ -65,11 +65,11 @@ namespace UPCI.DAL.DTO.Request
         public byte[]? ImageContent { get; set; }
         public string ImageType { get; set; } = string.Empty;
 
-        public List<Cells> Cells { get; set; }
-        public List<Ministries> Ministries { get; set; }
+        public ICollection<MemberCells> Cells { get; set; }
+        public ICollection<MemberMinistries> Ministries { get; set; }
 
     }
-    public class Cells
+    public class MemberCells
     {
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
@@ -78,7 +78,7 @@ namespace UPCI.DAL.DTO.Request
         [MaxLength(50)]
         public string PositionCellCode { get; set; } = string.Empty;
     }
-    public class Ministries
+    public class MemberMinistries
     {
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]

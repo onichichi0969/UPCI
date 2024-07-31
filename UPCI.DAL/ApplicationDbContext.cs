@@ -18,6 +18,7 @@ namespace UPCI.DAL
         public virtual DbSet<Cell>? Cell { get; set; }
         public virtual DbSet<CivilStatus>? CivilStatus { get; set; } 
         public virtual DbSet<Member>? Member { get; set; }
+        public virtual DbSet<MemberCell>? MemberCell { get; set; }
         public virtual DbSet<MemberType>? MemberType { get; set; } 
         public virtual DbSet<Ministry>? Ministry { get; set; }
         public virtual DbSet<Module>? Module { get; set; } 
@@ -52,14 +53,7 @@ namespace UPCI.DAL
                 .HasForeignKey(rm => rm.ModuleCode)
                 .HasPrincipalKey(m => m.Code);
 
-            modelBuilder.Entity<Cell>()
-            .HasOne(c => c.Member)
-            .WithMany(m => m.Cells)
-            .HasForeignKey(c => c.Code) // Code is used as the foreign key here
-            .HasPrincipalKey(m => m.Code); // Code in Member class is the principal key
-
-
-
+          
 
 
             modelBuilder.Entity<ApiClient>()
@@ -82,7 +76,11 @@ namespace UPCI.DAL
                    v => string.IsNullOrEmpty(v) ? (Guid?)null : Guid.Parse(v)); // Converts string from the database back to Guid
 
 
-
+            modelBuilder.Entity<Member>()
+                  .HasMany(m => m.MemberCell)
+                  .WithOne(rm => rm.Member)
+                  .HasForeignKey(rm => rm.MemberCode)
+                  .HasPrincipalKey(m => m.Code);
 
 
         }

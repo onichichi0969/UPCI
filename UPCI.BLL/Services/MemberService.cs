@@ -10,13 +10,15 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NPOI.SS.Formula.Functions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace UPCI.BLL.Services
 {
-    public class MemberService(IConfiguration configuration, ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Member> memberRepository, ILogService logService) : IMemberService
+    public class MemberService(IConfiguration configuration, ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Member> memberRepository, IRepository<MemberCell> memberCellRepository, ILogService logService) : IMemberService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IRepository<Member> _memberRepository = memberRepository;
+        private readonly IRepository<MemberCell> _memberCellRepository = memberCellRepository;
         private readonly ILogService _logService = logService;
         private readonly IMapper _mapper = mapper;
         IConfiguration _configuration;
@@ -92,7 +94,7 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VMember vCell = new();
                  
-                var memberList = _applicationDbContext.Set<Member>().AsQueryable(); 
+                var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).AsQueryable(); 
                 var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
                 var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
                 var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
@@ -223,9 +225,21 @@ namespace UPCI.BLL.Services
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now 
                     };
-
                     await _memberRepository.AddAsync(data);
+                    var memberCellList = new List<MemberCell>();
+                    if (model.Cells != null)
+                    {
+                        memberCellList = model.Cells.Select(cell => new MemberCell
+                        {
+                            MemberCode = memberCode.memberCode,
+                            CellCode = cell.CellCode,
+                            Position = cell.PositionCellCode,
+                        }).ToList();
+                        await _memberCellRepository.AddRangeAsync(memberCellList);
+                    }
 
+                    
+                    
                     var auditTrail = new AuditTrail()
                     {
                         RecordId = data.Id.ToString(),
@@ -327,7 +341,8 @@ namespace UPCI.BLL.Services
                 if (updateStatus == 1)
                 {
                     var oldValue = EFramework.GetEntityProperties(data!);
-                     
+
+                    data.Code = model.Code;
                     data.FirstName = model.FirstName.Trim();
                     data.MiddleName = model.MiddleName.Trim();
                     data.LastName = model.LastName.Trim();
@@ -350,6 +365,23 @@ namespace UPCI.BLL.Services
                     data.UpdatedDate = DateTime.Now;
 
                     await _memberRepository.UpdateAsync(data);
+
+                    var memberCellToDelete = _applicationDbContext.MemberCell!.Where(d => d.MemberCode == model.Code!).ToList();
+                    if (memberCellToDelete != null)
+                    {
+                        await _memberCellRepository.RemoveRangeAsync(memberCellToDelete);
+                    }
+                    var memberCellList = new List<MemberCell>();
+                    if (model.Cells != null)
+                    {
+                        memberCellList = model.Cells.Select(cell => new MemberCell
+                        {
+                            MemberCode = model.Code,
+                            CellCode = cell.CellCode,
+                            Position = cell.PositionCellCode,
+                        }).ToList();
+                        await _memberCellRepository.AddRangeAsync(memberCellList);
+                    }
 
                     var auditTrail = new AuditTrail()
                     {

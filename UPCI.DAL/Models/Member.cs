@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace UPCI.DAL.Models
 {
@@ -7,7 +8,7 @@ namespace UPCI.DAL.Models
     public class Member : Base
     {
         [Key]
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string? Code { get; set; } = string.Empty;
         public string? Chapter { get; set; } = string.Empty;
         public int? Sequence { get; set; } = 0;
@@ -29,7 +30,19 @@ namespace UPCI.DAL.Models
         public string? ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; }
         public string? ImageType { get; set; } = string.Empty;
-        public virtual List<Cell> Cells { get; set; } = new List<Cell>();
-       // public virtual List<Ministry> Ministries { get; set; } = new List<Ministry>();
+
+        public virtual ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
+        // public virtual List<Ministry> Ministries { get; set; } = new List<Ministry>();
+    }
+    [Table("MemberCell")]
+    public class MemberCell
+    {
+        [Key] 
+        public long Id { get; set; } 
+        public string? MemberCode { get; set; } = string.Empty;
+        public string? CellCode { get; set; } = string.Empty;
+        public string? Position { get; set; } = string.Empty;
+
+        public virtual Member Member { get; set; } 
     }
 }
