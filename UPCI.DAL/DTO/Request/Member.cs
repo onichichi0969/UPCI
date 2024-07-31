@@ -65,5 +65,26 @@ namespace UPCI.DAL.DTO.Request
         public byte[]? ImageContent { get; set; }
         public string ImageType { get; set; } = string.Empty;
 
+        public List<Cells> Cells { get; set; }
+        public List<Ministries> Ministries { get; set; }
+
+    }
+    public class Cells
+    {
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(50)]
+        public string CellCode { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(50)]
+        public string PositionCellCode { get; set; } = string.Empty;
+    }
+    public class Ministries
+    {
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(50)]
+        public string MinistryCode { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(50)]
+        public string PositionMinistryCode { get; set; } = string.Empty;
     }
 }

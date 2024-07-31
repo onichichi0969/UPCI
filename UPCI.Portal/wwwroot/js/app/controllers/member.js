@@ -150,11 +150,39 @@ const membershipController = createApp({
             }
 
         };
-        
+        const ConstructCells = () => {
+            var cellList = [];
+            for (let x = 0; x < selectedCells.value.length; x++) {
+                cellList.push(
+                    {
+                        cellCode: selectedCells.value[x].cellCode,
+                        positionCellCode: selectedCells.value[x].positionCellCode
+                    }
+                );
+            }
+            return cellList;
+        }
+        const ConstructMinistries = () => {
+            var ministryList = [];
+            for (let x = 0; x < selectedMinistries.value.length; x++) {
+                ministryList.push(
+                    {
+                        ministryCode: selectedMinistries.value[x].ministryCode,
+                        positionMinistryCode: selectedMinistries.value[x].positionMinistryCode
+                    }
+                );
+            }
+            return ministryList;
+        }
         const Save = async () => {
+            var cellList = ConstructCells();
+            var ministryList = ConstructMinistries();
+            formData.cells = cellList;
+            formData.ministries = ministryList;
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) {
                 $(".preloader").show();
+                
                 const result = await MemberService.Save(formData);
                 if (result.data.status === 'SUCCESS') {
                     $('#formModal').modal('hide');
