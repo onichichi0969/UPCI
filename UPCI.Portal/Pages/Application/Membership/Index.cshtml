@@ -7,6 +7,8 @@
 
 @* @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor *@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 <div id="MembersController">
     <section class="content-header">
         <div class="container-fluid">
@@ -82,7 +84,7 @@
                             <tr>
                                 <th width="5%"> Active <i :class="['fas', SortClass('ActiveMember')]" style="cursor:pointer" v-on:click="Sort('ActiveMember')"></i></th>
                                 <th width="15%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
-                                <th width="15%">Name <i :class="['fas', SortClass('LastName')]" style="cursor:pointer" v-on:click="Sort('LastName,FirstName')"></i></th>
+                                <th width="15%">Name <i :class="['fas', SortClass('LastName,FirstName')]" style="cursor:pointer" v-on:click="Sort('LastName,FirstName')"></i></th>
                                 <th width="20%">Personal Info</th>
                                 <th width="20%">Church Info</th>
                                 <th width="15%">Groups</th> 
@@ -91,9 +93,21 @@
                         </thead>
                         <tbody>
                             <tr v-for="item in items" :key="item.encryptedId">
-                                <td class="text-center align-middle">
-                                    <span class="badge badge-pill badge-success" v-if="item.activeMember">Active</span>
-                                    <span class="badge badge-pill badge-danger" v-else>Inactive</span>
+                                <td class="text-center align-middle"> 
+                                    <div class="text-center">
+                                        <!-- Image with Border -->
+                                        <img id="profileImg"
+                                             src="@HttpContextAccessor.HttpContext.Session.GetString("AppUrl")/Home?handler=UserProfileImage"
+                                             class="img-circle elevation-2 border"
+                                             alt="Profile Image"
+                                             style="cursor:pointer; height:50px; width:50px;">
+
+                                        <!-- Status Badges -->
+                                        <div class="mt-2">
+                                            <span class="badge badge-pill badge-success" v-if="item.activeMember">Active</span>
+                                            <span class="badge badge-pill badge-danger" v-else>Inactive</span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="align-middle" data-title="Code">{{item.code}}</td>
                                 <td class="align-middle" data-title="Name">
