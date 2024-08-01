@@ -14,6 +14,7 @@ namespace UPCI.DAL.DTO.Request
         [Required(AllowEmptyStrings = true)]
         [MaxLength(500)]
         public string Description { get; set; } = string.Empty;
+        public string DepartmentCode { get; set; } = string.Empty; 
 
     }
 }

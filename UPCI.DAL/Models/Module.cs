@@ -32,7 +32,7 @@ namespace UPCI.DAL.Models
     public class ModuleAction : Base
     {
         [Key]
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Code { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty; 
     }
@@ -40,7 +40,7 @@ namespace UPCI.DAL.Models
     
     //public class ModuleAccess
     //{
-    //    public int Id { get; set; }
+    //    public long Id { get; set; }
     //    public string? Code { get; set; } = string.Empty;
     //    public string? Name { get; set; } = string.Empty;
     //    public string? ModuleType { get; set; } = string.Empty;

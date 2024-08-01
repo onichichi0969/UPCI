@@ -35,6 +35,11 @@ namespace UPCI.DAL
                 config.CreateMap<Cell, UPCI.DAL.DTO.Response.Cell>()
                     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
+                config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
+                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
                 config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
                 config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()

@@ -18,7 +18,7 @@ namespace UPCI.DAL.Models
     public class RoleModule
     {
         [Key]
-        public int Id { get; set; } 
+        public long Id { get; set; } 
         public string? RoleModuleCode { get; set; } = string.Empty;
         public string? ModuleCode { get; set; } = string.Empty;
         public string? Actions { get; set; } = string.Empty;  

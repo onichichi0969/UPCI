@@ -91,11 +91,11 @@ namespace UPCI.Portal.Pages
                 if (user != null)
                     return File(user.ImageContent, user.ImageType);
                 else
-                    return File("~/Assets/Images/default-user.jpgs", "image/jpg");
+                    return File("~/Assets/Images/default-user.jpg", "image/jpg");
             }
             catch(Exception ex)
             {
-                return File("~/Assets/Images/default-user.jpgs", "image/jpg");
+                return File("~/Assets/Images/default-user.jpg", "image/jpg");
             }
 
         }

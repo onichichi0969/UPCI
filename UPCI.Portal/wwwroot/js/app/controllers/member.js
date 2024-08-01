@@ -53,6 +53,7 @@ const membershipController = createApp({
             childCheckBox: []
         });
         const items = ref([]);  
+        const departments = ref([]);
         const cells = ref([]);
         const positionCells = ref([]);
         const ministries = ref([]);
@@ -109,7 +110,17 @@ const membershipController = createApp({
             }
 
         };
-       
+        const GetDepartment = async () => {
+            const result = await DepartmentService.All()
+
+            if (result.data != null) {
+                departments.value = result.data;
+            }
+            else {
+                departments.value = [];
+            }
+
+        };
         const GetCell = async () => { 
             const result = await CellService.All() 
             if (result.data != null) {
@@ -130,8 +141,8 @@ const membershipController = createApp({
             }
 
         };
-        const GetMinistry = async () => {
-            const result = await MinistryService.All()
+        const GetMinistry = async (departmentCode) => {
+            const result = await MinistryService.All(departmentCode)
             if (result.data != null) {
                 ministries.value = result.data;
             }
@@ -288,6 +299,7 @@ const membershipController = createApp({
                         icon: "success"
                     });
                     $('#cellFormModal').modal('hide');
+                    formData.cellChanged = true; 
                 }
                 
             }
@@ -307,6 +319,7 @@ const membershipController = createApp({
                     });
                     formDataGroups.cell = "";
                     formDataGroups.positionCell = "";
+                    formData.cellChanged = true; 
                 } else {
                     swal.fire({
                         text: "Cell is already selected!",
@@ -319,13 +332,17 @@ const membershipController = createApp({
         const SaveMinistry = () => {
             var ministrycode = formDataGroups.ministry.trim();
             var positioncode = formDataGroups.positionMinistry.trim();
+            var departmentCode = formDataGroups.departmentCode.trim();
             var ministry = {};
             var positionMinistry = {};
+            var department = {};
             var selectedMinistry = {
                 "ministryCode": '',
                 "ministryDesc": '',
                 "positionMinistryCode": '',
                 "positionMinistryDesc": '',
+                "departmentCode": '',
+                "departmentDesc":''
             };
 
             for (let x = 0; x < ministries.value.length; x++) {
@@ -337,17 +354,26 @@ const membershipController = createApp({
                 if (positioncode == positionMinistries.value[x].code)
                     positionMinistry = positionMinistries.value[x];
             }
+            for (let x = 0; x < departments.value.length; x++) {
+                if (departmentCode == departments.value[x].code)
+                    department = departments.value[x];
+            }
+
             if (disableControl.selectedMinistry) {
                 var index = selectedMinistries.value.findIndex(c => c.ministryCode === ministrycode);
 
                 if (index !== -1) { 
                     selectedMinistries.value[index].positionMinistryCode = positionMinistry.code;
-                    selectedMinistries.value[index].positionMinistryDesc = positionMinistry.description;
+                    selectedMinistries.value[index].positionMinistryDesc = positionMinistry.description; 
+
+                    selectedMinistries.value[index].departmentCode = department.code;
+                    selectedMinistries.value[index].departmentDesc = department.description;
 
                     swal.fire({
                         text: "Ministry modified!",
                         icon: "success"
-                    });
+                    }); 
+                    formData.ministryChanged = true;
                     $('#ministryFormModal').modal('hide');
                 }
 
@@ -359,14 +385,17 @@ const membershipController = createApp({
                     selectedMinistry.ministryDesc = ministry.description;
                     selectedMinistry.positionMinistryCode = positionMinistry.code;
                     selectedMinistry.positionMinistryDesc = positionMinistry.description;
-
+                    selectedMinistry.departmentCode = department.code;
+                    selectedMinistry.departmentDesc = department.description;
                     selectedMinistries.value.push(selectedMinistry);
                     swal.fire({
                         text: "Ministry added!",
                         icon: "success"
                     });
                     formDataGroups.ministry = "";
-                    formDataGroups.positionMinistry = "";
+                    formDataGroups.positionMinistry = ""; 
+                    formDataGroups.departmentCode = "";
+                    formData.ministryChanged = true;
                 } else {
                     swal.fire({
                         text: "Ministry is already selected!",
@@ -376,40 +405,7 @@ const membershipController = createApp({
             }
 
         }
-        const AddCell = () => {
-            disableControl.selectedCell = false;
-            formDataGroups.cell = '';
-            formDataGroups.positionCell = '';
-        };
-        const AddMinistry = () => {
-            disableControl.selectedMinistry = false;
-            formDataGroups.ministry = '';
-            formDataGroups.positionMinistry = '';
-        };
-        const EditCell = (cell) => {
-            disableControl.selectedCell = true;
-            formDataGroups.cell = cell.cellCode;
-            formDataGroups.positionCell = cell.positionCellCode;
-             
-        }
-        const EditMinistry = (ministry) => {
-            disableControl.selectedMinistry = true;
-            formDataGroups.ministry = ministry.ministryCode;
-            formDataGroups.positionMinistry = ministry.positionMinistryCode;
-
-        }
-        const RemoveCell = (cell) => {
-            if (selectedCells.value.includes(cell)) {
-                const index = selectedCells.value.indexOf(cell);
-                selectedCells.value.splice(index, 1);
-            }
-        } 
-        const RemoveMinistry = (ministry) => {
-            if (selectedMinistries.value.includes(ministry)) {
-                const index = selectedMinistries.value.indexOf(ministry);
-                selectedMinistries.value.splice(index, 1);
-            }
-        } 
+       
         // Table Events
         const itemCountChange = () => {
             Search();
@@ -527,11 +523,19 @@ const membershipController = createApp({
                 return 'Invalid date '; // Return empty string if an error occurs
             }
         }
+       
         const Add = () => {
             $('#form').parsley().reset();
             actionMode.value = 'Add'
             disableControl.code = false;
+            selectedCells.value = [];
+            selectedMinistries.value = [];
+
+            formData.cellChanged = false;
+            formData.ministryChanged = false;
+
             formData.id = '';
+            formData.code = '';
             formData.activeMember = false;
             formData.involvedToCell = false;
             formData.baptized = false;
@@ -552,6 +556,8 @@ const membershipController = createApp({
             formDataGroups.positionCell = '';
             formDataGroups.ministry = '';
             formDataGroups.positionMinistry = '';
+
+             
             //formData = {};
         };
 
@@ -563,6 +569,7 @@ const membershipController = createApp({
             formDataGroups.positionCell = '';
             formDataGroups.ministry = '';
             formDataGroups.positionMinistry = '';
+            formDataGroups.departmentCode = '';
             formData.id = item.id;
             formData.code = item.code;
             formData.activeMember = item.activeMember;
@@ -581,14 +588,130 @@ const membershipController = createApp({
             formData.email = item.email;
             formData.contactNo = item.contactNo;
             formData.address = item.address;
+            formData.cellChanged = false;
+            formData.ministryChanged = false;
+
+            LoadMemberCell(item);
+            LoadMemberMinistry(item);
 
 
         };
+        const AddCell = () => {
+            disableControl.selectedCell = false;
+            formDataGroups.cell = '';
+            formDataGroups.positionCell = '';
+        };
+        const AddMinistry = () => {
+            disableControl.selectedMinistry = false;
+            disableControl.selectedDepartment = false;
+            formDataGroups.ministry = '';
+            formDataGroups.positionMinistry = '';
+            formDataGroups.departmentCode = '';
+        };
+        const EditCell = (cell) => {
+            disableControl.selectedCell = true;
+            formDataGroups.cell = cell.cellCode;
+            formDataGroups.positionCell = cell.positionCellCode;
 
+        }
+        const EditMinistry = async (ministry) => {
+            disableControl.selectedMinistry = true;
+            disableControl.selectedDepartment = true;
+
+            formDataGroups.positionMinistry = ministry.positionMinistryCode;
+            formDataGroups.departmentCode = ministry.departmentCode;
+
+            await DepartmentChange(ministry.departmentCode);
+
+            if (ministries.value.find(min => min.code === ministry.ministryCode)) {
+                formDataGroups.ministry = ministry.ministryCode;
+            }
+            else {
+                formDataGroups.ministry = '';
+            }
+
+        }
+        const RemoveCell = (cell) => {
+            swal.fire({
+                title: "Are you sure?",
+                text: "Once delete, this will not be accessible on the system!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (selectedCells.value.includes(cell)) {
+                        const index = selectedCells.value.indexOf(cell);
+                        selectedCells.value.splice(index, 1);
+                        formData.cellChanged = true;
+                    }
+                    swal.fire({
+                        text: "Cell removed!",
+                        icon: "success"
+                    });
+                }
+            });
+           
+        }
+        const RemoveMinistry = (ministry) => {
+            swal.fire({
+                title: "Are you sure?",
+                text: "Once delete, this will not be accessible on the system!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed)
+                {
+                    if (selectedMinistries.value.includes(ministry)) {
+                        const index = selectedMinistries.value.indexOf(ministry);
+                        selectedMinistries.value.splice(index, 1);
+                        formData.ministryChanged = true;
+                    }
+                    swal.fire({
+                        text: "Ministry removed!",
+                        icon: "success"
+                    });
+                }
+            });
+           
+        } 
+        const DepartmentChange = async (ministryCode) => {
+            await GetMinistry(ministryCode);
+        }
+        const LoadMemberCell = (item) =>
+        {
+            selectedCells.value = [];
+            item.memberCell.forEach(cell => {
+                selectedCells.value.push({
+                    cellCode: cell.cellCode,
+                    cellDesc: cell.cellDesc,
+                    positionCellCode: cell.position,
+                    positionCellDesc: cell.positionDesc
+                });
+            });
+        }
+        const LoadMemberMinistry = (item) => {
+            selectedMinistries.value = [];
+            item.memberMinistry.forEach(ministry => {
+                selectedMinistries.value.push({
+                    ministryCode: ministry.ministryCode,
+                    ministryDesc: ministry.ministryDesc,
+                    positionMinistryCode: ministry.position,
+                    positionMinistryDesc: ministry.positionDesc,
+                    departmentCode : ministry.departmentCode,
+                    departmentDesc : ministry.departmentDesc,
+                });
+            });
+        }
        
+        GetDepartment(); 
         GetCell();
-        GetPositionCell();
-        GetMinistry();
+        GetPositionCell(); 
         GetPositionMinistries();
         GetMember();
         const returnProps = {
@@ -606,7 +729,7 @@ const membershipController = createApp({
             selectedCells,
             positionCells,
             positionMinistries,
-
+            departments,
         };
 
         // Return methods
@@ -633,6 +756,7 @@ const membershipController = createApp({
             RemoveMinistry,
             EditCell,
             EditMinistry,
+            DepartmentChange,
         };
         return {
             ...returnProps,

@@ -1,5 +1,5 @@
 const { createApp, reactive, ref, computed, onMounted, filter } = Vue;
-const cellController = createApp({
+const departmentController = createApp({
     setup() {
         let isFormValid = ref(false);
         onMounted(() => {
@@ -44,7 +44,7 @@ const cellController = createApp({
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetCell();
+            GetDepartment();
             
         };
         const addFilterIfNotExists = (filters, newFilter) => {
@@ -56,12 +56,12 @@ const cellController = createApp({
                 filters.push(newFilter);
             }
         };
-        const GetCell = async () => {
+        const GetDepartment = async () => {
 
             var filterDeleted = { "Property": "Deleted", "Value": true, "Operator": "NOTEQUALS" };
             addFilterIfNotExists(datatable.filter, filterDeleted);
             $(".preloader").show(); 
-            const result = await CellService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
+            const result = await DepartmentService.Search(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
 
             if (result.data != null && result.data.data.length != 0) {
                 items.value = result.data.data;
@@ -92,11 +92,11 @@ const cellController = createApp({
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) { 
                 $(".preloader").show(); 
-                const result = await CellService.Save(formData);
+                const result = await DepartmentService.Save(formData);
                 if (result.data.status === 'SUCCESS') {
                     $('#formModal').modal('hide');
                     swal.fire({
-                        text: "Cell successfully saved!",
+                        text: "Department successfully saved!",
                         icon: "success"
                     });
                     Search();
@@ -136,11 +136,11 @@ const cellController = createApp({
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    CellService.Delete(item)
+                    DepartmentService.Delete(item)
                         .then((result) => {
                             if (result.data.status === 'SUCCESS') {
                                 swal.fire({
-                                    text: "Cell successfully deleted!",
+                                    text: "Department successfully deleted!",
                                     icon: "success"
                                 });
 
@@ -177,7 +177,7 @@ const cellController = createApp({
                 startPage: datatable.pageNum,
                 onPageClick: (evt, page) => {
                     datatable.pageNum = page;
-                    GetCell();
+                    GetDepartment();
                 }
             });
         };
@@ -257,7 +257,7 @@ const cellController = createApp({
 
 
         // Execute function when Vue instance is created  
-        GetCell();
+        GetDepartment();
         const returnProps = {
             actionMode,
             isFormValid,
@@ -292,4 +292,4 @@ const cellController = createApp({
     }
 });
 
-cellController.mount('#CellController');
+departmentController.mount('#DepartmentController');

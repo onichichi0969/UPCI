@@ -10,5 +10,9 @@ namespace UPCI.DAL.Models
         public int Id { get; set; }
         public string Code { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string DepartmentCode { get; set; } = string.Empty;
+
+        [ForeignKey("DepartmentCode")]
+        public Department Department { get; set; }
     }
 }

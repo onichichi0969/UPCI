@@ -1,8 +1,8 @@
 ﻿
 var MinistryService = {};
 
-MinistryService.All = () => { 
-    return axios.get(appUrl + '/Maintenance/Ministry/Index?handler=All');
+MinistryService.All = (departmentCode) => { 
+    return axios.get(appUrl + '/Maintenance/Ministry/Index?departmentCode=' + departmentCode + '&handler=All');
 };
 
 MinistryService.Search = (filter, sortColumn, descending, pageNum, pageSize) => {

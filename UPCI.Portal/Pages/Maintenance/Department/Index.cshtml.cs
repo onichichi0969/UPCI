@@ -13,7 +13,7 @@ using UPCI.BLL.Services;
 using UPCI.Portal.Helpers;
 using Microsoft.Identity.Client;
 
-namespace UPCI.Portal.Pages.Maintenance.Ministry
+namespace UPCI.Portal.Pages.Maintenance.Department
 {
     public class IndexModel : PageModel
     {
@@ -42,13 +42,13 @@ namespace UPCI.Portal.Pages.Maintenance.Ministry
 
 
         IConfiguration _configuration;
-        IMinistryService _ministryService;
+        IDepartmentService _departmentService;
         readonly AppConfig _appConfig;
          
-        public IndexModel(IConfiguration configuration, IMinistryService ministryService)
+        public IndexModel(IConfiguration configuration, IDepartmentService departmentService)
         {
             _configuration = configuration;
-            _ministryService = ministryService;
+            _departmentService = departmentService;
             _appConfig = _configuration.GetSection("AppSettings").Get<AppConfig>()!; 
         }
         public IActionResult OnGet()
@@ -102,9 +102,9 @@ namespace UPCI.Portal.Pages.Maintenance.Ministry
             }
 
         }
-        public JsonResult OnGetAll([FromQuery] string departmentCode)
+        public JsonResult OnGetAll ()
         { 
-            var items = _ministryService.Get(departmentCode).Result;
+            var items = _departmentService.Get().Result;
 
             return new JsonResult(items);
         }
@@ -113,30 +113,30 @@ namespace UPCI.Portal.Pages.Maintenance.Ministry
 
             fparam.OpUser = HttpContext.Session.GetString("Username");
             fparam.Terminal = HttpContext.Session.GetString("Terminal");
-            var items = _ministryService.Filter(fparam).Result;
+            var items = _departmentService.Filter(fparam).Result;
 
             return new JsonResult(items);
         }
 
-        public async Task<JsonResult> OnPostSave([FromBody] UPCI.DAL.DTO.Request.Ministry model)
+        public async Task<JsonResult> OnPostSave([FromBody] UPCI.DAL.DTO.Request.Department model)
         {
             model.OpUser = HttpContext.Session.GetString("Username");
             model.Terminal = HttpContext.Session.GetString("Terminal");
             var result = new DAL.DTO.Response.Result();
 
             if (model.Id.Trim() != "")
-                result = await _ministryService.Update(model);
+                result = await _departmentService.Update(model);
             else
-                result = await _ministryService.Create(model);
+                result = await _departmentService.Create(model);
 
             return new JsonResult(result);
         }
-        public async Task<JsonResult> OnPostDelete([FromBody] UPCI.DAL.DTO.Request.Ministry model)
+        public async Task<JsonResult> OnPostDelete([FromBody] UPCI.DAL.DTO.Request.Department model)
         {
             model.OpUser = HttpContext.Session.GetString("Username");
             model.Terminal = HttpContext.Session.GetString("Terminal");
             var result = new DAL.DTO.Response.Result();
-            result = await _ministryService.Delete(model);
+            result = await _departmentService.Delete(model);
 
             return new JsonResult(result);
         }

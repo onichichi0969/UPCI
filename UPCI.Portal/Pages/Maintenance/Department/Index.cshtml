@@ -1,5 +1,5 @@
 ﻿@page
-@model UPCI.Portal.Pages.Maintenance.Ministry.IndexModel
+@model UPCI.Portal.Pages.Maintenance.Department.IndexModel
 @{
     ViewData["Title"] = Model.PageTitle;
     Layout = "~/Pages/Shared/_Layout.cshtml";
@@ -7,7 +7,7 @@
 
 @* @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor *@
-<div id="MinistryController">
+<div id="DepartmentController">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -75,9 +75,8 @@
                     <table class="table table-striped table-hover text-sm">
                         <thead class="bg-secondary">
                             <tr> 
-                                <th width="20%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
-                                <th width="35%">Description <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
-                                <th width="35%">Department <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
+                                <th width="45%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
+                                <th width="45%">Description <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
                                 <th class="text-center" width="10%">Action</th>
                             </tr>
                         </thead>
@@ -86,7 +85,6 @@
                                  
                                 <td class="align-middle" data-title="Code">{{ item.code }}</td>
                                 <td class="align-middle" data-title="Name">{{ item.description }}</td>
-                                <td class="align-middle" data-title="Name">{{ item.departmentDesc }}</td>
                                 <td class="text-center align-middle">
                                     @if (Model.Actions.Contains("ACN02"))
                                     {
@@ -147,19 +145,6 @@
                                                    data-parsley-restrict-special-characters>
                                         </div>
                                     </div>
-                                        <div class="col-sm-12">
-                                            <div class="form-group">
-                                                <label>Department</label>
-                                                <select class="custom-select"
-                                                        v-model="formData.departmentCode">
-                                                    <option value="">-- Please Select --</option>
-                                                    <template v-for="department in departments" :key="department.id">
-                                                        <option :value="department.code">{{department.description}} </option>
-                                                    </template>
-                                                </select>
-                                                
-                                            </div>
-                                        </div>
                                 </div>
                                  
                             </div>
@@ -186,6 +171,5 @@
      
 </script>
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
-<script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/department.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
-<script src="~/js/app/controllers/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/controllers/department.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

@@ -28,9 +28,7 @@ const ministryController = createApp({
         const disableControl = reactive({});
 
         const formData = reactive({
-        });
-        const formDataSecurity = reactive({
-        });
+        }); 
         const search = reactive({});
 
         const checkBoxes = reactive({
@@ -38,7 +36,8 @@ const ministryController = createApp({
             childCheckBox: []
         });
         const items = ref([]); 
- 
+        const departments = ref([]); 
+
         const Search = () => {
            
             datatable.filter = [];
@@ -55,6 +54,17 @@ const ministryController = createApp({
             )) {
                 filters.push(newFilter);
             }
+        };
+        const GetDepartment = async () => {
+            const result = await DepartmentService.All()
+
+            if (result.data != null) {
+                departments.value = result.data;
+            }
+            else {
+                departments.value = [];
+            }
+
         };
         const GetMinistry = async () => {
 
@@ -238,8 +248,10 @@ const ministryController = createApp({
             actionMode.value = 'Add'
             disableControl.code = false; 
             formData.id = ''; 
+            formData.code = ''; 
             formData.name = '';
             formData.description = '';
+            formData.departmentCode = '';
             //formData = {};
         };
 
@@ -250,12 +262,14 @@ const ministryController = createApp({
             formData.id = item.id; 
             formData.code = item.code; 
             formData.description = item.description;
+            formData.departmentCode = item.departmentCode;
              
         };
 
 
 
         // Execute function when Vue instance is created  
+        GetDepartment();
         GetMinistry();
         const returnProps = {
             actionMode,
@@ -263,10 +277,10 @@ const ministryController = createApp({
             datatable,
             disableControl,
             search,
-            formData,
-            formDataSecurity,
+            formData, 
             items,
             checkBoxes,  
+            departments,
             
         };
 

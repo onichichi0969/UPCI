@@ -7,7 +7,7 @@ namespace UPCI.DAL.Models
     public class User : Base
     {
         [Key]
-        public int? Id { get; set; }
+        public long? Id { get; set; }
         public string? Username { get; set; } = string.Empty;
         public string? Password { get; set; } = string.Empty;
         public string? FirstName { get; set; } = string.Empty;
@@ -34,7 +34,7 @@ namespace UPCI.DAL.Models
     public class ActiveUser  
     {
         [Key]
-        public int? Id { get; set; }
+        public long? Id { get; set; } 
         public string? Username { get; set; } = string.Empty; 
         public string? Terminal { get; set; } = string.Empty;
         public DateTime? ActivityDate { get; set; }

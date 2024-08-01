@@ -15,6 +15,7 @@ namespace UPCI.BLL
 
 
             services.AddScoped<ICellService, CellService>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IMemberService, MemberService>();

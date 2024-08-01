@@ -47,7 +47,7 @@ namespace UPCI.DAL.Models
     [Table("map_route_client")]
     public class MapRouteClient 
     {
-        public int Id { get; set; } = 0;
+        public long Id { get; set; } = 0;
         public Guid? RouteId { get; set; }
         public string ClientId { get; set; } = string.Empty;
 
@@ -56,7 +56,7 @@ namespace UPCI.DAL.Models
     [Table("map_route_ip")]
     public class MapRouteIp
     {
-        public int Id { get; set; } = 0;
+        public long Id { get; set; } = 0;
         public Guid? RouteId { get; set; } 
         public string Ip { get; set; } = string.Empty;
     }

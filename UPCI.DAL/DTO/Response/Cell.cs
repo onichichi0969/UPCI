@@ -15,8 +15,7 @@ namespace UPCI.DAL.DTO.Response
     {
         public string Id { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Leader { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty; 
         public string FormDate { get; set; }  
     }
 }

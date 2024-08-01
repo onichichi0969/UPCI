@@ -2,7 +2,7 @@
 {
     public interface IMinistryService
     {
-        Task<List<UPCI.DAL.DTO.Response.Ministry>> Get();
+        Task<List<UPCI.DAL.DTO.Response.Ministry>> Get(string departmentCode);
         Task<UPCI.DAL.DTO.Response.Ministry> ById(string id);
         Task<UPCI.DAL.DTO.Response.VMinistry> Filter(UPCI.DAL.DTO.Request.FParam model);
         Task<UPCI.DAL.DTO.Response.Result> Create(UPCI.DAL.DTO.Request.Ministry model);

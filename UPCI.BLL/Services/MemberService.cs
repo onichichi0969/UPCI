@@ -14,11 +14,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UPCI.BLL.Services
 {
-    public class MemberService(IConfiguration configuration, ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Member> memberRepository, IRepository<MemberCell> memberCellRepository, ILogService logService) : IMemberService
+    public class MemberService(IConfiguration configuration, ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Member> memberRepository, IRepository<MemberCell> memberCellRepository, IRepository<MemberMinistry> memberMinistryRepository, ILogService logService) : IMemberService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IRepository<Member> _memberRepository = memberRepository;
         private readonly IRepository<MemberCell> _memberCellRepository = memberCellRepository;
+        private readonly IRepository<MemberMinistry> _memberMinistryRepository = memberMinistryRepository;
         private readonly ILogService _logService = logService;
         private readonly IMapper _mapper = mapper;
         IConfiguration _configuration;
@@ -94,7 +95,7 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VMember vCell = new();
                  
-                var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).AsQueryable(); 
+                var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).Include(m => m.MemberMinistry).AsQueryable(); 
                 var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
                 var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
                 var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
@@ -128,7 +129,7 @@ namespace UPCI.BLL.Services
                               join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
                               from mt in memberTypeGroup.DefaultIfEmpty()
                               join pl in pepsolLevel on u.PEPSOL equals pl.Code into pepsolLevelGroup
-                              from pl in pepsolLevelGroup.DefaultIfEmpty()
+                              from pl in pepsolLevelGroup.DefaultIfEmpty() 
                               select new UPCI.DAL.DTO.Response.FMember
                               {
                                   Id = StringManipulation.Encrypt(Convert.ToString(u.Id), _encryptionKey) ,
@@ -154,6 +155,27 @@ namespace UPCI.BLL.Services
                                   Email = u.Email,
                                   ContactNo = u.ContactNo,
                                   ActiveMember = (bool)u.ActiveMember,
+                                  MemberCell = u.MemberCell == null? new() :
+                                                                              u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
+                                                                              {
+                                                                                  MemberCode = u.Code!,
+                                                                                  CellCode = cell.CellCode!,
+                                                                                  CellDesc = cell.Cell.Description!,
+                                                                                  Position = cell.Position!,
+                                                                                  PositionDesc = cell.PositionCell.Description!,
+                                                                              }).ToList(),
+                                  MemberMinistry = u.MemberMinistry == null ? new() :
+                                                                              u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
+                                                                              {
+                                                                                  MemberCode = u.Code,
+                                                                                  MinistryCode = ministry.MinistryCode!,
+                                                                                  MinistryDesc = ministry.Ministry.Description,
+                                                                                  Position = ministry.Position!,
+                                                                                  PositionDesc = ministry.PositionMinistry.Description!,
+                                                                                  DepartmentCode = ministry.Ministry.Department.Code,
+                                                                                  DepartmentDesc = ministry.Ministry.Department.Description,
+                                                                              }).ToList(),
+
                                   //ImageContent = u.ImageContent,
                                   //ImageType = u.ImageType,
                                   CreatedBy = u.CreatedBy,
@@ -226,20 +248,36 @@ namespace UPCI.BLL.Services
                         CreatedDate = DateTime.Now 
                     };
                     await _memberRepository.AddAsync(data);
-                    var memberCellList = new List<MemberCell>();
-                    if (model.Cells != null)
+                    if (model.CellChanged)
                     {
-                        memberCellList = model.Cells.Select(cell => new MemberCell
+                        var memberCellList = new List<MemberCell>();
+                        if (model.Cells != null)
                         {
-                            MemberCode = memberCode.memberCode,
-                            CellCode = cell.CellCode,
-                            Position = cell.PositionCellCode,
-                        }).ToList();
-                        await _memberCellRepository.AddRangeAsync(memberCellList);
+                            memberCellList = model.Cells.Select(cell => new MemberCell
+                            {
+                                MemberCode = memberCode.memberCode,
+                                CellCode = cell.CellCode,
+                                Position = cell.PositionCellCode,
+                            }).ToList();
+                            await _memberCellRepository.AddRangeAsync(memberCellList);
+                        }
+                    }
+                    if (model.MinistryChanged)
+                    {
+                        var memberMinistryList = new List<MemberMinistry>();
+                        if (model.Ministries != null)
+                        {
+                            memberMinistryList = model.Ministries.Select(ministry => new MemberMinistry
+                            {
+                                MemberCode = memberCode.memberCode,
+                                MinistryCode = ministry.MinistryCode,
+                                Position = ministry.PositionMinistryCode,
+                            }).ToList();
+                            await _memberMinistryRepository.AddRangeAsync(memberMinistryList);
+                        }
                     }
 
-                    
-                    
+
                     var auditTrail = new AuditTrail()
                     {
                         RecordId = data.Id.ToString(),
@@ -366,21 +404,43 @@ namespace UPCI.BLL.Services
 
                     await _memberRepository.UpdateAsync(data);
 
-                    var memberCellToDelete = _applicationDbContext.MemberCell!.Where(d => d.MemberCode == model.Code!).ToList();
-                    if (memberCellToDelete != null)
+                    if (model.CellChanged)
                     {
-                        await _memberCellRepository.RemoveRangeAsync(memberCellToDelete);
-                    }
-                    var memberCellList = new List<MemberCell>();
-                    if (model.Cells != null)
-                    {
-                        memberCellList = model.Cells.Select(cell => new MemberCell
+                        var memberCellToDelete = _applicationDbContext.MemberCell!.Where(d => d.MemberCode == model.Code!).ToList();
+                        if (memberCellToDelete != null)
                         {
-                            MemberCode = model.Code,
-                            CellCode = cell.CellCode,
-                            Position = cell.PositionCellCode,
-                        }).ToList();
-                        await _memberCellRepository.AddRangeAsync(memberCellList);
+                            await _memberCellRepository.RemoveRangeAsync(memberCellToDelete);
+                        }
+                        var memberCellList = new List<MemberCell>();
+                        if (model.Cells != null)
+                        {
+                            memberCellList = model.Cells.Select(cell => new MemberCell
+                            {
+                                MemberCode = model.Code,
+                                CellCode = cell.CellCode,
+                                Position = cell.PositionCellCode,
+                            }).ToList();
+                            await _memberCellRepository.AddRangeAsync(memberCellList);
+                        }
+                    }
+                    if (model.MinistryChanged)
+                    {
+                        var memberMinistryToDelete = _applicationDbContext.MemberMinistry!.Where(d => d.MemberCode == model.Code!).ToList();
+                        if (memberMinistryToDelete != null)
+                        {
+                            await _memberMinistryRepository.RemoveRangeAsync(memberMinistryToDelete);
+                        }
+                        var memberMinistryList = new List<MemberMinistry>();
+                        if (model.Ministries != null)
+                        {
+                            memberMinistryList = model.Ministries.Select(ministry => new MemberMinistry
+                            {
+                                MemberCode = model.Code,
+                                MinistryCode = ministry.MinistryCode,
+                                Position = ministry.PositionMinistryCode,
+                            }).ToList();
+                            await _memberMinistryRepository.AddRangeAsync(memberMinistryList);
+                        }
                     }
 
                     var auditTrail = new AuditTrail()

@@ -30,9 +30,9 @@ namespace UPCI.DAL.Models
         public string? ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; }
         public string? ImageType { get; set; } = string.Empty;
-
+         
         public virtual ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
-        // public virtual List<Ministry> Ministries { get; set; } = new List<Ministry>();
+        public virtual ICollection<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
     }
     [Table("MemberCell")]
     public class MemberCell
@@ -43,6 +43,27 @@ namespace UPCI.DAL.Models
         public string? CellCode { get; set; } = string.Empty;
         public string? Position { get; set; } = string.Empty;
 
+        [ForeignKey("CellCode")]
+        public virtual Cell Cell { get; set; }
+
+        [ForeignKey("Position")]
+        public virtual PositionCell PositionCell { get; set; }
         public virtual Member Member { get; set; } 
+    }
+    [Table("MemberMinistry")]
+    public class MemberMinistry
+    {
+        [Key]
+        public long Id { get; set; }
+        public string? MemberCode { get; set; } = string.Empty;
+        public string? MinistryCode { get; set; } = string.Empty;
+        public string? Position { get; set; } = string.Empty; 
+
+        [ForeignKey("MinistryCode")]
+        public virtual Ministry Ministry { get; set; }
+
+        [ForeignKey("Position")]
+        public virtual PositionMinistry PositionMinistry { get; set; }
+        public virtual Member Member { get; set; }
     }
 }

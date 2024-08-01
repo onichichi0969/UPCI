@@ -16,9 +16,11 @@ namespace UPCI.DAL
         public DbSet<AuditTrail>? AuditTrail { get; set; }
         public virtual DbSet<ActiveUser>? ActiveUser { get; set; }
         public virtual DbSet<Cell>? Cell { get; set; }
-        public virtual DbSet<CivilStatus>? CivilStatus { get; set; } 
+        public virtual DbSet<CivilStatus>? CivilStatus { get; set; }
+        public virtual DbSet<Department>? Department { get; set; }
         public virtual DbSet<Member>? Member { get; set; }
         public virtual DbSet<MemberCell>? MemberCell { get; set; }
+        public virtual DbSet<MemberMinistry>? MemberMinistry { get; set; }
         public virtual DbSet<MemberType>? MemberType { get; set; } 
         public virtual DbSet<Ministry>? Ministry { get; set; }
         public virtual DbSet<Module>? Module { get; set; } 
@@ -53,8 +55,20 @@ namespace UPCI.DAL
                 .HasForeignKey(rm => rm.ModuleCode)
                 .HasPrincipalKey(m => m.Code);
 
-          
+            modelBuilder.Entity<Department>()
+                .HasMany(d => d.Ministries);
 
+            modelBuilder.Entity<Department>()
+                .HasOne(d => d.Member)
+                .WithMany()
+                .HasForeignKey(rm => rm.Code)
+                .HasPrincipalKey(m => m.Code);  
+
+            modelBuilder.Entity<Ministry>()
+               .HasOne(d => d.Department)
+               .WithMany(m => m.Ministries)
+               .HasForeignKey(d => d.DepartmentCode)
+               .HasPrincipalKey(m => m.Code);
 
             modelBuilder.Entity<ApiClient>()
                 .Property(e => e.CompanyId)
@@ -82,7 +96,38 @@ namespace UPCI.DAL
                   .HasForeignKey(rm => rm.MemberCode)
                   .HasPrincipalKey(m => m.Code);
 
+            modelBuilder.Entity<MemberCell>()
+                  .HasOne(c => c.Cell)
+                  .WithMany()
+                  .HasForeignKey(rm => rm.CellCode)
+                  .HasPrincipalKey(m => m.Code);
 
+            modelBuilder.Entity<MemberCell>()
+                  .HasOne(c => c.PositionCell)
+                  .WithMany()
+                  .HasForeignKey(rm => rm.Position)
+                  .HasPrincipalKey(m => m.Code);
+
+
+
+            modelBuilder.Entity<Member>()
+                  .HasMany(m => m.MemberMinistry)
+                  .WithOne(rm => rm.Member)
+                  .HasForeignKey(rm => rm.MemberCode)
+                  .HasPrincipalKey(m => m.Code);
+
+            modelBuilder.Entity<MemberMinistry>()
+                  .HasOne(c => c.Ministry)
+                  .WithMany()
+                  .HasForeignKey(rm => rm.MinistryCode)
+                  .HasPrincipalKey(m => m.Code);
+
+            modelBuilder.Entity<MemberMinistry>()
+                  .HasOne(c => c.PositionMinistry)
+                  .WithMany()
+                  .HasForeignKey(rm => rm.Position)
+                  .HasPrincipalKey(m => m.Code);
+ 
         }
 
     }

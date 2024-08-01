@@ -2,7 +2,7 @@
 
 namespace UPCI.DAL.DTO.Request
 {
-    public class Cell : Base
+    public class Department : Base
     {
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
@@ -13,11 +13,11 @@ namespace UPCI.DAL.DTO.Request
 
         [Required(AllowEmptyStrings = true)]
         [MaxLength(500)]
-        public string Description { get; set; } = string.Empty; 
+        public string Description { get; set; } = string.Empty;
 
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
-        public string FormDate { get; set; }
+        public string Leader { get; set; } = string.Empty;
 
     }
 }

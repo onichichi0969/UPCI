@@ -1,4 +1,5 @@
-﻿using UPCI.DAL.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using UPCI.DAL.Models;
 
 namespace UPCI.DAL.DTO.Response
 {
@@ -37,6 +38,28 @@ namespace UPCI.DAL.DTO.Response
         public string Email { get; set; } = string.Empty;
         public string ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; } 
-        public string ImageType { get; set; } = string.Empty;  
+        public string ImageType { get; set; } = string.Empty;
+         
+        public ICollection<MemberCell> MemberCell { get; set; }
+        public ICollection<MemberMinistry> MemberMinistry { get; set; }
+    }
+    public class MemberCell
+    {
+        public string MemberCode { get; set; } = string.Empty;
+        public string CellCode { get; set; } = string.Empty;
+        public string CellDesc { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public string PositionDesc { get; set; } = string.Empty;
+    }
+
+    public class MemberMinistry
+    {
+        public string MemberCode { get; set; } = string.Empty;
+        public string MinistryCode { get; set; } = string.Empty;
+        public string MinistryDesc { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public string PositionDesc { get; set; } = string.Empty;
+        public string DepartmentCode { get; set; } = string.Empty;
+        public string DepartmentDesc { get; set; } = string.Empty;
     }
 }

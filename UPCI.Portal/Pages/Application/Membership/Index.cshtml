@@ -98,8 +98,8 @@
                                 <td class="align-middle" data-title="Code">{{item.code}}</td>
                                 <td class="align-middle" data-title="Name">
                                     {{item.firstName}}   <br />
-                                    {{item.middleName}} <br />
-                                   {{item.lastName}}
+                                    <template v-if="item.middleName != ''">{{item.middleName}} <br /></template>
+                                    {{item.lastName}}
                                 </td>
                                 <td class="align-middle" data-title="Personal Info">
                                     <div v-if="item.gender == 'M'">
@@ -160,10 +160,24 @@
                                 <td class="align-middle" data-title="Groups">
                                     <div>
                                         <b>Cell Groups:</b> <br />
+                                        <span v-for="(cell, index) in item.memberCell" :key="index">
+                                            {{cell.cellDesc}}  
+                                            <span v-if="index < item.memberCell.length - 1" class="text-success text-bold"> | </span>
+                                        </span>
+                                        <span v-if="item.memberCell.length == 0">
+                                            <span class="text-danger">None</span>
+                                        </span>
                                     </div>
                                     <br />
                                     <div>
                                         <b>Ministries:</b> <br />
+                                        <span v-for="(ministry, index) in item.memberMinistry" :key="index">
+                                            {{ministry.ministryDesc}}
+                                            <span v-if="index < item.memberMinistry.length - 1" class="text-success text-bold"> | </span>
+                                        </span>
+                                        <span v-if="item.memberMinistry.length == 0">
+                                            <span class="text-danger">None</span>
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="text-center align-middle">
@@ -437,16 +451,16 @@
                                                                 </thead>
                                                                 <tbody>
                                                                     <tr v-for="selectedCell in selectedCells" :key="selectedCell.id">
-                                                                        <td class="align-middle"> {{selectedCell.cellDesc}}</td>
-                                                                        <td class="align-middle"> {{selectedCell.positionCellDesc}}</td>
-                                                                        <td class="text-right align-middle">
+                                                                        <td width="40%" class="align-middle"> {{selectedCell.cellDesc}}</td>
+                                                                        <td width="40%" class="align-middle"> {{selectedCell.positionCellDesc}}</td>
+                                                                        <td width="20%" class="text-right align-middle">
 
-                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(selectedCell)" title="Edit">
+                                                                            <button type="button" class="btn btn-success btn-xs mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(selectedCell)" title="Edit">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </button>
 
 
-                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="RemoveCell(selectedCell)"  title="Remove">
+                                                                            <button type="button" class="btn btn-danger btn-xs mr-1" v-on:click="RemoveCell(selectedCell)" title="Remove">
                                                                                 <i class="far fa-trash-alt"></i>
                                                                             </button>
                                                                             
@@ -485,14 +499,15 @@
                                                                 </thead>
                                                                 <tbody>
                                                                     <tr v-for="selectedMinistry in selectedMinistries" :key="selectedMinistry.id">
-                                                                        <td class="align-middle"> {{selectedMinistry.ministryDesc}}</td>
-                                                                        <td class="align-middle"> {{selectedMinistry.positionMinistryDesc}}</td>
-                                                                        <td class="text-center align-middle">
+                                                                        <td width="30%" class="align-middle"> {{selectedMinistry.departmentDesc}}</td>
+                                                                        <td width="30%" class="align-middle"> {{selectedMinistry.ministryDesc}}</td>
+                                                                        <td width="20%" class="align-middle"> {{selectedMinistry.positionMinistryDesc}}</td>
+                                                                        <td width="20%" class="text-right align-middle">
 
-                                                                            <button type="button" class="btn btn-success mr-1" data-toggle="modal" data-target="#ministryFormModal" v-on:click="EditMinistry(selectedMinistry)" title="Edit">
+                                                                            <button type="button" class="btn btn-success btn-xs mr-1" data-toggle="modal" data-target="#ministryFormModal" v-on:click="EditMinistry(selectedMinistry)" title="Edit">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </button>
-                                                                            <button type="button" class="btn btn-danger mr-1" v-on:click="RemoveMinistry(selectedMinistry)" title="Remove">
+                                                                            <button type="button" class="btn btn-danger btn-xs mr-1" v-on:click="RemoveMinistry(selectedMinistry)" title="Remove">
                                                                                 <i class="far fa-trash-alt"></i>
                                                                             </button>
                                                                              
@@ -579,13 +594,27 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group">
+                                            <label>Department</label>
+                                            <select class="custom-select"
+                                                    v-model="formDataGroups.departmentCode"
+                                                    v-on:change="DepartmentChange(formDataGroups.departmentCode)"
+                                                    :disabled="disableControl.selectedDepartment">
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="department in departments" :key="department.id">
+                                                    <option :value="department.code">{{department.description}} </option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
                                             <label>Ministry</label>
                                             <select class="custom-select"
                                                     v-model="formDataGroups.ministry"
                                                     :disabled="disableControl.selectedMinistry">
                                                 <option value="">-- Please Select --</option>
                                                 <template v-for="ministry in ministries" :key="ministry.id">
-                                                    <option :value="ministry.code">{{ ministry.code }} - {{ministry.description}} </option>
+                                                    <option :value="ministry.code">{{ministry.description}} </option>
                                                 </template>
                                             </select>
                                         </div>
@@ -709,6 +738,7 @@
 </style>
 
 <script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/department.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/cell.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/position.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
