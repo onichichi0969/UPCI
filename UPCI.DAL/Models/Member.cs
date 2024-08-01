@@ -29,10 +29,10 @@ namespace UPCI.DAL.Models
         public string? Email { get; set; } = string.Empty;
         public string? ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; }
-        public string? ImageType { get; set; } = string.Empty;
-         
+        public string? ImageType { get; set; } = string.Empty; 
         public virtual ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
         public virtual ICollection<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
+
     }
     [Table("MemberCell")]
     public class MemberCell

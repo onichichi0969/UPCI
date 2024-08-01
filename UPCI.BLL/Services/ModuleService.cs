@@ -146,7 +146,7 @@ namespace UPCI.BLL.Services
             try
             { 
                 var moduleList = _applicationDbContext.Set<DAL.Models.RoleModule>()
-                    .Where(rm => rm.RoleModuleCode == roleModuleCode) 
+                    .Where(rm => rm.RoleModuleCode == roleModuleCode && rm.Module.Deleted != true) 
                     .Include(m => m.Module)
                     .OrderBy(m => m.Module.DisplayOrder)
                     .AsQueryable();

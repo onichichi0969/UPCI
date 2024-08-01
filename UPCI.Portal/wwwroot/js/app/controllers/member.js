@@ -265,145 +265,161 @@ const membershipController = createApp({
         }
         const SaveCell = () =>
         {
-            var cellcode = formDataGroups.cell.trim();
-            var positioncode = formDataGroups.positionCell.trim();
-            var cell = {};
-            var positionCell = {};
-            var selectedCell = {
-                "cellCode": '',
-                "cellDesc": '',
-                "positionCellCode": '',
-                "positionCellDesc": '',
-            };
+            $('#cellForm').parsley().validate();
+            if ($('#form').parsley().isValid()) {
+                var cellcode = formDataGroups.cell.trim();
+                var positioncode = formDataGroups.positionCell.trim();
+                var cell = {};
+                var positionCell = {};
+                var selectedCell = {
+                    "cellCode": '',
+                    "cellDesc": '',
+                    "positionCellCode": '',
+                    "positionCellDesc": '',
+                };
 
-            for (let x = 0; x < cells.value.length; x++) {
-                if (cellcode == cells.value[x].code)
-                    cell = cells.value[x];
-            }
-
-            for (let x = 0; x < positionCells.value.length; x++) {
-                if (positioncode == positionCells.value[x].code)
-                    positionCell = positionCells.value[x];
-            }
-            if (disableControl.selectedCell)
-            { 
-                var index = selectedCells.value.findIndex(c => c.cellCode === cellcode);
-
-                if (index !== -1) {
-                    // Update the cell at the found index
-                    selectedCells.value[index].positionCellCode = positionCell.code;
-                    selectedCells.value[index].positionCellDesc = positionCell.description;
-
-                    swal.fire({
-                        text: "Cell modified!",
-                        icon: "success"
-                    });
-                    $('#cellFormModal').modal('hide');
-                    formData.cellChanged = true; 
+                for (let x = 0; x < cells.value.length; x++) {
+                    if (cellcode == cells.value[x].code)
+                        cell = cells.value[x];
                 }
-                
+
+                for (let x = 0; x < positionCells.value.length; x++) {
+                    if (positioncode == positionCells.value[x].code)
+                        positionCell = positionCells.value[x];
+                }
+                if (disableControl.selectedCell) {
+                    var index = selectedCells.value.findIndex(c => c.cellCode === cellcode);
+
+                    if (index !== -1) {
+                        // Update the cell at the found index
+                        selectedCells.value[index].positionCellCode = positionCell.code;
+                        selectedCells.value[index].positionCellDesc = positionCell.description;
+
+                        swal.fire({
+                            text: "Cell modified!",
+                            icon: "success"
+                        });
+                        $('#cellFormModal').modal('hide');
+                        formData.cellChanged = true;
+                    }
+
+                }
+                else {
+                    if (!selectedCells.value.find(c => c.cellCode === cellcode)) {
+
+                        selectedCell.cellCode = cell.code;
+                        selectedCell.cellDesc = cell.description;
+                        selectedCell.positionCellCode = positionCell.code;
+                        selectedCell.positionCellDesc = positionCell.description;
+
+                        selectedCells.value.push(selectedCell);
+                        swal.fire({
+                            text: "Cell added!",
+                            icon: "success"
+                        });
+                        formDataGroups.cell = "";
+                        formDataGroups.positionCell = "";
+                        formData.cellChanged = true;
+                    } else {
+                        swal.fire({
+                            text: "Cell is already selected!",
+                            icon: "error"
+                        });
+                    }
+                }
             }
             else
-            { 
-                if (!selectedCells.value.find(c => c.cellCode === cellcode)) {
-
-                    selectedCell.cellCode = cell.code;
-                    selectedCell.cellDesc = cell.description;
-                    selectedCell.positionCellCode = positionCell.code;
-                    selectedCell.positionCellDesc = positionCell.description;
-
-                    selectedCells.value.push(selectedCell);
-                    swal.fire({
-                        text: "Cell added!",
-                        icon: "success"
-                    });
-                    formDataGroups.cell = "";
-                    formDataGroups.positionCell = "";
-                    formData.cellChanged = true; 
-                } else {
-                    swal.fire({
-                        text: "Cell is already selected!",
-                        icon: "error"
-                    });
-                }   
+            {
+                swal.fire({
+                    text: "Fill out the required fields!",
+                    icon: "warning"
+                });
             }
             
         }
         const SaveMinistry = () => {
-            var ministrycode = formDataGroups.ministry.trim();
-            var positioncode = formDataGroups.positionMinistry.trim();
-            var departmentCode = formDataGroups.departmentCode.trim();
-            var ministry = {};
-            var positionMinistry = {};
-            var department = {};
-            var selectedMinistry = {
-                "ministryCode": '',
-                "ministryDesc": '',
-                "positionMinistryCode": '',
-                "positionMinistryDesc": '',
-                "departmentCode": '',
-                "departmentDesc":''
-            };
+            $('#cellForm').parsley().validate();
+            if ($('#form').parsley().isValid()) {
+                var ministrycode = formDataGroups.ministry.trim();
+                var positioncode = formDataGroups.positionMinistry.trim();
+                var departmentCode = formDataGroups.departmentCode.trim();
+                var ministry = {};
+                var positionMinistry = {};
+                var department = {};
+                var selectedMinistry = {
+                    "ministryCode": '',
+                    "ministryDesc": '',
+                    "positionMinistryCode": '',
+                    "positionMinistryDesc": '',
+                    "departmentCode": '',
+                    "departmentDesc":''
+                };
 
-            for (let x = 0; x < ministries.value.length; x++) {
-                if (ministrycode == ministries.value[x].code)
-                    ministry = ministries.value[x];
-            }
-
-            for (let x = 0; x < positionMinistries.value.length; x++) {
-                if (positioncode == positionMinistries.value[x].code)
-                    positionMinistry = positionMinistries.value[x];
-            }
-            for (let x = 0; x < departments.value.length; x++) {
-                if (departmentCode == departments.value[x].code)
-                    department = departments.value[x];
-            }
-
-            if (disableControl.selectedMinistry) {
-                var index = selectedMinistries.value.findIndex(c => c.ministryCode === ministrycode);
-
-                if (index !== -1) { 
-                    selectedMinistries.value[index].positionMinistryCode = positionMinistry.code;
-                    selectedMinistries.value[index].positionMinistryDesc = positionMinistry.description; 
-
-                    selectedMinistries.value[index].departmentCode = department.code;
-                    selectedMinistries.value[index].departmentDesc = department.description;
-
-                    swal.fire({
-                        text: "Ministry modified!",
-                        icon: "success"
-                    }); 
-                    formData.ministryChanged = true;
-                    $('#ministryFormModal').modal('hide');
+                for (let x = 0; x < ministries.value.length; x++) {
+                    if (ministrycode == ministries.value[x].code)
+                        ministry = ministries.value[x];
                 }
 
+                for (let x = 0; x < positionMinistries.value.length; x++) {
+                    if (positioncode == positionMinistries.value[x].code)
+                        positionMinistry = positionMinistries.value[x];
+                }
+                for (let x = 0; x < departments.value.length; x++) {
+                    if (departmentCode == departments.value[x].code)
+                        department = departments.value[x];
+                }
+
+                if (disableControl.selectedMinistry) {
+                    var index = selectedMinistries.value.findIndex(c => c.ministryCode === ministrycode);
+
+                    if (index !== -1) { 
+                        selectedMinistries.value[index].positionMinistryCode = positionMinistry.code;
+                        selectedMinistries.value[index].positionMinistryDesc = positionMinistry.description; 
+
+                        selectedMinistries.value[index].departmentCode = department.code;
+                        selectedMinistries.value[index].departmentDesc = department.description;
+
+                        swal.fire({
+                            text: "Ministry modified!",
+                            icon: "success"
+                        }); 
+                        formData.ministryChanged = true;
+                        $('#ministryFormModal').modal('hide');
+                    }
+
+                }
+                else {
+                    if (!selectedMinistries.value.find(c => c.ministryCode === ministrycode)) {
+
+                        selectedMinistry.ministryCode = ministry.code;
+                        selectedMinistry.ministryDesc = ministry.description;
+                        selectedMinistry.positionMinistryCode = positionMinistry.code;
+                        selectedMinistry.positionMinistryDesc = positionMinistry.description;
+                        selectedMinistry.departmentCode = department.code;
+                        selectedMinistry.departmentDesc = department.description;
+                        selectedMinistries.value.push(selectedMinistry);
+                        swal.fire({
+                            text: "Ministry added!",
+                            icon: "success"
+                        });
+                        formDataGroups.ministry = "";
+                        formDataGroups.positionMinistry = ""; 
+                        formDataGroups.departmentCode = "";
+                        formData.ministryChanged = true;
+                    } else {
+                        swal.fire({
+                            text: "Ministry is already selected!",
+                            icon: "error"
+                        });
+                    }
+                }
             }
             else {
-                if (!selectedMinistries.value.find(c => c.ministryCode === ministrycode)) {
-
-                    selectedMinistry.ministryCode = ministry.code;
-                    selectedMinistry.ministryDesc = ministry.description;
-                    selectedMinistry.positionMinistryCode = positionMinistry.code;
-                    selectedMinistry.positionMinistryDesc = positionMinistry.description;
-                    selectedMinistry.departmentCode = department.code;
-                    selectedMinistry.departmentDesc = department.description;
-                    selectedMinistries.value.push(selectedMinistry);
-                    swal.fire({
-                        text: "Ministry added!",
-                        icon: "success"
-                    });
-                    formDataGroups.ministry = "";
-                    formDataGroups.positionMinistry = ""; 
-                    formDataGroups.departmentCode = "";
-                    formData.ministryChanged = true;
-                } else {
-                    swal.fire({
-                        text: "Ministry is already selected!",
-                        icon: "error"
-                    });
-                }
+                swal.fire({
+                    text: "Fill out the required fields!",
+                    icon: "warning"
+                });
             }
-
         }
        
         // Table Events

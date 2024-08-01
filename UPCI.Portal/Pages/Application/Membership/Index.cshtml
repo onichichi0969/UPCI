@@ -82,7 +82,7 @@
                             <tr>
                                 <th width="5%"> Active <i :class="['fas', SortClass('ActiveMember')]" style="cursor:pointer" v-on:click="Sort('ActiveMember')"></i></th>
                                 <th width="15%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
-                                <th width="15%">Name <i :class="['fas', SortClass('LastName')]" style="cursor:pointer" v-on:click="Sort('LastName')"></i></th>
+                                <th width="15%">Name <i :class="['fas', SortClass('LastName')]" style="cursor:pointer" v-on:click="Sort('LastName,FirstName')"></i></th>
                                 <th width="20%">Personal Info</th>
                                 <th width="20%">Church Info</th>
                                 <th width="15%">Groups</th> 
@@ -238,21 +238,35 @@
                                                             <div class="form-group">
                                                                 <label for="code">First Name</label>
                                                                 <input type="text" class="form-control" name="firstname"
-                                                                    v-model="formData.firstName">
+                                                                    v-model="formData.firstName" 
+                                                                       data-parsley-id="firstname"
+                                                                       data-parsley-required-field
+                                                                       data-parsley-validate-if-empty
+                                                                       data-parsley-trigger="change focusout"
+                                                                       data-parsley-restrict-special-characters>
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
                                                             <div class="form-group">
                                                                 <label for="code">Middle Name</label>
                                                                 <input type="text" class="form-control" name="middleName" placeholder="(optional)"
-                                                                       v-model="formData.middleName">
+                                                                       v-model="formData.middleName"
+                                                                       data-parsley-id="middleName" 
+                                                                       data-parsley-validate-if-empty
+                                                                       data-parsley-trigger="change focusout"
+                                                                       data-parsley-restrict-special-characters>
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-4">
                                                             <div class="form-group">
                                                                 <label for="code">Last Name</label>
                                                                 <input type="text" class="form-control" name="lastName"
-                                                                       v-model="formData.lastName">
+                                                                       v-model="formData.lastName"
+                                                                       data-parsley-id="lastName"
+                                                                       data-parsley-required-field
+                                                                       data-parsley-validate-if-empty
+                                                                       data-parsley-trigger="change focusout"
+                                                                       data-parsley-restrict-special-characters>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -261,16 +275,24 @@
                                                         <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
                                                             <div class="form-group">
                                                                 <label for="code">Birthday</label>
-                                                                <input type="text" class="form-control datetimepicker-input" id="dateBday" name="birthday" placeholder="(optional)"
-                                                                       v-model="formData.birthday">
+                                                                <input type="text" class="form-control datetimepicker-input" id="dateBday" name="birthday"
+                                                                       v-model="formData.birthday"
+                                                                       data-parsley-id="lastName"
+                                                                       data-parsley-required-field
+                                                                       data-parsley-validate-if-empty
+                                                                       data-parsley-trigger="change focusout"
+                                                                       data-parsley-date-format>
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
                                                             <div class="form-group">
                                                                 <label>Gender</label>
                                                                 <select class="custom-select" id="gender"
-                                                                        v-model="formData.gender">
-                                                                    <option value="" selected>Not specified</option>
+                                                                        v-model="formData.gender"
+                                                                        data-parsley-trigger="change focusout"
+                                                                        data-parsley-required-message="Required field"
+                                                                        required>
+                                                                    <option value="" selected>-- Please Select --</option>
                                                                     <option value="M">Male</option>
                                                                     <option value="F">Female</option>
                                                                 </select>
@@ -280,8 +302,11 @@
                                                             <div class="form-group">
                                                                 <label>Civil Status</label>
                                                                 <select class="custom-select" id="civilStatus"
-                                                                        v-model="formData.civilStatus">
-                                                                    <option value="" selected>Not specified</option>
+                                                                        v-model="formData.civilStatus"
+                                                                        data-parsley-trigger="change focusout"
+                                                                        data-parsley-required-message="Required field"
+                                                                        required>
+                                                                    <option value="" selected>-- Please Select --</option>
                                                                     <option value="SNG">Single</option>
                                                                     <option value="MAR">Married</option>
                                                                     <option value="SEP">Separated</option>
@@ -333,7 +358,10 @@
                                                             <div class="form-group">
                                                                 <label for="code">Member Type</label>
                                                                 <select class="custom-select" id="memberType"
-                                                                        v-model="formData.memberType"> 
+                                                                        v-model="formData.memberType"
+                                                                        data-parsley-trigger="change focusout"
+                                                                        data-parsley-required-message="Required field"
+                                                                        required>
                                                                     <option value="NEW">New Comer</option>
                                                                     <option value="MEMBER">Member</option>
                                                                     <option value="WORKER">Worker</option>
@@ -552,7 +580,10 @@
                                             <label>Cell</label>
                                             <select class="custom-select"
                                                     v-model="formDataGroups.cell"
-                                                    :disabled="disableControl.selectedCell">
+                                                    :disabled="disableControl.selectedCell"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
                                                 <option value="">-- Please Select --</option>
                                                 <template v-for="cell in cells" :key="cell.id">
                                                     <option :value="cell.code">{{cell.description}} </option>
@@ -564,7 +595,10 @@
                                         <div class="form-group">
                                             <label>Position</label>
                                             <select class="custom-select" id="cellPosition"
-                                                    v-model="formDataGroups.positionCell">
+                                                    v-model="formDataGroups.positionCell"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
                                                 <option value="">-- Please Select --</option> 
                                                 <template v-for="positionCell in positionCells" :key="positionCell.id">
                                                     <option :value="positionCell.code">{{positionCell.description}} </option>
@@ -598,7 +632,10 @@
                                             <select class="custom-select"
                                                     v-model="formDataGroups.departmentCode"
                                                     v-on:change="DepartmentChange(formDataGroups.departmentCode)"
-                                                    :disabled="disableControl.selectedDepartment">
+                                                    :disabled="disableControl.selectedDepartment"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
                                                 <option value="">-- Please Select --</option>
                                                 <template v-for="department in departments" :key="department.id">
                                                     <option :value="department.code">{{department.description}} </option>
@@ -611,7 +648,10 @@
                                             <label>Ministry</label>
                                             <select class="custom-select"
                                                     v-model="formDataGroups.ministry"
-                                                    :disabled="disableControl.selectedMinistry">
+                                                    :disabled="disableControl.selectedMinistry"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
                                                 <option value="">-- Please Select --</option>
                                                 <template v-for="ministry in ministries" :key="ministry.id">
                                                     <option :value="ministry.code">{{ministry.description}} </option>
@@ -623,7 +663,10 @@
                                         <div class="form-group">
                                             <label>Position</label>
                                             <select class="custom-select" id="ministryPosition"
-                                                    v-model="formDataGroups.positionMinistry">
+                                                    v-model="formDataGroups.positionMinistry"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
                                                 <option value="">-- Please Select --</option>
                                                 <template v-for="positionMinistry in positionMinistries" :key="positionMinistry.id">
                                                     <option :value="positionMinistry.code">{{positionMinistry.description}} </option>

@@ -44,7 +44,7 @@
         var appUrl = '@HttpContextAccessor.HttpContext.Session.GetString("AppUrl")';
         var auth = '@HttpContextAccessor.HttpContext.Session.GetString("Authenticated")';
         var allowedSpecialChar = '@HttpContextAccessor.HttpContext.Session.GetString("SPCCHRALW")';
-        var scRegex = '^$|^[a-zA-Z0-9 ' + allowedSpecialChar + ']+$';
+        var scRegex = '^$|^[a-zA-Z0-9 ' + allowedSpecialChar + 'ñÑ]+$';
     </script>
 </head>
 <body class="sidebar-mini control-sidebar-slide-open text-sm dark-mode">
