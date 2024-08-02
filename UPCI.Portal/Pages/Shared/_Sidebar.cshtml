@@ -12,7 +12,7 @@
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img id="profileImg" src="@HttpContextAccessor.HttpContext.Session.GetString("AppUrl")/Home?handler=UserProfileImage" class="img-circle elevation-2" alt="Profile Image" style="cursor:pointer; height:50px; width:50px;">
+                <img id="profileImg" src="@HttpContextAccessor.HttpContext.Session.GetString("AppUrl")/Home?handler=UserProfileImage&timestamp=@DateTime.UtcNow.Ticks" class="img-circle elevation-2" alt="Profile Image" style="cursor:pointer; height:50px; width:50px;">
             </div>
             <div class="info">
                 <a href="#" class="nav-link d-block">

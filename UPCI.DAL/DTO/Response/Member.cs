@@ -39,7 +39,7 @@ namespace UPCI.DAL.DTO.Response
         public string ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; } 
         public string ImageType { get; set; } = string.Empty;
-         
+        public string ImageDataString { get; set; } = string.Empty;
         public ICollection<MemberCell> MemberCell { get; set; }
         public ICollection<MemberMinistry> MemberMinistry { get; set; }
     }

@@ -52,7 +52,7 @@
                         }
                     </div>
                 </div>
-            </div>
+            </div> 
             <div class="row">
                 <div class="col-12 table-responsive" v-show="!datatable.show_table">
                     <span>No record(s) found!</span>
@@ -76,10 +76,11 @@
                         <thead class ="bg-secondary">
                             <tr> 
                                 <th width="10%"></th>
-                                <th width="20%">Username <i :class="['fas', SortClass('Username')]" style="cursor:pointer" v-on:click="Sort('Username')"></i></th>
-                                <th width="25%">Name <i :class="['fas', SortClass('LastName,FirstName')]" style="cursor:pointer" v-on:click="Sort('LastName,FirstName')"></i></th>
-                                <th width="25%">Role <i :class="['fas', SortClass('RoleDescription')]" style="cursor:pointer" v-on:click="Sort('Role.Description')"></i></th>
-                                <th class="text-center" width="20%">Action</th>
+                                <th width="15%">Username <i :class="['fas', SortClass('Username')]" style="cursor:pointer" v-on:click="Sort('Username')"></i></th>
+                                <th width="20%">Name <i :class="['fas', SortClass('LastName,FirstName')]" style="cursor:pointer" v-on:click="Sort('LastName,FirstName')"></i></th>
+                                <th width="25%">Email <i :class="['fas', SortClass('Email')]" style="cursor:pointer" v-on:click="Sort('Email')"></i></th>
+                                <th width="15%">Role <i :class="['fas', SortClass('RoleDescription')]" style="cursor:pointer" v-on:click="Sort('Role.Description')"></i></th>
+                                <th class="text-center" width="15%">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,12 +88,13 @@
                                 <td> <img :src="`data:${item.imageType};base64,${item.imageContent}`" alt="user" class="rounded-circle thumb-lg align-self-center" style="width: 60px; height: 60px;"></td>
                                 <td class="align-middle" data-title="Code">{{ item.username }}</td>
                                 <td class="align-middle" data-title="Description">{{ item.lastName }}, {{ item.firstName }} {{ item.middleName }}</td>
+                                <td class="align-middle">{{ item.email }}</td>
                                 <td class="align-middle" data-title="Description">{{ item.roleDescription }}</td>
                                 <td class="text-center align-middle">
 
                                     @if (Model.Actions.Contains("ACN09"))
                                     {
-                                        <button type="button" class="btn btn-info btn-sm mr-1" v-on:click="UnlockUser(item)" data-tooltip="tooltip" title="Unlock">
+                                        <button type="button" class="btn btn-info btn-sm mr-1" v-if="item.isLocked" v-on:click="UnlockUser(item)" data-tooltip="tooltip" title="Unlock">
                                             <i class="fas fa-lock-open"></i>
                                         </button>
                                     }

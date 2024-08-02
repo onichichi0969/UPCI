@@ -23,4 +23,12 @@ MemberService.Save = (item) => {
         JSON.stringify(item),
         { headers: headers });
 };
-    
+
+MemberService.GetMemberProfileImage = (id) => {
+    return axios.post(appUrl + '/Application/Membership/Index?handler=MemberProfileImage',
+        JSON.stringify(id),
+        {
+            headers: headers,
+            responseType: 'blob'
+        });
+};

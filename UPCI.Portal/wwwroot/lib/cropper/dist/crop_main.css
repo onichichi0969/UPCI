@@ -110,6 +110,11 @@ label.btn {
   text-align: center;
   width: 100%;
 }
+.img-preview-member {
+    background-color: #f7f7f7;
+    text-align: center;
+    width: 100%;
+}
 
 .img-container {
   max-height: 497px;
@@ -136,9 +141,18 @@ label.btn {
   margin-right: 0.5rem;
   overflow: hidden;
 }
+.img-preview-member {
+    float: left;
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+    overflow: hidden;
+}
 
 .img-preview > img {
-  max-width: 100%;
+    max-width: 100%;
+}
+.img-preview-member > img {
+    max-width: 100%;
 }
 
 .preview-lg {

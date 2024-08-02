@@ -76,7 +76,7 @@ namespace UPCI.BLL.Services
         {
             try
             {
-                var result = _applicationDbContext.Cell!.FirstOrDefault(b => b.Id.ToString().ToUpper() == StringManipulation.Decrypt(id!, _encryptionKey) && b.Deleted != true);
+                var result = _applicationDbContext.Member!.FirstOrDefault(b => b.Id.ToString().ToUpper() == StringManipulation.Decrypt(id!, _encryptionKey) && b.Deleted != true);
 
                 return await Task.FromResult(_mapper.Map<UPCI.DAL.DTO.Response.Member>(result));
             }
@@ -176,8 +176,8 @@ namespace UPCI.BLL.Services
                                                                                   DepartmentDesc = ministry.Ministry.Department.Description,
                                                                               }).ToList(),
 
-                                  //ImageContent = u.ImageContent,
-                                  //ImageType = u.ImageType,
+                                  ImageContent = u.ImageContent,
+                                  ImageType = u.ImageType,
                                   CreatedBy = u.CreatedBy,
                                   CreatedDate = u.CreatedDate,
                                   UpdatedBy = u.UpdatedBy,
@@ -561,6 +561,86 @@ namespace UPCI.BLL.Services
 
             return await Task.FromResult(result);
 
+        }
+        public async Task<UPCI.DAL.DTO.Response.Result> ChangeMemberProfileImage(UPCI.DAL.DTO.Request.Member model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
+
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var _action = "CHANGEMEMBERPROFILEIMAGE";
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = model.OpUser!,
+                    ModuleName = _moduleName,
+                    Action = _action
+                };
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!;
+
+                var data = _applicationDbContext.Member!.FirstOrDefault(d => d.Code.Trim().ToUpper() == model.Code.Trim().ToUpper());
+
+                if (data != null)
+                {
+                    var oldValue = EFramework.GetEntityProperties(data!);
+                    data.ImageContent = model.ImageContent;
+                    data.ImageType = model.ImageType;
+                    data.UpdatedBy = model.OpUser;
+                    data.UpdatedDate = DateTime.Now;
+
+
+                    await _memberRepository.UpdateAsync(data);
+
+                    var auditTrail = new AuditTrail()
+                    {
+                        RecordId = data.Id.ToString(),
+                        Terminal = model.Terminal!,
+                        Action = _action,
+                        UserId = userId.Username!,
+                        ActionDate = DateTime.Now,
+                        TableName = _moduleName,
+                        OldValues = oldValue,
+                        NewValues = EFramework.GetEntityProperties(data)
+                    };
+
+                    activityLog.Details = string.Format("[user: {0}] profile image updated.", data.Code);
+                    result.Status = "SUCCESS";
+                    result.Message = string.Format("{0} updated.", _moduleName);
+
+                    _logService.LogActivity(activityLog);
+                    _logService.LogAudit(auditTrail!);
+
+                    transactionScope.Complete();
+                    return result;
+                }
+                else
+                {
+                    result.Status = "FAILED";
+                    result.Message = string.Format("{0} not exist.", _moduleName);
+                }
+
+
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
         }
     }
 }

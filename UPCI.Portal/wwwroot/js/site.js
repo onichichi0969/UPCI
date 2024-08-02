@@ -145,14 +145,9 @@ ChangeProfileImage = function () {
     $('#image').attr('src', '');
     setTimeout(function () {
         $('#image').attr('src', appUrl + "/Home?handler=UserProfileImage");
-        loadCropper();
+        loadCropper('#image','.img-preview','#inputImage');
     }, 1000); // 3000 milliseconds delay (3 seconds)
-
-
-
-
-
-
+     
     //document.getElementById('aspectRatio2').click();
 
 };
@@ -191,7 +186,7 @@ ValidateImage = function (input) {
             if (!blnValid) {
                 toastr.warning("Sorry, " + sFileName + " is invalid, allowed extensions are: " + validFileTypes.join(", ", 'Warning'));
                 input.value = "";
-                $('#image').attr('src', appUrl + "/Home?handler=ProfileImage");
+                $('#image').attr('src', appUrl + "/Home?handler=UserProfileImage");
                 return false;
             }
         }
@@ -248,7 +243,7 @@ UploadProfileImage = function () {
                     }
                 }
             });
-            $('#image').attr('src', appUrl + "/Home?handler=ProfileImage");
+            $('#image').attr('src', appUrl + "/Home?handler=UserProfileImage");
         }, "image/jpeg", 1);
     }
     else if (typeof canvas.msToBlob !== "undefined") {

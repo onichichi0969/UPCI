@@ -6,6 +6,31 @@ namespace UPCI.Portal.Helpers
 {
     public class Helper
     {
+        public static string ConvertBytesToBase64(byte[] imageBytes, string imageType)
+        {
+            if (imageBytes == null || imageBytes.Length == 0)
+                //throw new ArgumentException("Image bytes cannot be null or empty.");
+                return "";
+
+            string base64String = Convert.ToBase64String(imageBytes);
+            return $"data:{imageType};base64,{base64String}";
+        }
+        public static async Task<byte[]> ConvertVirtualFileToBytesAsync(string virtualPath)
+        {
+            if (string.IsNullOrEmpty(virtualPath))
+                //throw new ArgumentException("Virtual path cannot be null or empty.");
+                return null;
+
+            // Resolve the physical path from the virtual path
+            var webRootPath = Directory.GetCurrentDirectory(); // Typically, wwwroot is in the root directory
+            var physicalPath = Path.Combine(webRootPath, "wwwroot", virtualPath.TrimStart('~', '/').Replace('/', Path.DirectorySeparatorChar));
+
+            if (!System.IO.File.Exists(physicalPath))
+                //throw new FileNotFoundException("File not found.", physicalPath);
+                return null;
+
+            return await System.IO.File.ReadAllBytesAsync(physicalPath);
+        }
         public static bool HasAccess(List<ModuleAccess> modules, string path)
         {
             var result = false;

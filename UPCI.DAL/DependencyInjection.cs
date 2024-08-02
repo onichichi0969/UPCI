@@ -31,29 +31,22 @@ namespace UPCI.DAL
                 //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
                 config.CreateMap<Cell, UPCI.DAL.DTO.Response.Cell>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-                config.CreateMap<Cell, UPCI.DAL.DTO.Response.Cell>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-                config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
+
+                config.CreateMap<Member, UPCI.DAL.DTO.Response.Member>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-                config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<PositionCell, UPCI.DAL.DTO.Response.PositionCell>()
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-                config.CreateMap<PositionCell, UPCI.DAL.DTO.Response.PositionCell>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<PositionMinistry, UPCI.DAL.DTO.Response.PositionMinistry>()
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-                config.CreateMap<PositionMinistry, UPCI.DAL.DTO.Response.PositionMinistry>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<Module, UPCI.DAL.DTO.Response.Module>()
                      .ForMember(dest => dest.Id, opt => opt.MapFrom(src => UPCI.DAL.Helpers.StringManipulation.Encrypt(src.Id.ToString(), configuration["AppContext:EncryptionKey"]!)))

@@ -1,11 +1,13 @@
-function loadCropper() {
+function loadCropper(mainImage,previewImage,inputImage) {
     'use strict';
 
     //destroy first the cropper instance
-    $('#image').cropper('destroy')
+    //$('#image').cropper('destroy')
+    $(mainImage).cropper('destroy')
     var console = window.console || { log: function () { } };
     var URL = window.URL || window.webkitURL;
-    var image = $('#image');
+    //var image = $('#image');
+    var image = $(mainImage);
     var dataX = $('dataX');
     var dataY = $('dataY');
     var dataHeight = $('dataHeight');
@@ -15,7 +17,8 @@ function loadCropper() {
     var dataScaleY = $('dataScaleY');
     var options = {
         aspectRatio: 1 / 1,
-        preview: '.img-preview',
+        //preview: '.img-preview',
+        preview: previewImage,
         crop: function (e) {
 
             dataX.val(Math.round(e.detail.x));
@@ -225,7 +228,7 @@ function loadCropper() {
     });
 
     // Import image
-    var inputImage = $('#inputImage');
+    var inputImage = $(inputImage);
 
     if (URL) {
         inputImage.change(function () {
@@ -251,7 +254,12 @@ function loadCropper() {
                     image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
                     inputImage.val('');
                 } else {
-                    window.alert('Please choose an image file.');
+                    //window.alert('Please choose an image file.');
+                    swal.fire({
+                        text: "Please choose an image file.",
+                        icon: "error"
+                    });
+                    return;
                 }
             }
         });

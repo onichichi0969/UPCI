@@ -60,7 +60,7 @@ const membershipController = createApp({
         const positionMinistries = ref([]);
         const selectedMinistries = ref([]); 
         const selectedCells = ref([]);
-
+        const imageData = ref(''); 
         const Search = () => {
             $(".preloader").show();
             datatable.filter = [];
@@ -185,6 +185,22 @@ const membershipController = createApp({
             }
             return ministryList;
         }
+        
+        const blobToBase64 = (blob) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob); // Convert Blob to base64
+            });
+        };
+        const GetMemberProfileImage = async (id) =>
+        {
+            var response = await MemberService.GetMemberProfileImage(id);
+            const base64Image = await blobToBase64(response.data); // Convert Blob to base64
+            imageData.value = base64Image; 
+
+        } 
         const Save = async () => {
             var cellList = ConstructCells();
             var ministryList = ConstructMinistries();
@@ -266,7 +282,7 @@ const membershipController = createApp({
         const SaveCell = () =>
         {
             $('#cellForm').parsley().validate();
-            if ($('#form').parsley().isValid()) {
+            if ($('#cellForm').parsley().isValid()) {
                 var cellcode = formDataGroups.cell.trim();
                 var positioncode = formDataGroups.positionCell.trim();
                 var cell = {};
@@ -338,8 +354,8 @@ const membershipController = createApp({
             
         }
         const SaveMinistry = () => {
-            $('#cellForm').parsley().validate();
-            if ($('#form').parsley().isValid()) {
+            $('#ministryForm').parsley().validate();
+            if ($('#ministryForm').parsley().isValid()) {
                 var ministrycode = formDataGroups.ministry.trim();
                 var positioncode = formDataGroups.positionMinistry.trim();
                 var departmentCode = formDataGroups.departmentCode.trim();
@@ -546,7 +562,7 @@ const membershipController = createApp({
             disableControl.code = false;
             selectedCells.value = [];
             selectedMinistries.value = [];
-
+            GetMemberProfileImage("");
             formData.cellChanged = false;
             formData.ministryChanged = false;
 
@@ -579,6 +595,7 @@ const membershipController = createApp({
 
         const Edit = (item) => {
             $('#form').parsley().reset();
+            GetMemberProfileImage(item.id);
             actionMode.value = 'Modify'
             disableControl.code = true;
             formDataGroups.cell = '';
@@ -724,7 +741,22 @@ const membershipController = createApp({
                 });
             });
         }
-       
+        const DestroyCropperMember = () => {
+            $('#imageMember').cropper('destroy');
+
+        }
+        const ChangeMemberProfileImage = () => {
+
+            $('#memberProfileModal').modal('show');
+           // $('#imageMember').attr('src', '');
+            setTimeout(function () {
+               //$('#imageMember').attr('src', imageData);
+                loadCropper('#imageMember', '.img-preview-member', '#inputImageMember');
+            }, 1000); // 3000 milliseconds delay (3 seconds)
+
+            //document.getElementById('aspectRatio2').click();
+
+        };
         GetDepartment(); 
         GetCell();
         GetPositionCell(); 
@@ -746,6 +778,7 @@ const membershipController = createApp({
             positionCells,
             positionMinistries,
             departments,
+            imageData,
         };
 
         // Return methods
@@ -773,6 +806,8 @@ const membershipController = createApp({
             EditCell,
             EditMinistry,
             DepartmentChange,
+            DestroyCropperMember,
+            ChangeMemberProfileImage,
         };
         return {
             ...returnProps,

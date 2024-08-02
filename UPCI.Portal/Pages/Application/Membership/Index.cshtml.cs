@@ -103,14 +103,52 @@ namespace UPCI.Portal.Pages.Membership
             }
 
         }
-
-        public JsonResult OnPostFilter([FromBody] FParam fparam)
+        public async Task<IActionResult> OnPostMemberProfileImage([FromBody] string id)
         {
+            try
+            {
+                var member = await _memberService.ById(id);
 
+                if (member != null)
+                {
+                    if (member.ImageContent.Length > 0)
+                        return File(member.ImageContent, member.ImageType);
+                    else
+                        return File("~/Assets/Images/default-user.jpg", "image/jpg");
+                }
+                return File("~/Assets/Images/default-user.jpg", "image/jpg");
+            }
+            catch (Exception ex)
+            {
+                return File("~/Assets/Images/default-user.jpg", "image/jpg");
+            }
+
+        }
+        public JsonResult OnPostFilter([FromBody] FParam fparam)
+        { 
             fparam.OpUser = HttpContext.Session.GetString("Username");
             fparam.Terminal = HttpContext.Session.GetString("Terminal");
             var items = _memberService.Filter(fparam).Result;
+            var defaultFile = Helper.ConvertVirtualFileToBytesAsync("~/Assets/Images/default-user.jpg").Result;
+            var defaultImage = Helper.ConvertBytesToBase64(defaultFile, "image/jpg");
 
+            try
+            {
+                if (items.Data != null)
+                {
+                    foreach (var item in items.Data)
+                    {
+                        if (item.ImageContent != null)
+                            item.ImageDataString = Helper.ConvertBytesToBase64(item.ImageContent, item.ImageType);
+                        else
+                            item.ImageDataString = defaultImage;
+                    }
+                }
+            }
+            catch (Exception ex)
+            { 
+            
+            }
             return new JsonResult(items);
         }
         public async Task<JsonResult> OnPostSave([FromBody] UPCI.DAL.DTO.Request.Member model)
@@ -135,7 +173,32 @@ namespace UPCI.Portal.Pages.Membership
 
             return new JsonResult(result);
         }
+       
+        //public async Task<JsonResult> OnPostChangeMemberProfileImage(List<IFormFile> images)
+        //{
 
+        //    try
+        //    {
+        //        var user = new UPCI.DAL.DTO.Request.User();
+        //        if (images.Count > 0)
+        //        {
+        //            MemoryStream imageMS = new MemoryStream();
+        //            images[0].CopyTo(imageMS);
+
+
+        //            user.Username = HttpContext.Session.GetString("Username");
+        //            user.OpUser = HttpContext.Session.GetString("Username");
+        //            user.ImageContent = imageMS.ToArray();
+        //            user.ImageType = images[0].ContentType;
+        //        }
+        //        var result = await _userService.ChangeProfileImage(user);
+        //        return new JsonResult(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new JsonResult(ex.ToString());
+        //    }
+        //}
 
     }
 }
