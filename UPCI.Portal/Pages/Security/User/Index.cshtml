@@ -90,21 +90,31 @@
                                 <td class="align-middle" data-title="Description">{{ item.roleDescription }}</td>
                                 <td class="text-center align-middle">
 
-                                    
-                                   
-                                   @*  @if (Model.Actions.Contains("ACN02"))
-                                    { *@
+                                    @if (Model.Actions.Contains("ACN09"))
+                                    {
+                                        <button type="button" class="btn btn-info btn-sm mr-1" v-on:click="UnlockUser(item)" data-tooltip="tooltip" title="Unlock">
+                                            <i class="fas fa-lock-open"></i>
+                                        </button>
+                                    }
+                                    @if (Model.Actions.Contains("ACN10"))
+                                    {
+                                        <button type="button" class="btn btn-warning btn-sm mr-1" v-on:click="ResetPassword(item)" data-tooltip="tooltip" title="Reset">
+                                            <i class="fas fa-refresh"></i>
+                                        </button>
+                                    }
+                                    @if (Model.Actions.Contains("ACN02"))
+                                    {
                                         <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                    @* } *@
+                                    }
 
-                                    @* @if (Model.Actions.Contains("ACN03"))
-                                    { *@
+                                    @if (Model.Actions.Contains("ACN03"))
+                                    {
                                         <button type="button" class="btn btn-danger btn-sm mr-1" v-on:click="Delete(item);" data-tooltip="tooltip" title="Delete">
                                             <i class="far fa-trash-alt"></i>
                                         </button>
-                                   @*  } *@
+                                    }
                                 </td>
                             </tr>
                         </tbody>

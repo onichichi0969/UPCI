@@ -224,6 +224,58 @@
                     <ul id="sync-pagination" class="pagination-sm float-right"></ul>
                 </div>
             </div>
+            <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-xls" role="document">
+                    <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"><i class="nav-icon fas fa-search-plus"></i> Advance Search</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row col">
+                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <label for="MemberId">Member ID</label>
+                                            <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" v-model="search.code" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row col">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API User</label>
+                                            <input type="text" class="form-control" name="Client"
+                                                   v-model="search.apiUser"
+                                                   id="apiUser"
+                                                   data-parsley-id="apiUser"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-alphanumeric-only>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">API Name</label>
+                                            <input type="text" class="form-control" name="API Name"
+                                                   v-model="search.apiName"
+                                                   id="apiName"
+                                                   data-parsley-id="apiName"
+                                                   data-parsley-trigger="change focusout"
+                                                   data-parsley-restrict-alphanumeric-only>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="ApplyFilter()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
             @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
             {
                 <div id="formModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -699,86 +751,7 @@
                 </div>
             </div>
             
-            <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-                <div class="modal-dialog modal-xls" role="document">
-                    <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title left"><i class="nav-icon fas fa-search-plus"></i> Advance Search</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row col">
-                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                                        <div class="form-group">
-                                            <label for="MemberId">Member ID</label>
-                                            <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" v-model="search.code" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row col">
-                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                                        <div class="form-group">
-                                            <label for="DateFrom">Date From</label>
-                                            <input type="text" class="form-control"
-                                                   id="dateFrom"
-                                                   v-model="search.dateFrom"
-                                                   data-parsley-id="dateFrom"
-                                                   data-parsley-trigger="change focusout"
-                                                   data-parsley-required-field
-                                                   data-parsley-date-format
-                                                   data-parsley-validate-if-empty>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                                        <div class="form-group">
-                                            <label for="DateTo">Date To</label>
-                                            <input type="text" class="form-control"
-                                                   id="dateTo"
-                                                   v-model="search.dateTo"
-                                                   data-parsley-id="dateTo"
-                                                   data-parsley-trigger="change focusout"
-                                                   data-parsley-required-field
-                                                   data-parsley-date-format
-                                                   data-parsley-validate-if-empty>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label for="DateTo">API User</label>
-                                            <input type="text" class="form-control" name="Client"
-                                                   v-model="search.apiUser"
-                                                   id="apiUser"
-                                                   data-parsley-id="apiUser"
-                                                   data-parsley-trigger="change focusout"
-                                                   data-parsley-restrict-alphanumeric-only>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label for="DateTo">API Name</label>
-                                            <input type="text" class="form-control" name="API Name"
-                                                   v-model="search.apiName"
-                                                   id="apiName"
-                                                   data-parsley-id="apiName"
-                                                   data-parsley-trigger="change focusout"
-                                                   data-parsley-restrict-alphanumeric-only>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer justify-content-between">
-                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
-                                <button type="button" class="btn btn-success btn-sm" v-on:click="ApplyFilter()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+           
         </div>
     </section>
 
