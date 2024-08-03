@@ -201,6 +201,45 @@ const membershipController = createApp({
             imageData.value = base64Image; 
 
         } 
+        
+        const SetMemberImage = () => {
+            $(".preloader").show();
+            var imageElement = document.getElementById('imageMember');
+            var cropper = $(imageElement).data('cropper');
+            var canvas = cropper.getCroppedCanvas();
+            if (typeof canvas.toBlob !== "undefined") {
+                canvas.toBlob(function (blob) { 
+                    $('.preloader').fadeOut('slow');
+                     blobToBase64(blob)
+                        .then(base64String => {
+                            imageData.value = base64String; 
+                            formData.imageChanged = true;
+                            $('#memberProfileModal').modal('hide');
+                    })
+                    .catch(error => {
+                        console.error('Error converting Blob to Base64:', error);
+                    });
+                }, "image/jpeg", 1);
+            }
+            else if (typeof canvas.msToBlob !== "undefined") {
+                var blob = canvas.msToBlob();
+                $('.preloader').fadeOut('slow');
+                return blob; 
+            }
+            else {
+                $('.preloader').fadeOut('slow');
+                return null;
+            }
+            $('.preloader').fadeOut('slow');
+        };
+        const getImageTypeFromBase64 = (base64String)=> {
+            // Extract the MIME type from the base64 string
+            const matches = base64String.match(/^data:(image\/[a-zA-Z]*);base64,/);
+            if (matches && matches.length > 1) {
+                return matches[1]; // MIME type (e.g., image/jpeg)
+            }
+            return null; // Return null if no MIME type is found
+        }
         const Save = async () => {
             var cellList = ConstructCells();
             var ministryList = ConstructMinistries();
@@ -209,14 +248,22 @@ const membershipController = createApp({
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) {
                 $(".preloader").show();
+
+                if (formData.imageChanged)
+                {
+                    formData.imageContent = imageData.value;
+                    formData.imageType = getImageTypeFromBase64(imageData.value);
+                }
                 
                 const result = await MemberService.Save(formData);
                 if (result.data.status === 'SUCCESS') {
                     $('#formModal').modal('hide');
+                    formData.imageChanged = false;
                     swal.fire({
                         text: "Member successfully saved!",
                         icon: "success"
-                    });
+                    }); 
+
                     Search();
                 }
                 else if (result.data.status === 'FAILED') {
@@ -239,6 +286,7 @@ const membershipController = createApp({
                     icon: "warning"
                 });
             }
+            formData.imageChanged = false;
             $('.preloader').fadeOut('slow');
         }
         const Delete = (item) => {
@@ -566,6 +614,7 @@ const membershipController = createApp({
             formData.cellChanged = false;
             formData.ministryChanged = false;
 
+            formData.imageChanged = false;
             formData.id = '';
             formData.code = '';
             formData.activeMember = false;
@@ -603,6 +652,7 @@ const membershipController = createApp({
             formDataGroups.ministry = '';
             formDataGroups.positionMinistry = '';
             formDataGroups.departmentCode = '';
+            formData.imageChanged = false;
             formData.id = item.id;
             formData.code = item.code;
             formData.activeMember = item.activeMember;
@@ -808,6 +858,7 @@ const membershipController = createApp({
             DepartmentChange,
             DestroyCropperMember,
             ChangeMemberProfileImage,
+            SetMemberImage,
         };
         return {
             ...returnProps,

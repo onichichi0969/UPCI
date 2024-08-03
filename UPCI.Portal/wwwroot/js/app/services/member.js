@@ -23,6 +23,14 @@ MemberService.Save = (item) => {
         JSON.stringify(item),
         { headers: headers });
 };
+//MemberService.Save = (formData) => {
+//    return axios.post(appUrl + '/Application/Membership/Index?handler=Save', formData, {
+//        headers: {
+//            'XSRF-TOKEN': csrfToken,
+//            'Content-Type': 'multipart/form-data'   
+//        }
+//    });
+//};
 
 MemberService.GetMemberProfileImage = (id) => {
     return axios.post(appUrl + '/Application/Membership/Index?handler=MemberProfileImage',

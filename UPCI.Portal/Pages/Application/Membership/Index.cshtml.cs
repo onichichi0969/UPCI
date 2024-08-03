@@ -123,7 +123,7 @@ namespace UPCI.Portal.Pages.Membership
                 return File("~/Assets/Images/default-user.jpg", "image/jpg");
             }
 
-        }
+        } 
         public JsonResult OnPostFilter([FromBody] FParam fparam)
         { 
             fparam.OpUser = HttpContext.Session.GetString("Username");
@@ -173,32 +173,8 @@ namespace UPCI.Portal.Pages.Membership
 
             return new JsonResult(result);
         }
-       
-        //public async Task<JsonResult> OnPostChangeMemberProfileImage(List<IFormFile> images)
-        //{
 
-        //    try
-        //    {
-        //        var user = new UPCI.DAL.DTO.Request.User();
-        //        if (images.Count > 0)
-        //        {
-        //            MemoryStream imageMS = new MemoryStream();
-        //            images[0].CopyTo(imageMS);
-
-
-        //            user.Username = HttpContext.Session.GetString("Username");
-        //            user.OpUser = HttpContext.Session.GetString("Username");
-        //            user.ImageContent = imageMS.ToArray();
-        //            user.ImageType = images[0].ContentType;
-        //        }
-        //        var result = await _userService.ChangeProfileImage(user);
-        //        return new JsonResult(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new JsonResult(ex.ToString());
-        //    }
-        //}
+        
 
     }
 }

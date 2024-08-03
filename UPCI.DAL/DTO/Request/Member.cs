@@ -62,9 +62,9 @@ namespace UPCI.DAL.DTO.Request
         public string ContactNo { get; set; } = string.Empty;
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
-        public byte[]? ImageContent { get; set; }
+        public string? ImageContent { get; set; }
         public string ImageType { get; set; } = string.Empty;
-
+        public bool ImageChanged { get; set; } = false;
 
         public bool CellChanged { get; set; } = false;
         public bool MinistryChanged { get; set; } = false;

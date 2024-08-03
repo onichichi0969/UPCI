@@ -195,6 +195,25 @@ namespace UPCI.BLL.Services
                 return new ();
             }
         }
+        private static string ExtractBase64Data(string dataUrl)
+        {
+            const string base64Prefix = "data:image/jpeg;base64,";
+            if (dataUrl.StartsWith(base64Prefix))
+            {
+                return dataUrl.Substring(base64Prefix.Length);
+            }
+            else
+                return "";
+        }
+        public byte[] ConvertBase64ToByte(string rawString)
+        {
+            var base64String = ExtractBase64Data(rawString);
+            if (Convert.ToString(base64String).Trim() != "")
+                return Convert.FromBase64String(base64String);
+            else
+                return null;
+            
+        }
         public async Task<UPCI.DAL.DTO.Response.Result> Create(UPCI.DAL.DTO.Request.Member model)
         {
             UPCI.DAL.DTO.Response.Result result = new();
@@ -242,7 +261,7 @@ namespace UPCI.BLL.Services
                         MemberType = model.MemberType.Trim(),
                         Email = model.Email.Trim(),
                         ContactNo = model.ContactNo.Trim(),
-                        ImageContent = model.ImageContent,
+                        ImageContent = ConvertBase64ToByte(model.ImageContent),
                         ImageType = model.ImageType.Trim(),
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now 
@@ -397,7 +416,7 @@ namespace UPCI.BLL.Services
                     data.MemberType = model.MemberType.Trim();
                     data.Email = model.Email.Trim();
                     data.ContactNo = model.ContactNo.Trim();
-                    data.ImageContent = model.ImageContent;
+                    data.ImageContent = ConvertBase64ToByte(model.ImageContent);
                     data.ImageType = model.ImageType.Trim(); 
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
@@ -562,85 +581,6 @@ namespace UPCI.BLL.Services
             return await Task.FromResult(result);
 
         }
-        public async Task<UPCI.DAL.DTO.Response.Result> ChangeMemberProfileImage(UPCI.DAL.DTO.Request.Member model)
-        {
-            UPCI.DAL.DTO.Response.Result result = new();
-
-            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-
-            try
-            {
-                var _action = "CHANGEMEMBERPROFILEIMAGE";
-
-                var activityLog = new ActivityLog()
-                {
-                    UserId = model.OpUser!,
-                    ModuleName = _moduleName,
-                    Action = _action
-                };
-                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!;
-
-                var data = _applicationDbContext.Member!.FirstOrDefault(d => d.Code.Trim().ToUpper() == model.Code.Trim().ToUpper());
-
-                if (data != null)
-                {
-                    var oldValue = EFramework.GetEntityProperties(data!);
-                    data.ImageContent = model.ImageContent;
-                    data.ImageType = model.ImageType;
-                    data.UpdatedBy = model.OpUser;
-                    data.UpdatedDate = DateTime.Now;
-
-
-                    await _memberRepository.UpdateAsync(data);
-
-                    var auditTrail = new AuditTrail()
-                    {
-                        RecordId = data.Id.ToString(),
-                        Terminal = model.Terminal!,
-                        Action = _action,
-                        UserId = userId.Username!,
-                        ActionDate = DateTime.Now,
-                        TableName = _moduleName,
-                        OldValues = oldValue,
-                        NewValues = EFramework.GetEntityProperties(data)
-                    };
-
-                    activityLog.Details = string.Format("[user: {0}] profile image updated.", data.Code);
-                    result.Status = "SUCCESS";
-                    result.Message = string.Format("{0} updated.", _moduleName);
-
-                    _logService.LogActivity(activityLog);
-                    _logService.LogAudit(auditTrail!);
-
-                    transactionScope.Complete();
-                    return result;
-                }
-                else
-                {
-                    result.Status = "FAILED";
-                    result.Message = string.Format("{0} not exist.", _moduleName);
-                }
-
-
-
-            }
-            catch (TransactionAbortedException ex)
-            {
-                _logService.LogException(ex, _moduleName);
-                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
-            }
-            catch (Exception ex)
-            {
-                _logService.LogException(ex, _moduleName);
-                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
-            }
-            finally
-            {
-
-                transactionScope.Dispose();
-            }
-
-            return await Task.FromResult(result);
-        }
+       
     }
 }
