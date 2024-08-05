@@ -1,4 +1,4 @@
-const { createApp, reactive, ref, computed, onMounted, filter } = Vue;
+const { createApp, reactive, ref, computed, onMounted, filter, nextTick } = Vue;
 const departmentController = createApp({
     setup() {
         let isFormValid = ref(false);
@@ -38,7 +38,8 @@ const departmentController = createApp({
             childCheckBox: []
         });
         const items = ref([]); 
- 
+        const members = ref([]); 
+
         const Search = () => {
            
             datatable.filter = [];
@@ -55,6 +56,17 @@ const departmentController = createApp({
             )) {
                 filters.push(newFilter);
             }
+        };
+        const GetMemberCodeAndName = async (list) => {
+            const result = await MemberService.GetCodeAndName(list);
+
+            if (result.data != null) {
+                members.value = result.data;
+            }
+            else {
+                members.value = [];
+            }
+
         };
         const GetDepartment = async () => {
 
@@ -241,6 +253,11 @@ const departmentController = createApp({
             formData.code = '';
             formData.name = '';
             formData.description = '';
+            formData.head = '';
+            nextTick(() => {
+                // Trigger Parsley validation manually
+                $('.selectpicker').selectpicker('refresh');
+            });
             //formData = {};
         };
 
@@ -251,13 +268,21 @@ const departmentController = createApp({
             formData.id = item.id; 
             formData.code = item.code; 
             formData.description = item.description;
-             
+            formData.head = item.headCode;
+            nextTick(() => {
+                // Trigger Parsley validation manually
+                $('.selectpicker').selectpicker('refresh');
+            });
+           
         };
 
-
+        const HandleSelectChange = (event) => {
+            $('#form').parsley().validate();
+        };
 
         // Execute function when Vue instance is created  
         GetDepartment();
+        GetMemberCodeAndName("");
         const returnProps = {
             actionMode,
             isFormValid,
@@ -268,6 +293,7 @@ const departmentController = createApp({
             formDataSecurity,
             items,
             checkBoxes,  
+            members,
             
         };
 
@@ -283,6 +309,7 @@ const departmentController = createApp({
             Save,
             Sort,
             SortClass,
+            HandleSelectChange,
         };
         return {
             ...returnProps,

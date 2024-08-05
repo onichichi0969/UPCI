@@ -17,7 +17,7 @@ namespace UPCI.DAL.DTO.Request
 
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
-        public string Leader { get; set; } = string.Empty;
+        public string Head { get; set; } = string.Empty;
 
     }
 }

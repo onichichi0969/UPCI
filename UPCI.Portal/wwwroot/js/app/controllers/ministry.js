@@ -1,11 +1,13 @@
-const { createApp, reactive, ref, computed, onMounted, filter } = Vue;
+const { createApp, reactive, ref, computed, onMounted, filter, nextTick, watch } = Vue;
 const ministryController = createApp({
     setup() {
         let isFormValid = ref(false);
-        onMounted(() => {
-
+        onMounted(() => {  
         });
+       
+        
         const actionMode = ref('');
+        const selectedMinistryCode = ref(''); 
         //const datatable = reactive({
         //    pageNum: 1,
         //    pageSize: 10,
@@ -29,6 +31,8 @@ const ministryController = createApp({
 
         const formData = reactive({
         }); 
+        const formDataMember = reactive({
+        }); 
         const search = reactive({});
 
         const checkBoxes = reactive({
@@ -36,7 +40,11 @@ const ministryController = createApp({
             childCheckBox: []
         });
         const items = ref([]); 
+         
+        const members = ref([]);
+        const memberPositions = ref([]); 
         const departments = ref([]); 
+        const selectedMembers = ref([]); 
 
         const Search = () => {
            
@@ -64,6 +72,36 @@ const ministryController = createApp({
             else {
                 departments.value = [];
             }
+
+        };
+        const GetMemberCodeAndName = async (list) => {
+            const result = await MemberService.GetCodeAndName(list);
+
+            if (result.data != null) {
+                members.value = result.data;
+            }
+            else {
+                members.value = [];
+            }
+            nextTick(() => {
+                // Trigger Parsley validation manually
+                $('.selectpicker').selectpicker('refresh');
+            });
+
+        };
+        const GetPosition = async () => {
+            const result = await PositionMinistryService.All();
+
+            if (result.data != null) {
+                memberPositions.value = result.data;
+            }
+            else {
+                memberPositions.value = [];
+            }
+            nextTick(() => {
+                // Trigger Parsley validation manually
+                $('.selectpicker').selectpicker('refresh');
+            });
 
         };
         const GetMinistry = async () => {
@@ -98,6 +136,20 @@ const ministryController = createApp({
             }
             $('.preloader').fadeOut('slow');
         };
+        const ConstructMinistries = (ministryCode) => {
+            var memberList = [];
+            for (let x = 0; x < selectedMembers.value.length; x++) {
+                memberList.push(
+                    {
+                        ministryCode: ministryCode,
+                        memberCode: selectedMembers.value[x].memberCode,
+                        positionMinistryCode: selectedMembers.value[x].positionCode, 
+                        departmentCode: '',
+                    }
+                );
+            }
+            return memberList;
+        }
         const Save = async () => {
             $('#form').parsley().validate();
             if ($('#form').parsley().isValid()) { 
@@ -128,6 +180,48 @@ const ministryController = createApp({
             }
             else 
             {
+                swal.fire({
+                    text: "Fill out the required fields!",
+                    icon: "warning"
+                });
+            }
+            $('.preloader').fadeOut('slow');
+        }
+        const SaveMembers = async () => {
+            $('#member').parsley().validate();
+            if ($('#member').parsley().isValid()) {
+                $(".preloader").show();
+                var memberList = ConstructMinistries(selectedMinistryCode.value);
+                var data = {
+                    ministryCode: selectedMinistryCode.value,
+                    ministryMembers: memberList,
+                    isMembersChanged: formDataMember.memberChanged,
+                };
+                const result = await MinistryService.SaveMembers(data);
+                if (result.data.status === 'SUCCESS') {
+                    $('#member').modal('hide');
+                    swal.fire({
+                        text: "Member successfully saved!",
+                        icon: "success"
+                    });
+                   
+                    Search();
+                }
+                else if (result.data.status === 'FAILED') {
+                    swal.fire({
+                        text: result.data.message,
+                        icon: "error"
+                    });
+                }
+                else {
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Error encountered'
+                    });
+                }
+            }
+            else {
                 swal.fire({
                     text: "Fill out the required fields!",
                     icon: "warning"
@@ -254,7 +348,13 @@ const ministryController = createApp({
             formData.departmentCode = '';
             //formData = {};
         };
+        const MemberModal = (item) => {
+            //get ministry members 
+            selectedMembers.value = [];
+            selectedMinistryCode.value = item.code;
 
+        };
+        
         const Edit = (item) => {
             $('#form').parsley().reset();
             actionMode.value = 'Modify' 
@@ -265,10 +365,101 @@ const ministryController = createApp({
             formData.departmentCode = item.departmentCode;
              
         };
+        const AddMemberModal = () =>
+        { 
+            //addmember modal
+            formDataMember.memberChanged = false; 
+            disableControl.selectedMember = false; 
+           
+        } 
+        const AddMember = () => {
+            //addmember to Temporary
+            $('#addMember').parsley().validate();
+            if ($('#addMember').parsley().isValid()) {
+                var memberCode = formDataMember.member.trim();
+                var positioncode = formDataMember.position.trim();
 
+                var member = {};
+                var position = {};
 
+                var selectedMember = {
+                    "memberCode": '',
+                    "memberDesc": '',
+                    "positionCode": '',
+                    "positionDesc": '', 
+                };
 
+                for (let x = 0; x < members.value.length; x++) {
+                    if (memberCode == members.value[x].code)
+                        member = members.value[x];
+                }
+
+                for (let x = 0; x < memberPositions.value.length; x++) {
+                    if (positioncode == memberPositions.value[x].code)
+                        position = memberPositions.value[x];
+                }
+          
+                if (disableControl.selectedMember) {
+                    var index = selectedMembers.value.findIndex(c => c.memberCode === memberCode);
+
+                    if (index !== -1) {
+                        selectedMembers.value[index].positionCode = position.code;
+                        selectedMembers.value[index].positionDesc = position.description;
+                         
+                        swal.fire({
+                            text: "Member modified!",
+                            icon: "success"
+                        });
+                        formDataMember.memberChanged = true; 
+                        nextTick(() => {
+                            // Trigger Parsley validation manually
+                            $('.selectpicker').selectpicker('refresh');
+                        }); 
+                        $('#addMemberModal').modal('hide');
+                    }
+
+                }
+                else {
+                    if (!selectedMembers.value.find(c => c.memberCode === memberCode)) {
+
+                        selectedMember.memberCode = member.code;
+                        selectedMember.memberDesc = member.firstName + " " + member.middleName + " " + member.lastName;
+                        selectedMember.positionCode = position.code;
+                        selectedMember.positionDesc = position.description; 
+                        selectedMembers.value.push(selectedMember);
+                        swal.fire({
+                            text: "Member added!",
+                            icon: "success"
+                        });
+                        formDataMember.member = "";
+                        formDataMember.position = ""; 
+                        formDataMember.memberChanged = true;
+                        nextTick(() => {
+                            // Trigger Parsley validation manually
+                            $('.selectpicker').selectpicker('refresh');
+                        });
+                    } else {
+                        swal.fire({
+                            text: "Member is already selected!",
+                            icon: "error"
+                        });
+                    }
+                }
+            }
+            else {
+                swal.fire({
+                    text: "Fill out the required fields!",
+                    icon: "warning"
+                });
+            }
+
+        } 
+        const HandleSelectChange = (event) => {
+            $('#addMember').parsley().validate();
+        };
         // Execute function when Vue instance is created  
+        GetPosition();
+        GetMemberCodeAndName("");  
         GetDepartment();
         GetMinistry();
         const returnProps = {
@@ -278,9 +469,13 @@ const ministryController = createApp({
             disableControl,
             search,
             formData, 
+            formDataMember,
             items,
             checkBoxes,  
             departments,
+            members,
+            memberPositions,
+            selectedMembers,
             
         };
 
@@ -296,6 +491,11 @@ const ministryController = createApp({
             Save,
             Sort,
             SortClass,
+            MemberModal,
+            AddMemberModal,
+            AddMember,
+            HandleSelectChange,
+            SaveMembers,
         };
         return {
             ...returnProps,

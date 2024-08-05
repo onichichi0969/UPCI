@@ -61,7 +61,7 @@ namespace UPCI.DAL
             modelBuilder.Entity<Department>()
                 .HasOne(d => d.Member)
                 .WithMany()
-                .HasForeignKey(rm => rm.Code)
+                .HasForeignKey(rm => rm.Head)
                 .HasPrincipalKey(m => m.Code);  
 
             modelBuilder.Entity<Ministry>()
@@ -90,7 +90,9 @@ namespace UPCI.DAL
                    v => string.IsNullOrEmpty(v) ? (Guid?)null : Guid.Parse(v)); // Converts string from the database back to Guid
 
 
+
             modelBuilder.Entity<Member>()
+                .Ignore(m => m.FullName)
                   .HasMany(m => m.MemberCell)
                   .WithOne(rm => rm.Member)
                   .HasForeignKey(rm => rm.MemberCode)

@@ -131,6 +131,23 @@ namespace UPCI.Portal.Pages.Maintenance.Ministry
 
             return new JsonResult(result);
         }
+        public async Task<JsonResult> OnPostSaveMembers([FromBody] UPCI.DAL.DTO.Request.MinistryMembersList model)
+        {
+            model.OpUser = HttpContext.Session.GetString("Username");
+            model.Terminal = HttpContext.Session.GetString("Terminal");
+            var result = new DAL.DTO.Response.Result();
+            if (model.isMembersChanged)
+            {
+                result = await _ministryService.SaveMinistryMembers(model);
+            }
+            else 
+            {
+                result.Status = "SUCCESS";
+                result.Message = "No changes has been made";
+            } 
+
+            return new JsonResult(result);
+        }
         public async Task<JsonResult> OnPostDelete([FromBody] UPCI.DAL.DTO.Request.Ministry model)
         {
             model.OpUser = HttpContext.Session.GetString("Username");

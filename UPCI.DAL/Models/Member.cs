@@ -15,6 +15,8 @@ namespace UPCI.DAL.Models
         public string? FirstName { get; set; } = string.Empty;
         public string? MiddleName { get; set; } = string.Empty;
         public string? LastName { get; set; } = string.Empty;
+        [NotMapped]
+        public string? FullName { get; set; } = string.Empty;
         public string? Gender { get; set; } = string.Empty;
         public string? CivilStatus { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
@@ -30,8 +32,8 @@ namespace UPCI.DAL.Models
         public string? ContactNo { get; set; } = string.Empty; 
         public byte[]? ImageContent { get; set; }
         public string? ImageType { get; set; } = string.Empty; 
-        public virtual ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
-        public virtual ICollection<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
+        public  ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
+        public  ICollection<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
 
     }
     [Table("MemberCell")]

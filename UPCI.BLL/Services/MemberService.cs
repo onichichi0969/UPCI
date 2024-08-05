@@ -71,14 +71,128 @@ namespace UPCI.BLL.Services
                 throw;
             }
         }
+        public async Task<List<UPCI.DAL.DTO.Response.Member>> GetCodeAndName(List<string> existing)
+        {
+            try
+            {
+                var data = _applicationDbContext.Set<Member>()
+                    .Where(e => e.Deleted != true &&
+                                e.Code!.Contains(e.Code)).ToList();
+                var result = (from d in data
+                              select new UPCI.DAL.DTO.Response.Member
+                              {
+                                  Id = Convert.ToString(d.Id),
+                                  Code = d.Code!,
+                                  FirstName = d.FirstName!,
+                                  MiddleName = d.MiddleName!,
+                                  LastName = d.LastName!
+                              }).ToList();
+
+                return await Task.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                throw;
+            }
+        }
 
         public async Task<UPCI.DAL.DTO.Response.Member> ById(string id)
         {
             try
             {
-                var result = _applicationDbContext.Member!.FirstOrDefault(b => b.Id.ToString().ToUpper() == StringManipulation.Decrypt(id!, _encryptionKey) && b.Deleted != true);
+                //FirstOrDefault(b => b.Id.ToString().ToUpper() == StringManipulation.Decrypt(id!, _encryptionKey) && b.Deleted != true)
+                //var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
+                //var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
+                //var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
+                var decryptedId = StringManipulation.Decrypt(id!, _encryptionKey);
+                var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
+                var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
+                var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
 
-                return await Task.FromResult(_mapper.Map<UPCI.DAL.DTO.Response.Member>(result));
+                var result = _applicationDbContext.Member
+                    .Include(m => m.MemberCell)  
+                    .Include(m => m.MemberMinistry) 
+                    .Where(u => u.Id.ToString().ToUpper() == decryptedId && u.Deleted != true)  
+                    .GroupJoin(civilStatus,  
+                        u => u.CivilStatus,
+                        c => c.Code,
+                        (u, civilGroup) => new { u, civilGroup })
+                    .SelectMany(x => x.civilGroup.DefaultIfEmpty(),  
+                        (x, c) => new { x.u, CivilStatus = c })
+                    .GroupJoin(memberType,  
+                        x => x.u.MemberType,
+                        mt => mt.Code,
+                        (x, memberTypeGroup) => new { x.u, x.CivilStatus, memberTypeGroup })
+                    .SelectMany(x => x.memberTypeGroup.DefaultIfEmpty(),  
+                        (x, mt) => new { x.u, x.CivilStatus, MemberType = mt })
+                    .GroupJoin(pepsolLevel,  
+                        x => x.u.PEPSOL,
+                        pl => pl.Code,
+                        (x, pepsolLevelGroup) => new { x.u, x.CivilStatus, x.MemberType, pepsolLevelGroup })
+                    .SelectMany(x => x.pepsolLevelGroup.DefaultIfEmpty(), 
+                        (x, pl) => new UPCI.DAL.DTO.Response.Member
+                        {
+                            Id = id,
+                            Code = x.u.Code,
+                            Sequence = Convert.ToString(x.u.Sequence),
+                            Chapter = x.u.Chapter,
+                            FirstName = x.u.FirstName,
+                            MiddleName = x.u.MiddleName,
+                            LastName = x.u.LastName,
+                            Gender = x.u.Gender,
+                            CivilStatus = x.u.CivilStatus,
+                            CivilStatusDesc = x.CivilStatus != null ? x.CivilStatus.Description : null,
+                            Address = x.u.Address,
+                            Birthday = x.u.Birthday.HasValue ? x.u.Birthday.Value.ToString("yyyy-MM-dd") : "",
+                            BaptismDate = x.u.BaptismDate.HasValue ? x.u.BaptismDate.Value.ToString("yyyy-MM-dd") : "",
+                            FirstAttend = x.u.FirstAttend.HasValue ? x.u.FirstAttend.Value.ToString("yyyy-MM-dd") : "",
+                            Baptized = x.u.Baptized ?? false,
+                            InvolvedToCell = x.u.InvolvedToCell ?? false,
+                            PEPSOL = x.u.PEPSOL,
+                            PEPSOLDesc = pl != null ? pl.Description : null,
+                            MemberType = x.u.MemberType,
+                            MemberTypeDesc = x.MemberType != null ? x.MemberType.Description : null,
+                            Email = x.u.Email,
+                            ContactNo = x.u.ContactNo,
+                            ActiveMember = x.u.ActiveMember ?? false,
+                            MemberCell = x.u.MemberCell == null ? new List<UPCI.DAL.DTO.Response.MemberCell>() :
+                                                   x.u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
+                                                   {
+                                                       MemberCode = x.u.Code!,
+                                                       CellCode = cell.CellCode!,
+                                                       CellDesc = cell.Cell.Description!,
+                                                       Position = cell.Position!,
+                                                       PositionDesc = cell.PositionCell.Description!,
+                                                   }).ToList(),
+                            MemberMinistry = x.u.MemberMinistry == null ? new List<UPCI.DAL.DTO.Response.MemberMinistry>() :
+                                                           x.u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
+                                                           {
+                                                               MemberCode = x.u.Code,
+                                                               MinistryCode = ministry.MinistryCode!,
+                                                               MinistryDesc = ministry.Ministry.Description,
+                                                               Position = ministry.Position!,
+                                                               PositionDesc = ministry.PositionMinistry.Description!,
+                                                               DepartmentCode = ministry.Ministry.Department.Code,
+                                                               DepartmentDesc = ministry.Ministry.Department.Description,
+                                                           }).ToList(),
+                            ImageContent = x.u.ImageContent,
+                            ImageType = x.u.ImageType,
+                            CreatedBy = x.u.CreatedBy,
+                            CreatedDate = x.u.CreatedDate,
+                            UpdatedBy = x.u.UpdatedBy,
+                            UpdatedDate = x.u.UpdatedDate 
+
+                            // Map other properties here
+                        })
+                    .FirstOrDefaultAsync();
+                
+
+
+
+
+
+                return await Task.FromResult(result.Result);
             }
             catch (Exception ex)
             {
@@ -95,13 +209,16 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VMember vCell = new();
                  
-                var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).Include(m => m.MemberMinistry).AsQueryable(); 
+                var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).Include(m => m.MemberMinistry).
+                    ProjectTo<Member>(_mapper.ConfigurationProvider).AsQueryable(); 
+
                 var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
                 var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
                 var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     memberList = memberList.Where(ExpressionBuilder.GetExpression<Member>(model.Filters));
+                   
 
                 if (model.Descending)
                 {
@@ -260,12 +377,18 @@ namespace UPCI.BLL.Services
                         ActiveMember = model.ActiveMember,
                         MemberType = model.MemberType.Trim(),
                         Email = model.Email.Trim(),
-                        ContactNo = model.ContactNo.Trim(),
-                        ImageContent = ConvertBase64ToByte(model.ImageContent),
-                        ImageType = model.ImageType.Trim(),
+                        ContactNo = model.ContactNo.Trim(),  
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now 
                     };
+
+                    if (model.ImageChanged && model.ImageContent != null)
+                    {
+                        data.ImageContent = ConvertBase64ToByte(model.ImageContent);
+                        data.ImageType = model.ImageType.Trim();
+                    }
+
+
                     await _memberRepository.AddAsync(data);
                     if (model.CellChanged)
                     {
@@ -416,8 +539,14 @@ namespace UPCI.BLL.Services
                     data.MemberType = model.MemberType.Trim();
                     data.Email = model.Email.Trim();
                     data.ContactNo = model.ContactNo.Trim();
-                    data.ImageContent = ConvertBase64ToByte(model.ImageContent);
-                    data.ImageType = model.ImageType.Trim(); 
+                    if (model.ImageChanged && model.ImageContent != null)
+                    {
+                        data.ImageContent = ConvertBase64ToByte(model.ImageContent);
+                        data.ImageType = model.ImageType.Trim();
+                    }
+                        
+                     
+                    
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 

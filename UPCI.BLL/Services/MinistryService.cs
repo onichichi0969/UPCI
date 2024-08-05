@@ -9,14 +9,98 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UPCI.BLL.Services
 {
-    public class MinistryService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Ministry> ministryRepository, ILogService logService) : IMinistryService
+    public class MinistryService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Ministry> ministryRepository, IRepository<MemberMinistry> memberMinistryRepository, ILogService logService) : IMinistryService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IRepository<Ministry> _ministryRepository = ministryRepository;
+        private readonly IRepository<MemberMinistry> _memberMinistryRepository = memberMinistryRepository;
         private readonly ILogService _logService = logService;
         private readonly IMapper _mapper = mapper;
         private readonly string _moduleName = "Ministry";
+        public async Task<UPCI.DAL.DTO.Response.Result> SaveMinistryMembers(UPCI.DAL.DTO.Request.MinistryMembersList model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
 
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var action = "EDIT";
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!.Username;
+
+                int updateStatus = 0;
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = model.OpUser!,
+                    ModuleName = _moduleName,
+                    Action = action
+                };
+                if (!model.isMembersChanged)
+                {
+                    result.Status = "SUCCESS";
+                    result.Message = "No changes has been made"; 
+                }
+
+                var existingMinistries = _applicationDbContext.MemberMinistry!.Where(d => d.MinistryCode == model.MinistryCode!).ToList(); 
+                if (existingMinistries.Count > 0)
+                    //delete
+                    await _memberMinistryRepository.RemoveRangeAsync(existingMinistries);
+
+                var memberMinistryList = new List<MemberMinistry>();
+
+                if (model.MinistryMembers != null && model.MinistryMembers.Count != 0)
+                {
+                    memberMinistryList = model.MinistryMembers.Select(member => new MemberMinistry
+                    {
+                        MemberCode = member.MemberCode,
+                        MinistryCode = member.MinistryCode,
+                        Position = member.PositionMinistryCode,
+                    }).ToList();
+                    await _memberMinistryRepository.AddRangeAsync(memberMinistryList);
+                }
+
+                var auditTrail = new AuditTrail()
+                {
+                    RecordId = model.MinistryCode,
+                    Terminal = model.Terminal!,
+                    Action = action,
+                    UserId = userId!,
+                    ActionDate = DateTime.Now,
+                    TableName = _moduleName,
+                    OldValues = "",
+                    NewValues = ""
+                };
+
+                activityLog.Details = string.Format("[code: {0}] updated.", model.MinistryCode);
+                result.Status = "SUCCESS";
+                result.Message = string.Format("{0} updated.", _moduleName);
+
+                _logService.LogActivity(activityLog);
+                _logService.LogAudit(auditTrail!);
+             
+
+                transactionScope.Complete();
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
+        }
         public async Task<List<UPCI.DAL.DTO.Response.Ministry>> Get(string departmentCode)
         {
             try
@@ -57,7 +141,7 @@ namespace UPCI.BLL.Services
                 UPCI.DAL.DTO.Response.VMinistry vMinistry = new();
                  
                 var MinistryList = _applicationDbContext.Ministry!.Include(d => d.Department).AsQueryable();
-
+                
                 if (model.Filters != null && model.Filters.Count != 0)
                     MinistryList = MinistryList.Where(ExpressionBuilder.GetExpression<Ministry>(model.Filters));
 
@@ -79,19 +163,31 @@ namespace UPCI.BLL.Services
                 int recordsToSkip = (model.PageNum - 1) * model.PageSize;
                 var pagedQuery = MinistryList.Skip(recordsToSkip).Take(model.PageSize);
 
-                //vMinistry.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FMinistry>>(pagedQuery.ToList());
+                //vMinistry.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FMinistry>>(pagedQuery.ToList()); 
 
                 var result = (from u in pagedQuery
-                              select new UPCI.DAL.DTO.Response.FMinistry
+                              join m in _applicationDbContext.MemberMinistry
+                              on u.Code equals m.MinistryCode into memberGroup
+                              select new
                               {
-                                  Id = u.Id.ToString(),
-                                  Code = u.Code,
-                                  Description = u.Description,
-                                  DepartmentCode = u.DepartmentCode,
-                                  DepartmentDesc = u.Department.Description!,
-                                  Deleted = u.Deleted
-                              }
-                               ).ToList();
+                                  u.Id,
+                                  u.Code,
+                                  u.Description,
+                                  u.DepartmentCode,
+                                  DepartmentDesc = u.Department.Description,
+                                  MemberCount = memberGroup.Count(m => m != null),
+                                  u.Deleted
+                              }).ToList()
+                              .Select(x => new UPCI.DAL.DTO.Response.FMinistry
+                              {
+                                  Id = x.Id.ToString(),
+                                  Code = x.Code,
+                                  Description = x.Description,
+                                  DepartmentCode = x.DepartmentCode,
+                                  DepartmentDesc = x.DepartmentDesc!,
+                                  MemberCount = x.MemberCount,
+                                  Deleted = x.Deleted
+                              }).ToList();
 
                 vMinistry.Data = result;
                 return await Task.FromResult(vMinistry);

@@ -233,7 +233,7 @@ const userController = createApp({
                         .then((result) => {
                             if (result.data.status === 'SUCCESS') {
                                 swal.fire({
-                                    text: "User password successfully reset!",
+                                    html: "User password successfully reset! <br> New Password <br>" + "<b class='text-danger'>" +result.data.message +"</b>",
                                     icon: "success"
                                 });
 

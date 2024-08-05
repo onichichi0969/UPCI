@@ -23,4 +23,10 @@ MinistryService.Save = (item) => {
         JSON.stringify(item),
         { headers: headers });
 };
+
+MinistryService.SaveMembers = (item) => {
+    return axios.post(appUrl + '/Maintenance/Ministry/Index?handler=SaveMembers',
+        JSON.stringify(item),
+        { headers: headers });
+};
     

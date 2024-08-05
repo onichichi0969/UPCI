@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using UPCI.DAL.DTO.Request;
 
 namespace UPCI.DAL.Models
 {
@@ -14,5 +15,8 @@ namespace UPCI.DAL.Models
 
         [ForeignKey("DepartmentCode")]
         public Department Department { get; set; }
+
+        [NotMapped] // This ensures that this property is not mapped to the database
+        public int MemberCount { get; set; }
     }
 }

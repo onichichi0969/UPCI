@@ -849,6 +849,7 @@ namespace UPCI.BLL.Services
 
                 if (user != null)
                 {
+
                     var oldValue = EFramework.GetEntityProperties(user!);
                     var randomPassword = StringManipulation.Random(10);
                     user.Password = StringManipulation.Encrypt(randomPassword, _encryptionKey);
@@ -878,7 +879,7 @@ namespace UPCI.BLL.Services
 
                     activityLog.Details = string.Format("[user: {0}] password updated.", user.Username);
                     result.Status = "SUCCESS";
-                    result.Message = string.Format("{0} updated.", _moduleName);
+                    result.Message = randomPassword;
 
                     _logService.LogActivity(activityLog);
                     _logService.LogAudit(auditTrail!);

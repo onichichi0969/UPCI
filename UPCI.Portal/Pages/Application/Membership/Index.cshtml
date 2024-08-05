@@ -97,7 +97,7 @@
                                     <div class="text-center">
                                         <!-- Image with Border -->
                                         <img id="profileImg"
-                                             :src="item.imageDataString"
+                                             :src="item.imageDataString || '/Assets/Images/default-user.jpg'"
                                             
                                              class="img-circle elevation-2 border"
                                              alt="Profile Image"
@@ -226,7 +226,7 @@
                 </div>
             </div>
             <div id="filterModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-                <div class="modal-dialog modal-xls" role="document">
+                <div class="modal-dialog modal-md" role="document">
                     <form name="filterModal" id="formFilter" method="post" autocomplete="off" data-parsley-validate>
                         <div class="modal-content">
                             <div class="modal-header">
@@ -237,34 +237,64 @@
                             </div>
                             <div class="modal-body">
                                 <div class="row col">
-                                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for="MemberId">Member ID</label>
-                                            <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" v-model="search.code" v-on:keypress="KeyPress_Search" data-parsley-restrict-special-characters />
+                                            <input type="text" id="searchCode" autocomplete="off" class="form-control" placeholder="Member ID" 
+                                                v-model="search.code" 
+                                                v-on:keypress="KeyPress_Search" 
+                                                data-parsley-restrict-special-characters />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row col">
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for="DateTo">API User</label>
-                                            <input type="text" class="form-control" name="Client"
-                                                   v-model="search.apiUser"
-                                                   id="apiUser"
-                                                   data-parsley-id="apiUser"
+                                            <label for="DateTo">Fullname</label>
+                                            <input type="text" class="form-control" 
+                                                   v-model="search.fullname"
+                                                   id="searchFullname"
+                                                   data-parsley-id="fullname"
                                                    data-parsley-trigger="change focusout"
-                                                   data-parsley-restrict-alphanumeric-only>
+                                                   data-parsley-restrict-special-characters>
+                                        </div>
+                                    </div> 
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Gender</label>
+                                            <select class="custom-select"  
+                                                    v-model="search.gender"
+                                                    id="searchGender">
+                                                <option value="" selected>All</option>
+                                                <option value="M">Male</option>
+                                                <option value="F">Female</option>
+                                            </select> 
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for="DateTo">API Name</label>
-                                            <input type="text" class="form-control" name="API Name"
-                                                   v-model="search.apiName"
-                                                   id="apiName"
-                                                   data-parsley-id="apiName"
+                                            <label>Civil Status</label>
+                                            <select class="custom-select" 
+                                                    id="searchCivilStatus"
+                                                    v-model="search.civilStatus">
+                                                <option value="" selected>All</option>
+                                                <option value="SNG">Single</option>
+                                                <option value="MAR">Married</option>
+                                                <option value="SEP">Separated</option>
+                                                <option value="WDW">Widow</option>
+                                                <option value="WDR">Widower</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="DateTo">Address</label>
+                                            <input type="text" class="form-control" 
+                                                   v-model="search.address"
+                                                   id="searchAddress"
+                                                   data-parsley-id="address"
                                                    data-parsley-trigger="change focusout"
-                                                   data-parsley-restrict-alphanumeric-only>
+                                                   data-parsley-address>
                                         </div>
                                     </div>
                                 </div>
@@ -303,7 +333,7 @@
                                                     <div class="row">
                                                         <div class="col-md-12 pb-4 text-center">
                                                             <div class="mt-3">
-                                                                <img id="profileImg" data-toggle="modal" data-target="#memberProfileModal" v-on:click="ChangeMemberProfileImage()" :src="imageData" class="img-circle elevation-2" alt="Profile Image" style="cursor:pointer; height:150px; width:150px;">
+                                                                <img id="profileImg" data-toggle="modal" data-target="#memberProfileModal" v-on:click="ChangeMemberProfileImage()" :src="imageData || '/Assets/Images/default-user.jpg'" class="img-circle elevation-2" alt="Profile Image" style="cursor:pointer; height:150px; width:150px;">
                                                             </div> 
                                                         </div>
                                                          
@@ -390,20 +420,21 @@
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                                            <div class="form-group">
-                                                                <label for="code">Contact #</label>
-                                                                <input type="text" class="form-control" name="contact" placeholder="(optional)"
-                                                                       v-model="formData.contactNo">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                                        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
                                                             <div class="form-group">
                                                                 <label for="code">Email</label>
                                                                 <input type="text" class="form-control" name="email" placeholder="(optional)"
                                                                        v-model="formData.email">
                                                             </div>
                                                         </div>
+                                                        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <label for="code">Contact #</label>
+                                                                <input type="text" class="form-control" name="contact" placeholder="(optional)"
+                                                                       v-model="formData.contactNo">
+                                                            </div>
+                                                        </div>
+                                                       
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-sm-12">
@@ -542,10 +573,8 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="row">
-                                                        <div class="col-12 table-responsive" v-show="!datatable.show_table">
-                                                            <span class="text-danger">No record(s) found!</span>
-                                                        </div>
-                                                        <div class="col-12 table-responsive" v-show="datatable.show_table">
+                                                      
+                                                        <div class="col-12 table-responsive">
 
                                                             <table class="table table-striped text-sm">
                                                                 <thead>
@@ -589,11 +618,8 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="row">
-                                                        <div class="col-12 table-responsive" v-show="!datatable.show_table">
-                                                            <span class="text-danger">No record(s) found!</span>
-                                                        </div>
-                                                        <div class="col-12 table-responsive" v-show="datatable.show_table">
-
+                                                      
+                                                        <div class="col-12 table-responsive"> 
                                                             <table class="table table-striped text-sm">
                                                                 <thead>
                                                                 </thead>

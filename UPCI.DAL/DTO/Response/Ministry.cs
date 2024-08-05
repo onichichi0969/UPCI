@@ -17,5 +17,7 @@
 
         public string DepartmentCode { get; set; } = string.Empty;
         public string DepartmentDesc { get; set; } = string.Empty;
+
+        public int MemberCount{ get; set; } = 0;
     }
 }

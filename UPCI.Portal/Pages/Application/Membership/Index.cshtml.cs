@@ -111,7 +111,7 @@ namespace UPCI.Portal.Pages.Membership
 
                 if (member != null)
                 {
-                    if (member.ImageContent.Length > 0)
+                    if (member.ImageContent != null && member.ImageContent.Length > 0)
                         return File(member.ImageContent, member.ImageType);
                     else
                         return File("~/Assets/Images/default-user.jpg", "image/jpg");
@@ -123,7 +123,12 @@ namespace UPCI.Portal.Pages.Membership
                 return File("~/Assets/Images/default-user.jpg", "image/jpg");
             }
 
-        } 
+        }
+        public JsonResult OnPostGetCodeAndName([FromBody] List<string> existing)
+        { 
+            var items = _memberService.GetCodeAndName(existing).Result; 
+            return new JsonResult(items); 
+        }
         public JsonResult OnPostFilter([FromBody] FParam fparam)
         { 
             fparam.OpUser = HttpContext.Session.GetString("Username");
@@ -139,9 +144,18 @@ namespace UPCI.Portal.Pages.Membership
                     foreach (var item in items.Data)
                     {
                         if (item.ImageContent != null)
-                            item.ImageDataString = Helper.ConvertBytesToBase64(item.ImageContent, item.ImageType);
+                        {
+                            if (item.ImageContent != null)
+                            {
+                                var smallImage = Helper.ResizeImage(item.ImageContent, 150, 150);
+                                item.ImageDataString = Helper.ConvertBytesToBase64(smallImage, item.ImageType); 
+                            }
+                            
+                        } 
                         else
                             item.ImageDataString = defaultImage;
+
+                        item.ImageContent = null;
                     }
                 }
             }

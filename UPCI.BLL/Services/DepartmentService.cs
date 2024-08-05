@@ -5,6 +5,7 @@ using UPCI.DAL;
 using UPCI.DAL.Helpers;
 using UPCI.DAL.Models;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore;
 
 namespace UPCI.BLL.Services
 {
@@ -55,7 +56,7 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VDepartment vDepartment = new();
                  
-                var departmentList = _applicationDbContext.Set<Department>().AsQueryable();
+                var departmentList = _applicationDbContext.Department!.Include(m=>m.Member).AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     departmentList = departmentList.Where(ExpressionBuilder.GetExpression<Department>(model.Filters));
@@ -85,11 +86,9 @@ namespace UPCI.BLL.Services
                               {
                                   Id = u.Id.ToString(),
                                   Code = u.Code,
-                                  Description = u.Description,
-                                  DepartmentCode = "",
-                                  DepartmentDesc = "",
-                                  LeaderCode = "",
-                                  LeaderDesc = "",
+                                  Description = u.Description!, 
+                                  HeadCode = u.Member.Code! == null? "": u.Member.Code!,
+                                  HeadDesc = Convert.ToString(u.Member.FirstName! + " " + u.Member.MiddleName! +" " + u.Member.LastName!).Trim(),
                                   Deleted = u.Deleted
                               }
                                ).ToList();
@@ -130,6 +129,7 @@ namespace UPCI.BLL.Services
                     { 
                         Code = model.Code.Trim(),
                         Description = model.Description.Trim(), 
+                        Head = model.Head.Trim(),
                         CreatedBy = userId.ToString(),
                         CreatedDate = DateTime.Now
                     };
@@ -240,6 +240,7 @@ namespace UPCI.BLL.Services
 
                     data!.Code = model.Code.Trim();
                     data.Description = model.Description.Trim();
+                    data.Head = model.Head.Trim();
                     data.UpdatedBy = userId.ToString();
                     data.UpdatedDate = DateTime.Now;
 

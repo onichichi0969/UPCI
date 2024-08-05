@@ -13,10 +13,8 @@
     {
         public string Id { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string DepartmentCode { get; set; } = string.Empty;
-        public string DepartmentDesc { get; set; } = string.Empty;
-        public string LeaderCode { get; set; } = string.Empty;
-        public string LeaderDesc { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty; 
+        public string HeadCode { get; set; } = string.Empty;
+        public string HeadDesc { get; set; } = string.Empty;
     }
 }

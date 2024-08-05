@@ -17,10 +17,11 @@ namespace UPCI.DAL.DTO.Response
         public string Id { get; set; } 
         public string Code { get; set; } = string.Empty;
         public string Chapter { get; set; } = string.Empty;
-        public string Sequence { get; set; } = string.Empty;
+        public string Sequence { get; set; } = string.Empty; 
         public string FirstName { get; set; } = string.Empty;
         public string MiddleName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public string CivilStatus { get; set; } = string.Empty;
         public string CivilStatusDesc { get; set; } = string.Empty;

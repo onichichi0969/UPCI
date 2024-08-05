@@ -76,8 +76,9 @@
                         <thead class="bg-secondary">
                             <tr> 
                                 <th width="20%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
-                                <th width="35%">Description <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
-                                <th width="35%">Department <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
+                                <th width="30%">Description <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
+                                <th width="30%">Department <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
+                                <th width="10%">No. Members <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
                                 <th class="text-center" width="10%">Action</th>
                             </tr>
                         </thead>
@@ -87,7 +88,14 @@
                                 <td class="align-middle" data-title="Code">{{ item.code }}</td>
                                 <td class="align-middle" data-title="Name">{{ item.description }}</td>
                                 <td class="align-middle" data-title="Name">{{ item.departmentDesc }}</td>
+                                <td class="align-middle" data-title="Name">{{ item.memberCount }}</td>
                                 <td class="text-center align-middle">
+                                    @if (Model.Actions.Contains("ACN02"))
+                                    {
+                                        <button type="button" class="btn btn-info btn-sm mr-1" data-toggle="modal" data-target="#memberModal" v-on:click="MemberModal(item)" data-tooltip="tooltip" title="Members">
+                                            <i class="fas fa-user"></i>
+                                        </button>
+                                    }
                                     @if (Model.Actions.Contains("ACN02"))
                                     {
                                         <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#formModal" v-on:click="Edit(item)" data-tooltip="tooltip" title="Edit">
@@ -108,6 +116,131 @@
                 </div>
                 <div class="col-12 table-responsive" v-show="datatable.show_table">
                     <ul id="sync-pagination" class="pagination-sm float-right"></ul>
+                </div>
+            </div>
+            @if (Model.Actions.Contains("ACN02"))
+            {
+                <div id="memberModal" class="modal fade text-sm" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <form name="memberModal" id="member" method="post" autocomplete="off" data-parsley-validate>
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title left"> <i class="fa fa-plus"> </i> Add Member</h5>
+                                    <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" aria-hidden="true"></i></a>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="card card-info card-outline">
+                                        <div class="card-header card-outline">
+                                            <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Ministry Members</h3>
+                                            <div class="card-tools">
+                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                               
+                                                <div class="col-12 table-responsive">
+
+                                                    <table class="table table-striped text-sm">
+                                                        <thead>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr v-for="selectedMember in selectedMembers" :key="selectedMember.id">
+                                                                <td width="40%" class="align-middle"> {{selectedMember.memberDesc}}</td>
+                                                                <td width="40%" class="align-middle"> {{selectedMember.positionDesc}}</td>
+                                                                <td width="20%" class="text-right align-middle">
+
+                                                                    <button type="button" class="btn btn-success btn-xs mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(selectedCell)" title="Edit">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+
+
+                                                                    <button type="button" class="btn btn-danger btn-xs mr-1" v-on:click="RemoveCell(selectedCell)" title="Remove">
+                                                                        <i class="far fa-trash-alt"></i>
+                                                                    </button>
+
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="col float-right">
+                                                <button type="button" class="btn btn-primary btn-sm float-right" data-toggle="modal" data-target="#addMemberModal" v-on:click="AddMemberModal()">  <i class="nav-icon fas fa-plus"></i> Add Member</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                    <button type="button" class="btn btn-success btn-sm" :disabled="isFormValid.value" v-on:click="SaveMembers()"><i class="nav-icon fas fa-check-circle"></i> Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+            <div id="addMemberModal" class="modal fade text-sm" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <form name="addMemberModal" id="addMember" method="post" autocomplete="off" data-parsley-validate>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title left"> <i class="fa fa-plus"> </i> Select Member</h5>
+                                <a href="#" class="modal-close right"><i class="mdl2 mdl2-cancel" ></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                   
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Member</label>
+                                            
+                                            <select class="form-control selectpicker"
+                                                    data-live-search="true"
+                                                    data-size="10"
+                                                    data-none-selected-text="-- Please Select --"
+                                                    v-model="formDataMember.member"
+                                                    v-on:change="HandleSelectChange"
+                                                    :disabled="disableControl.selectedMember"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    required>
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="member in members" :key="member.code">
+                                                    <option :value="member.code">{{member.firstName}} {{member.middleName}} {{member.lastName}}</option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Position</label>
+                                            <select class="form-control selectpicker"
+                                                    v-model="formDataMember.position"
+                                                    v-on:change="HandleSelectChange"
+                                                    data-parsley-trigger="change focusout"
+                                                    data-parsley-required-message="Required field"
+                                                    data-none-selected-text="-- Please Select --"
+                                                    required>
+                                                <option value="">-- Please Select --</option>
+                                                <template v-for="memberPosition in memberPositions" :key="memberPosition.id">
+                                                    <option :value="memberPosition.code">{{memberPosition.description}} </option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="nav-icon fas fa-times-circle"></i> Close</button>
+                                <button type="button" class="btn btn-success btn-sm" v-on:click="AddMember"><i class="nav-icon fas fa-check-circle"></i> Add Member</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
             @if (Model.Actions.Contains("ACN01") || Model.Actions.Contains("ACN02"))
@@ -187,5 +320,7 @@
 </script>
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
 <script src="~/js/app/services/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<script src="~/js/app/services/position.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/services/department.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
 <script src="~/js/app/controllers/ministry.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>

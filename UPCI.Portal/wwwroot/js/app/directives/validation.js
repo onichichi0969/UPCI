@@ -133,6 +133,17 @@
             en: 'Please enter a valid email address.'
         }
     });
+    window.Parsley.addValidator('address', {
+        validateString: function (value) {
+            // Regular expression to validate address format
+            // This regex is just an example. You should adjust it based on your requirements.
+            var addressRegex = /^[\d\s\w\.,'-]+$/;
+            return addressRegex.test(value);
+        },
+        messages: {
+            en: 'Please enter a valid address.'
+        }
+    });
     window.Parsley.addValidator('dateFormat', {
         validateString: function (value) {
             // Check if the date matches the format yyyy-MM-dd

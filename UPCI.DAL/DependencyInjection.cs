@@ -34,10 +34,12 @@ namespace UPCI.DAL
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
 
                 config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-                config.CreateMap<Member, UPCI.DAL.DTO.Response.Member>()
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
+                config.CreateMap<Member, Member>() 
+                .ForMember(dest => dest.FullName, opt =>
+                    opt.MapFrom(src => src.FirstName +" "+src.MiddleName + " " + src.LastName));
+
 
                 config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 

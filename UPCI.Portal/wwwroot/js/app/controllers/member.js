@@ -4,7 +4,9 @@ const membershipController = createApp({
         let isFormValid = ref(false);
         const search = reactive({
             dateFrom: '',
-            dateTo: ''
+            dateTo: '',
+            gender: '',
+            civilStatus: ''
         });
         const formData = reactive({
         });
@@ -66,6 +68,14 @@ const membershipController = createApp({
             datatable.filter = [];
             if ($('#searchCode').val().trim() !== "")
                 datatable.filter.push({ "Property": "Code", "Value": search.code, "Operator": "Contains" });
+            if ($('#searchFullname').val().trim() !== "")
+                datatable.filter.push({ "Property": "FullName", "Value": search.fullname, "Operator": "Contains" });
+            if ($('#searchAddress').val().trim() !== "")
+                datatable.filter.push({ "Property": "Address", "Value": search.address, "Operator": "Contains" });
+            if ($('#searchCivilStatus').val().trim() !== "")
+                datatable.filter.push({ "Property": "CivilStatus", "Value": search.civilStatus, "Operator": "Equals" });
+            if ($('#searchGender').val().trim() !== "")
+                datatable.filter.push({ "Property": "Gender", "Value": search.gender, "Operator": "Equals" });
             GetMember();
             $('.preloader').fadeOut('slow');
         };
@@ -544,6 +554,11 @@ const membershipController = createApp({
 
         const Filter = () => {
             datatable.filter = [];
+            search.code = '';
+            search.fullname = '';
+            search.gender = '';
+            search.civilStatus = '';
+            search.address = '';
         };
         const ApplyFilter = () => {
             $('#formFilter').parsley().validate();
@@ -708,6 +723,7 @@ const membershipController = createApp({
 
             if (ministries.value.find(min => min.code === ministry.ministryCode)) {
                 formDataGroups.ministry = ministry.ministryCode;
+                formDataGroups.ministry = '';
             }
             else {
                 formDataGroups.ministry = '';
@@ -764,6 +780,8 @@ const membershipController = createApp({
            
         } 
         const DepartmentChange = async (ministryCode) => {
+
+            formDataGroups.ministry = '';
             await GetMinistry(ministryCode);
         }
         const LoadMemberCell = (item) =>

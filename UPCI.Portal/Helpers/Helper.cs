@@ -1,11 +1,50 @@
 ﻿using UPCI.DAL.DTO.Response;
 using Newtonsoft.Json;
 using System.Text;
+using System.Drawing.Imaging;
+using System.Drawing;
 
 namespace UPCI.Portal.Helpers
 {
     public class Helper
     {
+        public static byte[] ResizeImage(byte[] imageBytes, int width, int height)
+        {
+            try
+            {
+                using (var inputStream = new MemoryStream(imageBytes))
+                {
+                    // Load the image from byte array
+                    using (var image = Image.FromStream(inputStream))
+                    {
+                        // Create a new bitmap with the desired size
+                        using (var resizedImage = new Bitmap(width, height))
+                        {
+                            using (var graphics = Graphics.FromImage(resizedImage))
+                            {
+                                // Set the interpolation mode to high quality
+                                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                                // Draw the original image onto the resized bitmap
+                                graphics.DrawImage(image, 0, 0, width, height);
+                            }
+
+                            // Save the resized image to a byte array
+                            using (var outputStream = new MemoryStream())
+                            {
+                                resizedImage.Save(outputStream, ImageFormat.Jpeg); // Change the format if needed
+                                return outputStream.ToArray();
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public static string ConvertBytesToBase64(byte[] imageBytes, string imageType)
         {
             if (imageBytes == null || imageBytes.Length == 0)
