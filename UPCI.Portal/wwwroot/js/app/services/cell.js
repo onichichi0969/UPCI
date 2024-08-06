@@ -3,8 +3,7 @@ var CellService = {};
 
 CellService.All = () => { 
     return axios.get(appUrl + '/Maintenance/Cell/Index?handler=All');
-};
-
+}; 
 CellService.Search = (filter, sortColumn, descending, pageNum, pageSize) => {
     var searchOption = { Filters: filter, SortColumn: sortColumn, Descending: descending, PageNum: pageNum, PageSize: pageSize };
     return axios.post(appUrl + '/Maintenance/Cell/Index?handler=Filter',
@@ -23,4 +22,9 @@ CellService.Save = (item) => {
         JSON.stringify(item),
         { headers: headers });
 };
-    
+
+CellService.SaveMembers = (item) => {
+    return axios.post(appUrl + '/Maintenance/Cell/Index?handler=SaveMembers',
+        JSON.stringify(item),
+        { headers: headers });
+};

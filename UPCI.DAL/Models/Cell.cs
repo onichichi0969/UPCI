@@ -11,6 +11,8 @@ namespace UPCI.DAL.Models
         public string? Code { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty; 
         public DateTime? FormDate { get; set; } = default;
-         
+
+        public List<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
+
     }
 }

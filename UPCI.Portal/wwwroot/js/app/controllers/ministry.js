@@ -4,8 +4,6 @@ const ministryController = createApp({
         let isFormValid = ref(false);
         onMounted(() => {  
         });
-       
-        
         const actionMode = ref('');
         const selectedMinistryCode = ref(''); 
         //const datatable = reactive({
@@ -46,12 +44,12 @@ const ministryController = createApp({
         const departments = ref([]); 
         const selectedMembers = ref([]); 
 
-        const Search = () => {
+        const Search = async () => {
            
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetMinistry();
+            await GetMinistry();
             
         };
         const addFilterIfNotExists = (filters, newFilter) => {
@@ -83,9 +81,13 @@ const ministryController = createApp({
             else {
                 members.value = [];
             }
-            nextTick(() => {
-                // Trigger Parsley validation manually
-                $('.selectpicker').selectpicker('refresh');
+            nextTick(() => { 
+                try {
+                    $('.selectpicker').selectpicker('refresh');
+                }
+                catch (ex) {
+
+                }
             });
 
         };
@@ -99,8 +101,12 @@ const ministryController = createApp({
                 memberPositions.value = [];
             }
             nextTick(() => {
-                // Trigger Parsley validation manually
-                $('.selectpicker').selectpicker('refresh');
+                try {
+                    $('.selectpicker').selectpicker('refresh');
+                }
+                catch (ex) {
+
+                }
             });
 
         };
@@ -204,7 +210,18 @@ const ministryController = createApp({
                         text: "Member successfully saved!",
                         icon: "success"
                     });
-                   
+                    $('#addMemberModal').modal('hide');
+                    $('#memberModal').modal('hide');
+                    
+                    Search();
+                }
+                 else if (result.data.status === 'INFO') {
+                    $('#member').modal('hide');
+                    swal.fire({
+                        text: "No changes made",
+                        icon: "info"
+                    }); 
+                    
                     Search();
                 }
                 else if (result.data.status === 'FAILED') {
@@ -351,7 +368,18 @@ const ministryController = createApp({
         const MemberModal = (item) => {
             //get ministry members 
             selectedMembers.value = [];
-            selectedMinistryCode.value = item.code;
+            selectedMinistryCode.value = item.code; 
+            if (item.memberMinistry.length > 0)
+            {
+                selectedMembers.value = item.memberMinistry.map(member => (
+                    {
+                        memberCode: member.memberCode,
+                        memberDesc: member.memberDesc || '',
+                        positionCode: member.position || '', 
+                        positionDesc: member.positionDesc || '', 
+
+                    })); 
+            }
 
         };
         
@@ -454,6 +482,48 @@ const ministryController = createApp({
             }
 
         } 
+        const EditMember = (member) => {
+            //disableControl.selectedMember = true;
+            formDataMember.member = member.memberCode;
+            formDataMember.position = member.positionCode;
+            nextTick(() => {
+                // Trigger Parsley validation manually
+                $('.selectpicker').selectpicker('refresh');
+            });
+
+        }
+        const RemoveMember = (member) => {
+            swal.fire({
+                title: "Are you sure?",
+                text: "Once delete, this will not be accessible on the system!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    const index = selectedMembers.value.findIndex(m => m.memberCode === member.memberCode);
+                    if (index !== -1) {
+                        // If the member is found, remove it
+                        selectedMembers.value.splice(index, 1);
+                        formDataMember.memberChanged = true;
+                    } else {
+                        // Optionally, you can add the member if it's not found
+                        // this.selectedMembers.push(member);
+                        // this.formDataMember.memberChanged = true;
+                    }
+
+                     
+                    swal.fire({
+                        text: "Member removed!",
+                        icon: "success"
+                    });
+                }
+            });
+
+        } 
         const HandleSelectChange = (event) => {
             $('#addMember').parsley().validate();
         };
@@ -496,6 +566,8 @@ const ministryController = createApp({
             AddMember,
             HandleSelectChange,
             SaveMembers,
+            EditMember,
+            RemoveMember,
         };
         return {
             ...returnProps,

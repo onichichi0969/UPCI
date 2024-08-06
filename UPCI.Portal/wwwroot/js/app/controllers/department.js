@@ -40,12 +40,12 @@ const departmentController = createApp({
         const items = ref([]); 
         const members = ref([]); 
 
-        const Search = () => {
+        const Search = async () => {
            
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetDepartment();
+            await GetDepartment();
             
         };
         const addFilterIfNotExists = (filters, newFilter) => {

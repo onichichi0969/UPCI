@@ -32,12 +32,12 @@ const moduleController = createApp({
         const parentIds = ref([]);
         const selectedModuleActions = ref([]);
 
-        const Search = () => {
+        const Search = async () => {
             
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Name", "Value": search.description, "Operator": "Contains" });
-            GetModule();
+            await GetModule();
            
         };
         const addFilterIfNotExists = (filters, newFilter) => {

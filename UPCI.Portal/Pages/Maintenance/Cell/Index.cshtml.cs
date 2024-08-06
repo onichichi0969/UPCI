@@ -131,6 +131,23 @@ namespace UPCI.Portal.Pages.Maintenance.Cell
 
             return new JsonResult(result);
         }
+        public async Task<JsonResult> OnPostSaveMembers([FromBody] UPCI.DAL.DTO.Request.CellMembersList model)
+        {
+            model.OpUser = HttpContext.Session.GetString("Username");
+            model.Terminal = HttpContext.Session.GetString("Terminal");
+            var result = new DAL.DTO.Response.Result();
+            if (model.isMembersChanged)
+            {
+                result = await _cellService.SaveCellMembers(model);
+            }
+            else
+            {
+                result.Status = "INFO";
+                result.Message = "No changes has been made";
+            }
+
+            return new JsonResult(result);
+        }
         public async Task<JsonResult> OnPostDelete([FromBody] UPCI.DAL.DTO.Request.Cell model)
         {
             model.OpUser = HttpContext.Session.GetString("Username");

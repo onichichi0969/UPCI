@@ -46,7 +46,9 @@ namespace UPCI.DAL.DTO.Response
     }
     public class MemberCell
     {
+        public string Id { get; set; } = string.Empty;
         public string MemberCode { get; set; } = string.Empty;
+        public string MemberDesc { get; set; } = string.Empty;
         public string CellCode { get; set; } = string.Empty;
         public string CellDesc { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
@@ -55,7 +57,9 @@ namespace UPCI.DAL.DTO.Response
 
     public class MemberMinistry
     {
-        public string MemberCode { get; set; } = string.Empty;
+        public string Id { get; set; } = string.Empty;
+        public string MemberCode { get; set; } = string.Empty; 
+        public string MemberDesc {  get; set; } = string.Empty;
         public string MinistryCode { get; set; } = string.Empty;
         public string MinistryDesc { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;

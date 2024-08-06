@@ -31,18 +31,29 @@ namespace UPCI.DAL
                 //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
                 config.CreateMap<Cell, UPCI.DAL.DTO.Response.Cell>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+                config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
                 config.CreateMap<Department, UPCI.DAL.DTO.Response.Department>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-                config.CreateMap<Member, Member>() 
+                config.CreateMap<Member, Member>()
                 .ForMember(dest => dest.FullName, opt =>
-                    opt.MapFrom(src => src.FirstName +" "+src.MiddleName + " " + src.LastName));
+                    opt.MapFrom(src => src.FirstName + " " + src.MiddleName + " " + src.LastName));
 
+                config.CreateMap<MemberMinistry, UPCI.DAL.DTO.Response.MemberMinistry>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-                config.CreateMap<Ministry, UPCI.DAL.DTO.Response.Ministry>()
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 
+                config.CreateMap<MemberCell, UPCI.DAL.DTO.Response.MemberCell>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+               
+
+                //For getting count and putting it to a int variable, another workaround is, user model.Count in sorting
+                //config.CreateMap<Ministry, Ministry>()
+                // .ForMember(dest => dest.MemberCount, opt => opt.MapFrom(src => src.MemberMinistry.Count));
 
                 config.CreateMap<PositionCell, UPCI.DAL.DTO.Response.PositionCell>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)); 

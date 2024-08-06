@@ -79,8 +79,12 @@ namespace UPCI.DAL.DTO.Request
         public string CellCode { get; set; } = string.Empty;
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
+        public string MemberCode { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = true)]
+        [MaxLength(50)]
         public string PositionCellCode { get; set; } = string.Empty;
     }
+   
     public class MemberMinistries  
     {
         [Required(AllowEmptyStrings = true)]
@@ -97,7 +101,14 @@ namespace UPCI.DAL.DTO.Request
         [MaxLength(50)]
         public string DepartmentCode { get; set; } = string.Empty; 
     }
+    public class CellMembersList : Base
+    {
+        public string CellCode { get; set; } = string.Empty;
 
+        public ICollection<MemberCells> CellMembers { get; set; }
+
+        public bool isMembersChanged { get; set; } = false;
+    }
     public class MinistryMembersList : Base
     { 
         public string MinistryCode { get; set; } = string.Empty;

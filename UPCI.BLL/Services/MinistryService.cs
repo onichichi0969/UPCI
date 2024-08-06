@@ -139,8 +139,9 @@ namespace UPCI.BLL.Services
                 var propertySelector = EFramework.BuildPropertySelector<Ministry>(model.SortColumn);
 
                 UPCI.DAL.DTO.Response.VMinistry vMinistry = new();
-                 
-                var MinistryList = _applicationDbContext.Ministry!.Include(d => d.Department).AsQueryable();
+
+                var MinistryList = _applicationDbContext.Ministry!.Include(d => d.Department).Include(m => m.MemberMinistry).ThenInclude(m => m.Member).AsQueryable();
+                    //.ProjectTo<Ministry>(_mapper.ConfigurationProvider).AsQueryable();  
                 
                 if (model.Filters != null && model.Filters.Count != 0)
                     MinistryList = MinistryList.Where(ExpressionBuilder.GetExpression<Ministry>(model.Filters));
@@ -166,29 +167,25 @@ namespace UPCI.BLL.Services
                 //vMinistry.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FMinistry>>(pagedQuery.ToList()); 
 
                 var result = (from u in pagedQuery
-                              join m in _applicationDbContext.MemberMinistry
-                              on u.Code equals m.MinistryCode into memberGroup
-                              select new
+                              select new UPCI.DAL.DTO.Response.FMinistry
                               {
-                                  u.Id,
-                                  u.Code,
-                                  u.Description,
-                                  u.DepartmentCode,
+                                  Id = u.Id.ToString(),
+                                  Code = u.Code,
+                                  Description = u.Description,
+                                  DepartmentCode = u.DepartmentCode,
                                   DepartmentDesc = u.Department.Description,
-                                  MemberCount = memberGroup.Count(m => m != null),
-                                  u.Deleted
-                              }).ToList()
-                              .Select(x => new UPCI.DAL.DTO.Response.FMinistry
-                              {
-                                  Id = x.Id.ToString(),
-                                  Code = x.Code,
-                                  Description = x.Description,
-                                  DepartmentCode = x.DepartmentCode,
-                                  DepartmentDesc = x.DepartmentDesc!,
-                                  MemberCount = x.MemberCount,
-                                  Deleted = x.Deleted
+                                  //MemberCount = u.MemberCount,
+                                  MemberMinistry = u.MemberMinistry.Select(member => new UPCI.DAL.DTO.Response.MemberMinistry
+                                                    {
+                                                          MemberCode = member.MemberCode!,
+                                                          MemberDesc = Convert.ToString(member.Member.FirstName) + " " + Convert.ToString(member.Member.MiddleName) + " " + Convert.ToString(member.Member.LastName),
+                                                          MinistryCode = member.MinistryCode!,
+                                                          MinistryDesc = member.Ministry.Description,
+                                                          Position = member.Position!,
+                                                          PositionDesc = member.PositionMinistry.Description!, 
+                                                    }).ToList(),
+                                  Deleted = u.Deleted
                               }).ToList();
-
                 vMinistry.Data = result;
                 return await Task.FromResult(vMinistry);
             }

@@ -40,12 +40,12 @@ const userController = createApp({
         const items = ref([]); 
         const roles = ref([]);  
 
-        const Search = () => {
+        const Search = async () => {
             
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "FirstName", "Value": search.description, "Operator": "Contains" });
-            GetUser();
+            await GetUser();
             
         };
         const addFilterIfNotExists = (filters, newFilter) => {

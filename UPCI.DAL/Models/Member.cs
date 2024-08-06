@@ -50,6 +50,7 @@ namespace UPCI.DAL.Models
 
         [ForeignKey("Position")]
         public virtual PositionCell PositionCell { get; set; }
+        [ForeignKey("MemberCode")]
         public virtual Member Member { get; set; } 
     }
     [Table("MemberMinistry")]
@@ -66,6 +67,8 @@ namespace UPCI.DAL.Models
 
         [ForeignKey("Position")]
         public virtual PositionMinistry PositionMinistry { get; set; }
+
+        [ForeignKey("MemberCode")]
         public virtual Member Member { get; set; }
     }
 }

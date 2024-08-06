@@ -2,6 +2,7 @@
 {
     public interface ICellService
     {
+        Task<UPCI.DAL.DTO.Response.Result> SaveCellMembers(UPCI.DAL.DTO.Request.CellMembersList model);
         Task<List<UPCI.DAL.DTO.Response.Cell>> Get();
         Task<UPCI.DAL.DTO.Response.Cell> ById(string id);
         Task<UPCI.DAL.DTO.Response.VCell> Filter(UPCI.DAL.DTO.Request.FParam model);

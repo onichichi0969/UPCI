@@ -78,7 +78,7 @@
                                 <th width="20%">Code <i :class="['fas', SortClass('Code')]" style="cursor:pointer" v-on:click="Sort('Code')"></i></th>
                                 <th width="30%">Description <i :class="['fas', SortClass('Description')]" style="cursor:pointer" v-on:click="Sort('Description')"></i></th>
                                 <th width="30%">Department <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
-                                <th width="10%">No. Members <i :class="['fas', SortClass('Department.Description')]" style="cursor:pointer" v-on:click="Sort('Department.Description')"></i></th>
+                                <th width="10%">No. Members <i :class="['fas', SortClass('MemberMinistry.Count')]" style="cursor:pointer" v-on:click="Sort('MemberMinistry.Count')"></i></th>
                                 <th class="text-center" width="10%">Action</th>
                             </tr>
                         </thead>
@@ -88,7 +88,7 @@
                                 <td class="align-middle" data-title="Code">{{ item.code }}</td>
                                 <td class="align-middle" data-title="Name">{{ item.description }}</td>
                                 <td class="align-middle" data-title="Name">{{ item.departmentDesc }}</td>
-                                <td class="align-middle" data-title="Name">{{ item.memberCount }}</td>
+                                <td class="align-middle" data-title="Name">{{ item.memberMinistry.length }}</td>
                                 <td class="text-center align-middle">
                                     @if (Model.Actions.Contains("ACN02"))
                                     {
@@ -152,12 +152,12 @@
                                                                 <td width="40%" class="align-middle"> {{selectedMember.positionDesc}}</td>
                                                                 <td width="20%" class="text-right align-middle">
 
-                                                                    <button type="button" class="btn btn-success btn-xs mr-1" data-toggle="modal" data-target="#cellFormModal" v-on:click="EditCell(selectedCell)" title="Edit">
+                                                                    <button type="button" class="btn btn-success btn-xs mr-1" data-toggle="modal" data-target="#addMemberModal" v-on:click="EditMember(selectedMember)" title="Edit">
                                                                         <i class="fas fa-edit"></i>
                                                                     </button>
 
 
-                                                                    <button type="button" class="btn btn-danger btn-xs mr-1" v-on:click="RemoveCell(selectedCell)" title="Remove">
+                                                                    <button type="button" class="btn btn-danger btn-xs mr-1" v-on:click="RemoveMember(selectedMember)" title="Remove">
                                                                         <i class="far fa-trash-alt"></i>
                                                                     </button>
 

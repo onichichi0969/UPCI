@@ -35,11 +35,11 @@ const roleController = createApp({
         var moduleActions = [];
         var roleModules = [];
 
-        const Search = () => { 
+        const Search = async () => { 
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetRole(); 
+            await GetRole(); 
         };
         const addFilterIfNotExists = (filters, newFilter) => {
             if (!filters.some(filter =>

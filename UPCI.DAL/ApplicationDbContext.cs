@@ -70,6 +70,18 @@ namespace UPCI.DAL
                .HasForeignKey(d => d.DepartmentCode)
                .HasPrincipalKey(m => m.Code);
 
+            modelBuilder.Entity<Ministry>()
+              .HasMany(d => d.MemberMinistry)
+              .WithOne(m => m.Ministry)
+              .HasForeignKey(d => d.MinistryCode)
+              .HasPrincipalKey(m => m.Code);
+
+            modelBuilder.Entity<Cell>()
+             .HasMany(d => d.MemberCell)
+             .WithOne(m => m.Cell)
+             .HasForeignKey(d => d.CellCode)
+             .HasPrincipalKey(m => m.Code);
+
             modelBuilder.Entity<ApiClient>()
                 .Property(e => e.CompanyId)
                 .HasConversion(
@@ -100,7 +112,7 @@ namespace UPCI.DAL
 
             modelBuilder.Entity<MemberCell>()
                   .HasOne(c => c.Cell)
-                  .WithMany()
+                  .WithMany(m => m.MemberCell)
                   .HasForeignKey(rm => rm.CellCode)
                   .HasPrincipalKey(m => m.Code);
 
@@ -120,7 +132,7 @@ namespace UPCI.DAL
 
             modelBuilder.Entity<MemberMinistry>()
                   .HasOne(c => c.Ministry)
-                  .WithMany()
+                  .WithMany(m => m.MemberMinistry)
                   .HasForeignKey(rm => rm.MinistryCode)
                   .HasPrincipalKey(m => m.Code);
 
@@ -129,7 +141,9 @@ namespace UPCI.DAL
                   .WithMany()
                   .HasForeignKey(rm => rm.Position)
                   .HasPrincipalKey(m => m.Code);
- 
+
+       
+
         }
 
     }

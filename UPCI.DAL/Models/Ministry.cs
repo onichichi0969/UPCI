@@ -14,9 +14,10 @@ namespace UPCI.DAL.Models
         public string DepartmentCode { get; set; } = string.Empty;
 
         [ForeignKey("DepartmentCode")]
-        public Department Department { get; set; }
+        public Department Department { get; set; } 
+        public List<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
 
-        [NotMapped] // This ensures that this property is not mapped to the database
-        public int MemberCount { get; set; }
+        //[NotMapped]
+        //public int MemberCount { get; set; }
     }
 }

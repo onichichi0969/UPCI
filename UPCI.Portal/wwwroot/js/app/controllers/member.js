@@ -63,7 +63,7 @@ const membershipController = createApp({
         const selectedMinistries = ref([]); 
         const selectedCells = ref([]);
         const imageData = ref(''); 
-        const Search = () => {
+        const Search = async () => {
             $(".preloader").show();
             datatable.filter = [];
             if ($('#searchCode').val().trim() !== "")
@@ -76,7 +76,7 @@ const membershipController = createApp({
                 datatable.filter.push({ "Property": "CivilStatus", "Value": search.civilStatus, "Operator": "Equals" });
             if ($('#searchGender').val().trim() !== "")
                 datatable.filter.push({ "Property": "Gender", "Value": search.gender, "Operator": "Equals" });
-            GetMember();
+            await GetMember();
             $('.preloader').fadeOut('slow');
         };
        

@@ -16,8 +16,8 @@
         public string Description { get; set; } = string.Empty;
 
         public string DepartmentCode { get; set; } = string.Empty;
-        public string DepartmentDesc { get; set; } = string.Empty;
-
-        public int MemberCount{ get; set; } = 0;
+        public string DepartmentDesc { get; set; } = string.Empty; 
+        public List<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
+        //public int MemberCount{ get; set; } = 0;
     }
 }

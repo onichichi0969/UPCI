@@ -142,7 +142,7 @@ namespace UPCI.Portal.Pages.Maintenance.Ministry
             }
             else 
             {
-                result.Status = "SUCCESS";
+                result.Status = "INFO";
                 result.Message = "No changes has been made";
             } 
 

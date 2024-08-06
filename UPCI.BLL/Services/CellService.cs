@@ -5,17 +5,102 @@ using UPCI.DAL;
 using UPCI.DAL.Helpers;
 using UPCI.DAL.Models;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore;
 
 namespace UPCI.BLL.Services
 {
-    public class CellService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Cell> CellRepository, ILogService logService) : ICellService
+    public class CellService(ApplicationDbContext applicationDbContext, IMapper mapper, IRepository<Cell> CellRepository, IRepository<MemberCell> memberCellRepository, ILogService logService) : ICellService
     {
         private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
         private readonly IRepository<Cell> _CellRepository = CellRepository;
+        private readonly IRepository<MemberCell> _memberCellRepository = memberCellRepository;
         private readonly ILogService _logService = logService;
         private readonly IMapper _mapper = mapper;
         private readonly string _moduleName = "Cell";
+        public async Task<UPCI.DAL.DTO.Response.Result> SaveCellMembers(UPCI.DAL.DTO.Request.CellMembersList model)
+        {
+            UPCI.DAL.DTO.Response.Result result = new();
 
+            TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
+            {
+                var action = "EDIT";
+                var userId = _applicationDbContext.User!.FirstOrDefault(u => u.Username == model.OpUser)!.Username;
+
+                int updateStatus = 0;
+
+                var activityLog = new ActivityLog()
+                {
+                    UserId = model.OpUser!,
+                    ModuleName = _moduleName,
+                    Action = action
+                };
+                if (!model.isMembersChanged)
+                {
+                    result.Status = "INFO";
+                    result.Message = "No changes has been made";
+                }
+
+                var existingCells = _applicationDbContext.MemberCell!.Where(d => d.CellCode == model.CellCode!).ToList();
+                if (existingCells.Count > 0)
+                    //delete
+                    await _memberCellRepository.RemoveRangeAsync(existingCells);
+
+                var memberCellList = new List<MemberCell>();
+
+                if (model.CellMembers != null && model.CellMembers.Count != 0)
+                {
+                    memberCellList = model.CellMembers.Select(member => new MemberCell
+                    {
+                        MemberCode = member.MemberCode,
+                        CellCode = member.CellCode,
+                        Position = member.PositionCellCode,
+                    }).ToList();
+                    await _memberCellRepository.AddRangeAsync(memberCellList);
+                }
+
+                var auditTrail = new AuditTrail()
+                {
+                    RecordId = model.CellCode,
+                    Terminal = model.Terminal!,
+                    Action = action,
+                    UserId = userId!,
+                    ActionDate = DateTime.Now,
+                    TableName = _moduleName,
+                    OldValues = "",
+                    NewValues = ""
+                };
+
+                activityLog.Details = string.Format("[code: {0}] updated.", model.CellCode);
+                result.Status = "SUCCESS";
+                result.Message = string.Format("{0} updated.", _moduleName);
+
+                _logService.LogActivity(activityLog);
+                _logService.LogAudit(auditTrail!);
+
+
+                transactionScope.Complete();
+
+            }
+            catch (TransactionAbortedException ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            catch (Exception ex)
+            {
+                _logService.LogException(ex, _moduleName);
+                result = new UPCI.DAL.DTO.Response.Result() { Status = "ERROR", Message = "Error encountered" };
+            }
+            finally
+            {
+
+                transactionScope.Dispose();
+            }
+
+            return await Task.FromResult(result);
+        }
         public async Task<List<UPCI.DAL.DTO.Response.Cell>> Get()
         {
             try
@@ -55,7 +140,7 @@ namespace UPCI.BLL.Services
 
                 UPCI.DAL.DTO.Response.VCell vCell = new();
                  
-                var CellList = _applicationDbContext.Set<Cell>().AsQueryable();
+                var CellList = _applicationDbContext.Set<Cell>().Include(m => m.MemberCell).ThenInclude(m => m.Member).AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     CellList = CellList.Where(ExpressionBuilder.GetExpression<Cell>(model.Filters));
@@ -86,6 +171,15 @@ namespace UPCI.BLL.Services
                                   Id = u.Id.ToString(),
                                   Code = u.Code,
                                   Description = u.Description,
+                                  MemberCell = u.MemberCell.Select(member => new UPCI.DAL.DTO.Response.MemberCell
+                                  {
+                                      MemberCode = member.MemberCode!,
+                                      MemberDesc = Convert.ToString(member.Member.FirstName) + " " + Convert.ToString(member.Member.MiddleName) + " " + Convert.ToString(member.Member.LastName),
+                                      CellCode = member.CellCode!,
+                                      CellDesc = member.Cell.Description!,
+                                      Position = member.Position!,
+                                      PositionDesc = member.PositionCell.Description!,
+                                  }).ToList(),
                                   Deleted = u.Deleted
                               }
                                ).ToList();

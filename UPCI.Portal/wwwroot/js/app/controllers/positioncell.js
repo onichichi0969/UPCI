@@ -27,12 +27,12 @@ const positionCellController = createApp({
         });
         const items = ref([]); 
  
-        const Search = () => {
+        const Search = async () => {
             
             datatable.filter = [];
             if ($('#searchDescription').val().trim() !== "")
                 datatable.filter.push({ "Property": "Description", "Value": search.description, "Operator": "Contains" });
-            GetPositionCell ();
+            await GetPositionCell ();
            
         };
         const addFilterIfNotExists = (filters, newFilter) => {

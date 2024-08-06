@@ -7,7 +7,7 @@ namespace UPCI.DAL.DTO.Response
         public List<FCell> Data { get; set; } = [];
     }
 
-    public class FCell : Ministry
+    public class FCell : Cell
     {
         public bool Deleted { get; set; }
     }
@@ -15,7 +15,7 @@ namespace UPCI.DAL.DTO.Response
     {
         public string Id { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty; 
-        public string FormDate { get; set; }  
+        public string Description { get; set; } = string.Empty;  
+        public List<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
     }
 }

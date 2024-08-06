@@ -240,7 +240,7 @@ namespace UPCI.BLL.Services
 
                 //vCell.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FCell>>(pagedQuery.ToList());
 
-                var result = (from u in pagedQuery
+                var result = await (from u in pagedQuery
                               join c in civilStatus on u.CivilStatus equals c.Code into civilGroup
                               from c in civilGroup.DefaultIfEmpty()
                               join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
@@ -301,7 +301,7 @@ namespace UPCI.BLL.Services
                                   UpdatedDate = u.UpdatedDate,
                                   Deleted = u.Deleted
                               }
-                               ).ToList();
+                               ).ToListAsync();
 
                 vCell.Data = result;
                 return await Task.FromResult(vCell);
