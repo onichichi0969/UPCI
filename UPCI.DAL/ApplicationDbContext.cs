@@ -9,7 +9,7 @@ namespace UPCI.DAL
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
         {
-            this.ChangeTracker.LazyLoadingEnabled = false;
+            this.ChangeTracker.LazyLoadingEnabled = true;
         }
         public DbSet<ActivityLog>? ActivityLog { get; set; }
         public DbSet<ExceptionLog>? ExceptionLog { get; set; }

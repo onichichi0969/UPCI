@@ -302,7 +302,82 @@ namespace UPCI.BLL.Services
                                   Deleted = u.Deleted
                               }
                                ).ToListAsync();
-
+                #region new code faster
+                //var query = from u in pagedQuery
+                //            join c in civilStatus on u.CivilStatus equals c.Code into civilGroup
+                //            from c in civilGroup.DefaultIfEmpty()
+                //            join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
+                //            from mt in memberTypeGroup.DefaultIfEmpty()
+                //            join pl in pepsolLevel on u.PEPSOL equals pl.Code into pepsolLevelGroup
+                //            from pl in pepsolLevelGroup.DefaultIfEmpty()
+                //            join mc in _applicationDbContext.MemberCell.AsQueryable() on u.Code equals mc.MemberCode
+                //            select new
+                //            {
+                //                u.Id,
+                //                u.Code,
+                //                u.Sequence,
+                //                u.Chapter,
+                //                u.FirstName,
+                //                u.MiddleName,
+                //                u.LastName,
+                //                u.Gender,
+                //                u.CivilStatus,
+                //                CivilStatusDesc = c.Description,
+                //                u.Address,
+                //                u.Birthday,
+                //                u.BaptismDate,
+                //                u.FirstAttend,
+                //                u.Baptized,
+                //                u.InvolvedToCell,
+                //                u.PEPSOL,
+                //                PEPSOLDesc = pl.Description,
+                //                u.MemberType,
+                //                MemberTypeDesc = mt.Description,
+                //                u.Email,
+                //                u.ContactNo,
+                //                u.ActiveMember,
+                //                u.ImageContent,
+                //                u.ImageType,
+                //                u.CreatedBy,
+                //                u.CreatedDate,
+                //                u.UpdatedBy,
+                //                u.UpdatedDate,
+                //                u.Deleted
+                //            };
+                //var result = query.Select(member => new UPCI.DAL.DTO.Response.FMember
+                //{
+                //    Id = StringManipulation.Encrypt(Convert.ToString(member.Id), _encryptionKey),
+                //    Code = member.Code,
+                //    Sequence = Convert.ToString(member.Sequence),
+                //    Chapter = member.Chapter,
+                //    FirstName = member.FirstName,
+                //    MiddleName = member.MiddleName,
+                //    LastName = member.LastName,
+                //    Gender = member.Gender,
+                //    CivilStatus = member.CivilStatus,
+                //    CivilStatusDesc = member.CivilStatusDesc,
+                //    Address = member.Address,
+                //    Birthday = member.Birthday! == null ? "" : Convert.ToDateTime(member.Birthday!).ToString("yyyy-MM-dd"),
+                //    BaptismDate = member.BaptismDate! == null ? "" : Convert.ToDateTime(member.BaptismDate!).ToString("yyyy-MM-dd"),
+                //    FirstAttend = member.FirstAttend! == null ? "" : Convert.ToDateTime(member.FirstAttend!).ToString("yyyy-MM-dd"),
+                //    Baptized = (bool)member.Baptized,
+                //    InvolvedToCell = (bool)member.InvolvedToCell,
+                //    PEPSOL = member.PEPSOL,
+                //    PEPSOLDesc = member.PEPSOLDesc,
+                //    MemberType = member.MemberType,
+                //    MemberTypeDesc = member.MemberTypeDesc,
+                //    Email = member.Email,
+                //    ContactNo = member.ContactNo,
+                //    ActiveMember = (bool)member.ActiveMember,
+                //    ImageContent = member.ImageContent,
+                //    ImageType = member.ImageType,
+                //    CreatedBy = member.CreatedBy,
+                //    CreatedDate = member.CreatedDate,
+                //    UpdatedBy = member.UpdatedBy,
+                //    UpdatedDate = member.UpdatedDate,
+                //    Deleted = member.Deleted
+                //}).ToList();
+                #endregion
                 vCell.Data = result;
                 return await Task.FromResult(vCell);
             }
