@@ -512,8 +512,12 @@ namespace UPCI.BLL.Services
 
                     activityLog.Details = string.Format("[code: {0}] created.", user.Username);
 
-                    result = new UPCI.DAL.DTO.Response.Result() { Status = "SUCCESS", Message = string.Format("{0} created.", _moduleName) };
-
+                    //result = new UPCI.DAL.DTO.Response.Result() { Status = "SUCCESS", Message = string.Format("{0} created.", _moduleName) };
+                    result = new UPCI.DAL.DTO.Response.Result() 
+                    {
+                        Status = "SUCCESS", 
+                        Message = randomPassword
+                    };
                     _logService.LogActivity(activityLog);
                     _logService.LogAudit(auditTrail!);
                 }

@@ -150,8 +150,9 @@ const userController = createApp({
                 const result = await UserService.Save(formData);
                 if (result.data.status === 'SUCCESS') {
                     $('#formModal').modal('hide');
+                
                     swal.fire({
-                        text: "User successfully saved!",
+                        html: "User successfully created! <br> User's Password <br>" + "<b class='text-danger'>" + result.data.message + "</b>",
                         icon: "success"
                     });
                     Search();

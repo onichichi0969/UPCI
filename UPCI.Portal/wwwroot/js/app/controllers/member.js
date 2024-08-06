@@ -8,6 +8,8 @@ const membershipController = createApp({
             gender: '',
             civilStatus: ''
         });
+        const viewData = reactive({
+        });
         const formData = reactive({
         });
         const formDataGroups = reactive({
@@ -571,7 +573,7 @@ const membershipController = createApp({
         };
         
         const FormatDate = (dateString) => {
-            if (!dateString) return ''; // Check for blank date value
+            if (!dateString) return '-'; // Check for blank date value
             try {
                 // Convert the string to a Date object
                 const date = new Date(dateString);
@@ -590,7 +592,7 @@ const membershipController = createApp({
             }
         }
         const FormatDateBirthday = (dateString) =>{
-            if (!dateString) return ''; // Check for blank date value
+            if (!dateString) return '-'; // Check for blank date value
             try
             {
                 // Convert the string to a Date object
@@ -688,6 +690,48 @@ const membershipController = createApp({
             formData.address = item.address;
             formData.cellChanged = false;
             formData.ministryChanged = false;
+
+            LoadMemberCell(item);
+            LoadMemberMinistry(item);
+
+
+        };
+
+        const View = (item) => { 
+            GetMemberProfileImage(item.id);
+            //ramon
+           
+            viewData.id = item.id;
+            viewData.code = item.code;
+            viewData.activeMember = item.activeMember;
+            viewData.involvedToCell = item.involvedToCell;
+            viewData.baptized = item.baptized;
+            viewData.memberType = item.memberType;
+            viewData.pepsol = item.pepsol;
+            viewData.baptismDate = item.baptismDate;
+            viewData.firstAttend = item.firstAttend;
+            viewData.gender = item.gender;
+            viewData.civilStatus = item.civilStatus;
+            viewData.firstName = item.firstName;
+            viewData.middleName = item.middleName;
+            viewData.lastName = item.lastName;
+            viewData.memberTypeDesc = item.memberTypeDesc;
+            viewData.civilStatusDesc = item.civilStatusDesc;
+            
+            viewData.pepsolDesc = item.pepsolDesc != null ? item.pepsolDesc : '-';
+
+            if (viewData.middleName != "")  
+                viewData.fullName = item.firstName + " " + item.middleName + " " + item.lastName; 
+            else 
+                viewData.fullName = item.firstName + " " + item.lastName;
+
+            viewData.involvedToCell = item.involvedToCell;
+            viewData.birthday = item.birthday;
+            viewData.email = item.email;
+            viewData.contactNo = item.contactNo;
+            viewData.address = item.address;
+            viewData.cellChanged = false;
+            viewData.ministryChanged = false;
 
             LoadMemberCell(item);
             LoadMemberMinistry(item);
@@ -838,6 +882,7 @@ const membershipController = createApp({
             search,
             formData, 
             formDataGroups,
+            viewData,
             items,
             cells,
             ministries,
@@ -863,6 +908,7 @@ const membershipController = createApp({
             Delete,
             Add,
             Edit,
+            View,
             FormatDate,
             FormatDateBirthday,
             AddCell,
