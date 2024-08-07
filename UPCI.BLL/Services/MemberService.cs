@@ -34,8 +34,9 @@ namespace UPCI.BLL.Services
             {
                 var now = DateTime.UtcNow;
 
-                // Fetch data from database
+                // Fetch data from database with only necessary columns
                 var members = _applicationDbContext.Member!
+                    .AsNoTracking() // Optional: Prevents tracking of entities for better performance
                     .Include(m => m.MemberCell)
                     .Include(m => m.MemberMinistry)
                     .Select(m => new
@@ -52,12 +53,12 @@ namespace UPCI.BLL.Services
                 var totalMembers = members.Count;
 
                 var ageGroups = new Dictionary<string, int>
-            {
-                { "Children", 0 },
-                { "Youth", 0 },
-                { "Adult", 0 },
-                { "Senior", 0 }
-            };
+                {
+                    { "Children", 0 },
+                    { "Youth", 0 },
+                    { "Adult", 0 },
+                    { "Senior", 0 }
+                };
 
                 foreach (var member in members)
                 {
@@ -67,7 +68,7 @@ namespace UPCI.BLL.Services
                         if (now < member.Birthday.Value.AddYears(age)) age--;
 
                         if (age < 12) ageGroups["Children"]++;
-                        else if (age < (member.Gender == "M" ? 21 : 18)) ageGroups["Youth"]++;
+                        else if (age < (member.Gender == "Male" ? 21 : 18)) ageGroups["Youth"]++;
                         else if (age < 60) ageGroups["Adult"]++;
                         else if (age >= 60) ageGroups["Senior"]++;
                     }
@@ -88,7 +89,8 @@ namespace UPCI.BLL.Services
                     .GroupBy(m => m.HasMinistry)
                     .ToDictionary(g => g.Key, g => g.Count());
 
-                var memberStatistics = new UPCI.DAL.DTO.Response.MemberStatistics
+                var result = new UPCI.DAL.DTO.Response.MemberStatistics();
+                result = new UPCI.DAL.DTO.Response.MemberStatistics
                 {
                     Total = new UPCI.DAL.DTO.Response.TotalMember { Total = totalMembers },
                     Age = new UPCI.DAL.DTO.Response.Age
@@ -115,7 +117,8 @@ namespace UPCI.BLL.Services
                         No = involveMinistry.GetValueOrDefault(false, 0)
                     }
                 };
-                return await Task.FromResult(memberStatistics);
+                 
+                return await Task.FromResult(result);
             }
             catch (Exception ex) 
             {
