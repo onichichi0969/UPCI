@@ -34,11 +34,7 @@ namespace UPCI.DAL.Models
         public virtual ICollection<MemberCell> MemberCell { get; set; } = new List<MemberCell>();
         public virtual ICollection<MemberMinistry> MemberMinistry { get; set; } = new List<MemberMinistry>();
         [NotMapped]
-        public string? FullName { get; set; } = string.Empty;
-        [NotMapped]
-        public bool? InvolvedToCell { get; set; } = false;
-        [NotMapped]
-        public bool? InvolvedToMinistry { get; set; } = false;
+        public string? FullName { get; set; } = string.Empty; 
 
     }
     [Table("MemberCell")]

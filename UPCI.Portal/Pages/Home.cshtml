@@ -27,74 +27,175 @@
     </div>
 </section>
 <section class="content">
-    <div class="container-fluid text-sm" id="HomeController" autocomplete="off"> 
+    <div class="container-fluid text-sm" id="HomeController" autocomplete="off">
         <div class="row">
-            <div class="col-md-7">
-                <div class="card" style="min-height:200px">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-child"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text text-md">Children</span>
+                        <h2 class="info-box-number">
+                            10
+                        </h2>
+                    </div> 
+                </div> 
+            </div> 
+            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
+                <div class="info-box mb-3">
+                    <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-person"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text text-md">Youth</span>
+                        <h2 class="info-box-number">
+                            10
+                        </h2>
+                    </div> 
+                </div> 
+            </div> 
+            <div class="clearfix hidden-md-up"></div>
+
+            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
+                <div class="info-box mb-3">
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-person-walking-luggage"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text text-md">Adult</span>
+                        <h2 class="info-box-number">
+                            10
+                        </h2>
+                    </div> 
+                </div> 
+            </div> 
+            <div class="col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
+                <div class="info-box mb-3">
+                    <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-person-cane"></i></span> 
+
+                    <div class="info-box-content">
+                        <span class="info-box-text text-md">Senior</span>
+                        <h2 class="info-box-number">
+                            10
+                        </h2>
+                    </div> 
+                </div> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="nav-icon fas fa-clipboard-list"></i> Route Summary</h3>
+                        <h3 class="card-title">Active Members</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
+                        </div>
                     </div>
-                    <div class="card-body p-0 text-xs">
-                        <table class="table table-striped text-xs">
-                            <thead>
-                                <tr>
-                                    <th class="align-middle" width="40%">Route Name</th>
-                                    <th class="text-center align-middle" width="20%">Downstream Path</th>
-                                    <th class="text-center align-middle" width="20%">Upstream Path</th>
-                                    <th class="text-center align-middle" width="5%">Unauthorized</th>
-                                    <th class="text-center align-middle" width="5%">Success</th>
-                                    <th class="text-center align-middle" width="5%">Failed</th>
-                                    <th class="text-center align-middle" width="5%">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in items">
-                                    <td>{{item.name}}</td>
-                                    <td class="text-center align-middle">{{item.downstreamPathTemplate}}</td>
-                                    <td class="text-center align-middle">{{item.upstreamPathTemplate}}</td>
-                                    <td class="text-center align-middle">{{item.unauthorized}}</td>
-                                    <td class="text-center align-middle">{{item.success}}</td>
-                                    <td class="text-center align-middle">{{item.failed}}</td>
-                                    <td class="text-center align-middle">{{item.total}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-responsive">
+                                    <canvas id="pieChartActive" height="150"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <ul class="chart-legend clearfix">
+                                    <li><i class="fas fa-square text-success"></i> Active</li>
+                                    <li><i class="fas fa-square text-danger"></i> Inactive</li> 
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
-                <div class="card" style="min-height:200px">
+            <div class="col-md-4">
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="nav-icon fas fa-list-alt"></i> Recent Activity</h3>
+                        <h3 class="card-title">Gender</h3>
 
                         <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
+                        </div>
+                    </div> 
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-responsive">
+                                    <canvas id="pieChartGender" height="150"></canvas>
+                                </div> 
+                            </div> 
+                            <div class="col-md-4">
+                                <ul class="chart-legend clearfix">
+                                    <li><i class="fas fa-square text-primary"></i> Male</li>
+                                    <li><i class="fas fa-square text-danger"></i> Female</li> 
+                                </ul>
+                            </div> 
+                        </div> 
+                    </div>  
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Involved to Cell Group</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
                         </div>
                     </div>
-                    <div class="card-body p-0 text-xs">
-                        <table class="table text-xs">
-                            <thead>
-                                <tr>
-                                    <th width="40%">Log Date</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in recentActivities">
-                                    <td class="align-middle">{{item.logDate}}</td>
-                                    <td class="align-middle">
-                                        <b>{{item.action}}</b><br />
-                                        {{item.details}}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-responsive">
+                                    <canvas id="pieChartCell" height="150"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <ul class="chart-legend clearfix">
+                                    <li><i class="fas fa-square text-success"></i> Involved</li>
+                                    <li><i class="fas fa-square text-danger"></i> Not involved</li> 
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Involved to Ministry</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="chart-responsive">
+                                    <canvas id="pieChartMinistry" height="150"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <ul class="chart-legend clearfix">
+                                    <li><i class="fas fa-square text-success"></i> Involved</li>
+                                    <li><i class="fas fa-square text-danger"></i> Not involved</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
+ 
 <script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
 <script src="~/js/app/services/route.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
 <script src="~/js/app/services/user.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 

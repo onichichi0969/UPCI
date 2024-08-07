@@ -147,15 +147,26 @@
                                         <b>Member Type:</b>  {{item.memberTypeDesc}}
                                     </div>
                                     <div>
-                                        <b>Baptized:</b> <template v-if="item.baptized">
-                                                        <span class="text-success"><i class="fas fa-check"></i> Yes</span>
-                                                  </template>
-                                                  <template v-else>
-                                                    <span class="text-danger"><i class="fas fa-x"></i> No</span>
-                                                  </template>
+                                        <b>Baptized:</b> 
+                                        <template v-if="item.baptized">
+                                            <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                                        </template>
+                                        <template v-else>
+                                            <span class="text-danger"><i class="fas fa-x"></i> No</span>
+                                        </template>
                                     </div>
                                     <div>
-                                        <b>Involved to Cell:</b> <template v-if="item.involvedToCell">
+                                        <b>Involved to Cell:</b>  
+                                        <template v-if="item.memberMinistry.length > 0">
+                                            <span class="text-success"><i class="fas fa-check"></i> Yes</span>
+                                        </template>
+                                        <template v-else>
+                                            <span class="text-danger"><i class="fas fa-x"></i> No</span>
+                                        </template>
+                                    </div>
+                                    <div>
+                                        <b>Involved to Ministry:</b>
+                                        <template v-if="item.memberCell.length > 0">
                                             <span class="text-success"><i class="fas fa-check"></i> Yes</span>
                                         </template>
                                         <template v-else>
@@ -461,7 +472,7 @@
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="row">
-                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
                                                             <div class="form-group">
                                                                 <label for="code">Member Type</label>
                                                                 <select class="custom-select" id="memberType"
@@ -477,7 +488,7 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
                                                             <div class="form-group">
                                                                 <label for="code">PEPSOL Level</label>
                                                                 <select class="custom-select" id="civilStatus"
@@ -490,56 +501,6 @@
                                                                     <option value="SOL3">SOL3</option>
                                                                     <option value="GRAD">Graduate</option>
                                                                 </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                                                            <div class="form-group">
-                                                                <label for="code">Is an <b class="text-danger">Active</b> member?</label>
-                                                                <div class="form-check">
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="false" v-model="formData.activeMember" name="rdbActive">
-                                                                        No
-                                                                    </label>
-                                                                    &nbsp;&nbsp;&nbsp;
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="true" v-model="formData.activeMember" name="rdbActive">
-                                                                        Yes
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                                                            <div class="form-group">
-                                                                <label for="code">Already <b class="text-danger">Baptized</b> by a Pastor?</label>
-                                                                <div class="form-check">
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="false" v-model="formData.baptized" name="rdbBaptized">
-                                                                        No
-                                                                    </label>
-                                                                    &nbsp;&nbsp;&nbsp;
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="true" v-model="formData.baptized" name="rdbBaptized">
-                                                                        Yes
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                                                            <div class="form-group">
-                                                                <label for="code">Involved to a <b class="text-danger">Cell Group</b>?</label>
-                                                                <div class="form-check">
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="false" v-model="formData.involvedToCell" name="rdbInvolvedCell">
-                                                                        No
-                                                                    </label>
-                                                                    &nbsp;&nbsp;&nbsp;
-                                                                    <label class="form-check-label">
-                                                                        <input type="radio" value="true" v-model="formData.involvedToCell" name="rdbInvolvedCell">
-                                                                        Yes
-                                                                    </label>
-                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -559,12 +520,47 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="row">
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Is an <b class="text-danger">Active</b> member?</label>
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="false" v-model="formData.activeMember" name="rdbActive">
+                                                                        No
+                                                                    </label>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="true" v-model="formData.activeMember" name="rdbActive">
+                                                                        Yes
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                            <div class="form-group">
+                                                                <label for="code">Already <b class="text-danger">Baptized</b> by a Pastor?</label>
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="false" v-model="formData.baptized" name="rdbBaptized">
+                                                                        No
+                                                                    </label>
+                                                                    &nbsp;&nbsp;&nbsp;
+                                                                    <label class="form-check-label">
+                                                                        <input type="radio" value="true" v-model="formData.baptized" name="rdbBaptized">
+                                                                        Yes
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div> 
+                                                    </div>
+                                                    
 
                                                 </div>
                                             </div>
                                             <div class="card card-info card-outline">
                                                 <div class="card-header card-outline">
-                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Cell Groups</h3>
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-users"></i> Cell Groups</h3>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                             <i class="fas fa-minus"></i>
@@ -609,7 +605,7 @@
                                             </div>
                                             <div class="card card-warning card-outline">
                                                 <div class="card-header card-outline">
-                                                    <h3 class="card-title"><i class="nav-icon fas fa-plus"></i> Ministries</h3>
+                                                    <h3 class="card-title"><i class="nav-icon fas fa-music"></i> Ministries</h3>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                             <i class="fas fa-minus"></i>
@@ -946,18 +942,66 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                
+                                        <div class="card card-info card-outline"> 
+                                            <div class="card-header card-outline">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-users"></i> Cell Groups</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
                                             </div>
+                                            <div class="card-body">
+                                                <div class="row"> 
+                                                    <div class="col-12 table-responsive">
+                                                        <table class="table text-sm">
+                                                            <thead>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="selectedCell in selectedCells" :key="selectedCell.id"> 
+                                                                    <td width="50%" class="align-middle"> {{selectedCell.cellDesc}}</td>
+                                                                    <td width="50%" class="align-middle"> {{selectedCell.positionCellDesc}}</td> 
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                        <div class="card">
-                                            <div class="card-body">
+                                        <div class="card card-warning card-outline">
+                                            
+                                            <div class="card-header card-outline">
+                                                <h3 class="card-title"><i class="nav-icon fas fa-music"></i> Ministries</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
                                             </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-12 table-responsive">
+                                                        <table class="table text-sm">
+                                                            <thead>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="selectedMinistry in selectedMinistries" :key="selectedMinistry.id">
+                                                                    <td width="30%" class="align-middle"> {{selectedMinistry.departmentDesc}}</td>
+                                                                    <td width="30%" class="align-middle"> {{selectedMinistry.ministryDesc}}</td>
+                                                                    <td width="20%" class="align-middle"> {{selectedMinistry.positionMinistryDesc}}</td>
+                                                                        
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div> 
+                                            </div>
+                                                 
                                         </div>
-                                    </div>
+                                    </div> 
                                 </div> 
                             </div>
                             <div class="modal-footer justify-content-between">

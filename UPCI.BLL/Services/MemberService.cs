@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NPOI.SS.Formula.Functions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; 
 
 namespace UPCI.BLL.Services
 {
@@ -27,6 +27,102 @@ namespace UPCI.BLL.Services
         readonly Chapter chapter = configuration.GetSection("Chapter").Get<Chapter>()!;
         readonly string _encryptionKey = configuration["AppContext:EncryptionKey"]!;
 
+
+        public async Task<UPCI.DAL.DTO.Response.MemberStatistics> MemberStatistics()
+        {
+            try
+            {
+                var now = DateTime.UtcNow;
+
+                // Fetch data from database
+                var members = _applicationDbContext.Member!
+                    .Include(m => m.MemberCell)
+                    .Include(m => m.MemberMinistry)
+                    .Select(m => new
+                    {
+                        m.Birthday,
+                        m.ActiveMember,
+                        m.Gender,
+                        HasCell = m.MemberCell.Any(),
+                        HasMinistry = m.MemberMinistry.Any()
+                    })
+                    .ToList();
+
+                // Calculate statistics in memory
+                var totalMembers = members.Count;
+
+                var ageGroups = new Dictionary<string, int>
+            {
+                { "Children", 0 },
+                { "Youth", 0 },
+                { "Adult", 0 },
+                { "Senior", 0 }
+            };
+
+                foreach (var member in members)
+                {
+                    if (member.Birthday.HasValue)
+                    {
+                        var age = now.Year - member.Birthday.Value.Year;
+                        if (now < member.Birthday.Value.AddYears(age)) age--;
+
+                        if (age < 12) ageGroups["Children"]++;
+                        else if (age < (member.Gender == "M" ? 21 : 18)) ageGroups["Youth"]++;
+                        else if (age < 60) ageGroups["Adult"]++;
+                        else if (age >= 60) ageGroups["Senior"]++;
+                    }
+                }
+
+                var activeMembers = members.Count(m => m.ActiveMember == true);
+                var inactiveMembers = totalMembers - activeMembers;
+
+                var genderGroups = members
+                    .GroupBy(m => m.Gender)
+                    .ToDictionary(g => g.Key ?? "Unknown", g => g.Count());
+
+                var involveCell = members
+                    .GroupBy(m => m.HasCell)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var involveMinistry = members
+                    .GroupBy(m => m.HasMinistry)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var memberStatistics = new UPCI.DAL.DTO.Response.MemberStatistics
+                {
+                    Total = new UPCI.DAL.DTO.Response.TotalMember { Total = totalMembers },
+                    Age = new UPCI.DAL.DTO.Response.Age
+                    {
+                        Children = ageGroups["Children"],
+                        Youth = ageGroups["Youth"],
+                        Adult = ageGroups["Adult"],
+                        Senior = ageGroups["Senior"]
+                    },
+                    ActiveMember = new UPCI.DAL.DTO.Response.ActiveMember { Active = activeMembers, Inactive = inactiveMembers },
+                    Gender = new UPCI.DAL.DTO.Response.Gender
+                    {
+                        Male = genderGroups.GetValueOrDefault("Male", 0),
+                        Female = genderGroups.GetValueOrDefault("Female", 0)
+                    },
+                    InvolveCell = new UPCI.DAL.DTO.Response.InvolveCell
+                    {
+                        Yes = involveCell.GetValueOrDefault(true, 0),
+                        No = involveCell.GetValueOrDefault(false, 0)
+                    },
+                    InvolveMinistry = new UPCI.DAL.DTO.Response.InvolveMinistry
+                    {
+                        Yes = involveMinistry.GetValueOrDefault(true, 0),
+                        No = involveMinistry.GetValueOrDefault(false, 0)
+                    }
+                };
+                return await Task.FromResult(memberStatistics);
+            }
+            catch (Exception ex) 
+            {
+                return await Task.FromResult(new());
+            }
+            
+        }
         public (string memberCode,int lastSequence) GenerateMemberCode(string chapterCode)
         {
             string memberCode; 
@@ -463,8 +559,7 @@ namespace UPCI.BLL.Services
                         BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate),
                         FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend),
                         PEPSOL = model.PEPSOL.Trim(),
-                        Baptized = model.Baptized,
-                        InvolvedToCell = model.InvolvedToCell,
+                        Baptized = model.Baptized, 
                         ActiveMember = model.ActiveMember,
                         MemberType = model.MemberType.Trim(),
                         Email = model.Email.Trim(),
@@ -624,8 +719,7 @@ namespace UPCI.BLL.Services
                     data.BaptismDate = Convert.ToString(model.BaptismDate) == string.Empty ? null : Convert.ToDateTime(model.BaptismDate);
                     data.FirstAttend = Convert.ToString(model.FirstAttend) == string.Empty ? null : Convert.ToDateTime(model.FirstAttend);
                     data.PEPSOL = model.PEPSOL.Trim();
-                    data.Baptized = model.Baptized;
-                    data.InvolvedToCell = model.InvolvedToCell;
+                    data.Baptized = model.Baptized; 
                     data.ActiveMember = model.ActiveMember;
                     data.MemberType = model.MemberType.Trim();
                     data.Email = model.Email.Trim();

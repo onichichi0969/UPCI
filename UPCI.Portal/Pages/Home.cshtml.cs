@@ -12,6 +12,7 @@ namespace UPCI.Portal.Pages
         IUserService _userService;
         IRouteService _routeService;
         IReportService _reportService;
+        IMemberService _memberService;
         readonly AppConfig _appConfig;
 
         [BindProperty]
@@ -20,7 +21,7 @@ namespace UPCI.Portal.Pages
         [BindProperty]
         public string Actions { get; set; }
 
-        public HomeModel(IConfiguration configuration, IUserService userService, IRouteService routeService, IReportService reportService)
+        public HomeModel(IConfiguration configuration, IUserService userService, IRouteService routeService, IReportService reportService, IMemberService memberService)
         {
             
             _configuration = configuration;
@@ -28,6 +29,7 @@ namespace UPCI.Portal.Pages
             _userService = userService;
             _routeService = routeService;
             _reportService = reportService;
+            _memberService = memberService;
         }
 
         public IActionResult OnGet()
@@ -57,6 +59,7 @@ namespace UPCI.Portal.Pages
                             Actions = (Helper.GetActions(modules, HttpContext.Request.Path));
 
                             //var x = _reportService.HTTPLogSummary().Result;
+                            var x = _memberService.MemberStatistics();
                             return Page();
                         }
                         else

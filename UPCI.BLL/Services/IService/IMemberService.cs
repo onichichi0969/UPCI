@@ -2,7 +2,7 @@
 {
     public interface IMemberService
     {
-        
+        Task<UPCI.DAL.DTO.Response.MemberStatistics> MemberStatistics();
         Task<List<UPCI.DAL.DTO.Response.Member>> Get();
         Task<List<UPCI.DAL.DTO.Response.Member>> GetCodeAndName(List<string> existing);
         Task<UPCI.DAL.DTO.Response.Member> ById(string id);

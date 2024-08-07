@@ -44,8 +44,7 @@ namespace UPCI.DAL.DTO.Request
         [MaxLength(50)]
         public string FirstAttend { get; set; } = string.Empty;
         public bool ActiveMember { get; set; } = false;
-        public bool Baptized { get; set; } = false;
-        public bool InvolvedToCell { get; set; } = false;
+        public bool Baptized { get; set; } = false; 
         [Required(AllowEmptyStrings = true)]
         [MaxLength(50)]
         public string PEPSOL { get; set; } = string.Empty;
