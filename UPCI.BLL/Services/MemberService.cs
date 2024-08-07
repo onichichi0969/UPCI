@@ -119,7 +119,7 @@ namespace UPCI.BLL.Services
             }
             catch (Exception ex) 
             {
-                return await Task.FromResult(new());
+                return new();
             }
             
         }
