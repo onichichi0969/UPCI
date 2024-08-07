@@ -29,8 +29,7 @@ namespace UPCI.DAL.DTO.Response
         public string Birthday { get; set; } = string.Empty;
         public string BaptismDate { get; set; } = string.Empty;
         public string FirstAttend { get; set; } = string.Empty;
-        public bool Baptized { get; set; } = false;
-        public bool InvolvedToCell { get; set; } = false;
+        public bool Baptized { get; set; } = false; 
         public bool ActiveMember { get; set; } = false; 
         public string PEPSOL { get; set; } = string.Empty;
         public string PEPSOLDesc { get; set; } = string.Empty;

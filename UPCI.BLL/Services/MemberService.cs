@@ -147,8 +147,7 @@ namespace UPCI.BLL.Services
                             Birthday = x.u.Birthday.HasValue ? x.u.Birthday.Value.ToString("yyyy-MM-dd") : "",
                             BaptismDate = x.u.BaptismDate.HasValue ? x.u.BaptismDate.Value.ToString("yyyy-MM-dd") : "",
                             FirstAttend = x.u.FirstAttend.HasValue ? x.u.FirstAttend.Value.ToString("yyyy-MM-dd") : "",
-                            Baptized = x.u.Baptized ?? false,
-                            InvolvedToCell = x.u.InvolvedToCell ?? false,
+                            Baptized = x.u.Baptized ?? false, 
                             PEPSOL = x.u.PEPSOL,
                             PEPSOLDesc = pl != null ? pl.Description : null,
                             MemberType = x.u.MemberType,
@@ -156,8 +155,7 @@ namespace UPCI.BLL.Services
                             Email = x.u.Email,
                             ContactNo = x.u.ContactNo,
                             ActiveMember = x.u.ActiveMember ?? false,
-                            MemberCell = x.u.MemberCell == null ? new List<UPCI.DAL.DTO.Response.MemberCell>() :
-                                                   x.u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
+                            MemberCell = x.u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
                                                    {
                                                        MemberCode = x.u.Code!,
                                                        CellCode = cell.CellCode!,
@@ -165,8 +163,7 @@ namespace UPCI.BLL.Services
                                                        Position = cell.Position!,
                                                        PositionDesc = cell.PositionCell.Description!,
                                                    }).ToList(),
-                            MemberMinistry = x.u.MemberMinistry == null ? new List<UPCI.DAL.DTO.Response.MemberMinistry>() :
-                                                           x.u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
+                            MemberMinistry = x.u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
                                                            {
                                                                MemberCode = x.u.Code,
                                                                MinistryCode = ministry.MinistryCode!,
@@ -212,9 +209,9 @@ namespace UPCI.BLL.Services
                 var memberList = _applicationDbContext.Member.Include(c => c.MemberCell).Include(m => m.MemberMinistry).
                     ProjectTo<Member>(_mapper.ConfigurationProvider).AsQueryable(); 
 
-                var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
-                var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
-                var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
+                //var civilStatus = _applicationDbContext.Set<CivilStatus>().AsQueryable();
+                //var memberType = _applicationDbContext.Set<MemberType>().AsQueryable();
+                //var pepsolLevel = _applicationDbContext.Set<PEPSOLLevel>().AsQueryable();
 
                 if (model.Filters != null && model.Filters.Count != 0)
                     memberList = memberList.Where(ExpressionBuilder.GetExpression<Member>(model.Filters));
@@ -241,66 +238,63 @@ namespace UPCI.BLL.Services
                 //vCell.Data = _mapper.Map<List<UPCI.DAL.DTO.Response.FCell>>(pagedQuery.ToList());
 
                 var result = await (from u in pagedQuery
-                              join c in civilStatus on u.CivilStatus equals c.Code into civilGroup
-                              from c in civilGroup.DefaultIfEmpty()
-                              join mt in memberType on u.MemberType equals mt.Code into memberTypeGroup
-                              from mt in memberTypeGroup.DefaultIfEmpty()
-                              join pl in pepsolLevel on u.PEPSOL equals pl.Code into pepsolLevelGroup
-                              from pl in pepsolLevelGroup.DefaultIfEmpty() 
-                              select new UPCI.DAL.DTO.Response.FMember
-                              {
-                                  Id = StringManipulation.Encrypt(Convert.ToString(u.Id), _encryptionKey) ,
-                                  Code = u.Code,
-                                  Sequence = Convert.ToString(u.Sequence),
-                                  Chapter = u.Chapter,
-                                  FirstName = u.FirstName,
-                                  MiddleName = u.MiddleName,
-                                  LastName = u.LastName,
-                                  Gender = u.Gender,
-                                  CivilStatus = u.CivilStatus,
-                                  CivilStatusDesc = c.Description,
-                                  Address = u.Address,
-                                  Birthday = u.Birthday! == null ? "" : Convert.ToDateTime(u.Birthday!).ToString("yyyy-MM-dd"),
-                                  BaptismDate = u.BaptismDate! == null ? "" : Convert.ToDateTime(u.BaptismDate!).ToString("yyyy-MM-dd"),
-                                  FirstAttend = u.FirstAttend! == null ? "" : Convert.ToDateTime(u.FirstAttend!).ToString("yyyy-MM-dd"),
-                                  Baptized = (bool)u.Baptized,
-                                  InvolvedToCell = (bool)u.InvolvedToCell,
-                                  PEPSOL = u.PEPSOL,
-                                  PEPSOLDesc = pl.Description,
-                                  MemberType = u.MemberType,
-                                  MemberTypeDesc = mt.Description,
-                                  Email = u.Email,
-                                  ContactNo = u.ContactNo,
-                                  ActiveMember = (bool)u.ActiveMember,
-                                  MemberCell = u.MemberCell == null? new() :
-                                                                              u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
-                                                                              {
-                                                                                  MemberCode = u.Code!,
-                                                                                  CellCode = cell.CellCode!,
-                                                                                  CellDesc = cell.Cell.Description!,
-                                                                                  Position = cell.Position!,
-                                                                                  PositionDesc = cell.PositionCell.Description!,
-                                                                              }).ToList(),
-                                  MemberMinistry = u.MemberMinistry == null ? new() :
-                                                                              u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
-                                                                              {
-                                                                                  MemberCode = u.Code,
-                                                                                  MinistryCode = ministry.MinistryCode!,
-                                                                                  MinistryDesc = ministry.Ministry.Description,
-                                                                                  Position = ministry.Position!,
-                                                                                  PositionDesc = ministry.PositionMinistry.Description!,
-                                                                                  DepartmentCode = ministry.Ministry.Department.Code,
-                                                                                  DepartmentDesc = ministry.Ministry.Department.Description,
-                                                                              }).ToList(),
+                                    join c in _applicationDbContext.Set<CivilStatus>().AsQueryable() on u.CivilStatus equals c.Code into civilGroup
+                                    from c in civilGroup.DefaultIfEmpty()
+                                    join mt in _applicationDbContext.Set<MemberType>().AsQueryable() on u.MemberType equals mt.Code into memberTypeGroup
+                                    from mt in memberTypeGroup.DefaultIfEmpty()
+                                    join pl in _applicationDbContext.Set<PEPSOLLevel>().AsQueryable() on u.PEPSOL equals pl.Code into pepsolLevelGroup
+                                    from pl in pepsolLevelGroup.DefaultIfEmpty()
+                                    select new UPCI.DAL.DTO.Response.FMember
+                                    {
+                                        Id = StringManipulation.Encrypt(Convert.ToString(u.Id), _encryptionKey),
+                                        Code = u.Code,
+                                        Sequence = Convert.ToString(u.Sequence),
+                                        Chapter = u.Chapter,
+                                        FirstName = u.FirstName,
+                                        MiddleName = u.MiddleName,
+                                        LastName = u.LastName,
+                                        Gender = u.Gender,
+                                        CivilStatus = u.CivilStatus,
+                                        CivilStatusDesc = c.Description,
+                                        Address = u.Address,
+                                        Birthday = u.Birthday! == null ? "" : Convert.ToDateTime(u.Birthday!).ToString("yyyy-MM-dd"),
+                                        BaptismDate = u.BaptismDate! == null ? "" : Convert.ToDateTime(u.BaptismDate!).ToString("yyyy-MM-dd"),
+                                        FirstAttend = u.FirstAttend! == null ? "" : Convert.ToDateTime(u.FirstAttend!).ToString("yyyy-MM-dd"),
+                                        Baptized = (bool)u.Baptized, 
+                                        PEPSOL = u.PEPSOL,
+                                        PEPSOLDesc = pl.Description,
+                                        MemberType = u.MemberType,
+                                        MemberTypeDesc = mt.Description,
+                                        Email = u.Email,
+                                        ContactNo = u.ContactNo,
+                                        ActiveMember = (bool)u.ActiveMember,
+                                        MemberCell = u.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
+                                                                                    {
+                                                                                        MemberCode = u.Code!,
+                                                                                        CellCode = cell.CellCode!,
+                                                                                        CellDesc = cell.Cell.Description!,
+                                                                                        Position = cell.Position!,
+                                                                                        PositionDesc = cell.PositionCell.Description!,
+                                                                                    }).ToList(),
+                                        MemberMinistry = u.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
+                                                        {
+                                                            MemberCode = u.Code,
+                                                            MinistryCode = ministry.MinistryCode!,
+                                                            MinistryDesc = ministry.Ministry.Description,
+                                                            Position = ministry.Position!,
+                                                            PositionDesc = ministry.PositionMinistry.Description!,
+                                                            DepartmentCode = ministry.Ministry.Department.Code,
+                                                            DepartmentDesc = ministry.Ministry.Department.Description,
+                                                        }).ToList(),
 
-                                  ImageContent = u.ImageContent,
-                                  ImageType = u.ImageType,
-                                  CreatedBy = u.CreatedBy,
-                                  CreatedDate = u.CreatedDate,
-                                  UpdatedBy = u.UpdatedBy,
-                                  UpdatedDate = u.UpdatedDate,
-                                  Deleted = u.Deleted
-                              }
+                                        ImageContent = u.ImageContent,
+                                        ImageType = u.ImageType,
+                                        CreatedBy = u.CreatedBy,
+                                        CreatedDate = u.CreatedDate,
+                                        UpdatedBy = u.UpdatedBy,
+                                        UpdatedDate = u.UpdatedDate,
+                                        Deleted = u.Deleted
+                                    }
                                ).ToListAsync();
                 #region new code faster
                 //var query = from u in pagedQuery
@@ -342,7 +336,9 @@ namespace UPCI.BLL.Services
                 //                u.CreatedDate,
                 //                u.UpdatedBy,
                 //                u.UpdatedDate,
-                //                u.Deleted
+                //                u.Deleted, 
+                //                u.MemberMinistry,
+                //                u.MemberCell, 
                 //            };
                 //var result = query.Select(member => new UPCI.DAL.DTO.Response.FMember
                 //{
@@ -375,7 +371,27 @@ namespace UPCI.BLL.Services
                 //    CreatedDate = member.CreatedDate,
                 //    UpdatedBy = member.UpdatedBy,
                 //    UpdatedDate = member.UpdatedDate,
-                //    Deleted = member.Deleted
+                //    Deleted = member.Deleted,
+                //    MemberMinistry = member.MemberMinistry == null ? new() :
+                //                                                              member.MemberMinistry.Select(ministry => new UPCI.DAL.DTO.Response.MemberMinistry
+                //                                                              {
+                //                                                                  MemberCode = member.Code,
+                //                                                                  MinistryCode = ministry.MinistryCode!,
+                //                                                                  MinistryDesc = ministry.Ministry.Description,
+                //                                                                  Position = ministry.Position!,
+                //                                                                  PositionDesc = ministry.PositionMinistry.Description!,
+                //                                                                  DepartmentCode = ministry.Ministry.Department.Code,
+                //                                                                  DepartmentDesc = ministry.Ministry.Department.Description,
+                //                                                              }).ToList(),
+                //    MemberCell = member.MemberCell == null ? new() :
+                //                                                              member.MemberCell.Select(cell => new UPCI.DAL.DTO.Response.MemberCell
+                //                                                              {
+                //                                                                  MemberCode = member.Code!,
+                //                                                                  CellCode = cell.CellCode!,
+                //                                                                  CellDesc = cell.Cell.Description!,
+                //                                                                  Position = cell.Position!,
+                //                                                                  PositionDesc = cell.PositionCell.Description!,
+                //                                                              }).ToList(),
                 //}).ToList();
                 #endregion
                 vCell.Data = result;

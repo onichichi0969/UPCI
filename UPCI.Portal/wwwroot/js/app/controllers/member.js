@@ -704,7 +704,7 @@ const membershipController = createApp({
             viewData.id = item.id;
             viewData.code = item.code;
             viewData.activeMember = item.activeMember;
-            viewData.involvedToCell = item.involvedToCell;
+            
             viewData.baptized = item.baptized;
             viewData.memberType = item.memberType;
             viewData.pepsol = item.pepsol;
@@ -725,14 +725,13 @@ const membershipController = createApp({
             else 
                 viewData.fullName = item.firstName + " " + item.lastName;
 
-            viewData.involvedToCell = item.involvedToCell;
+        
             viewData.birthday = item.birthday;
             viewData.email = item.email;
             viewData.contactNo = item.contactNo;
             viewData.address = item.address;
             viewData.cellChanged = false;
-            viewData.ministryChanged = false;
-
+            viewData.ministryChanged = false; 
             LoadMemberCell(item);
             LoadMemberMinistry(item);
 

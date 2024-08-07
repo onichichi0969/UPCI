@@ -102,13 +102,17 @@ namespace UPCI.DAL
                    v => string.IsNullOrEmpty(v) ? (Guid?)null : Guid.Parse(v)); // Converts string from the database back to Guid
 
 
+           
 
             modelBuilder.Entity<Member>()
-                .Ignore(m => m.FullName)
-                  .HasMany(m => m.MemberCell)
-                  .WithOne(rm => rm.Member)
-                  .HasForeignKey(rm => rm.MemberCode)
-                  .HasPrincipalKey(m => m.Code);
+                .Ignore(m => m.FullName) 
+                .HasMany(m => m.MemberCell)
+                .WithOne(rm => rm.Member)
+                .HasForeignKey(rm => rm.MemberCode)
+                .HasPrincipalKey(m => m.Code);
+
+
+           
 
             modelBuilder.Entity<MemberCell>()
                   .HasOne(c => c.Cell)
@@ -142,8 +146,38 @@ namespace UPCI.DAL
                   .HasForeignKey(rm => rm.Position)
                   .HasPrincipalKey(m => m.Code);
 
-       
 
+            //Indexes
+
+            modelBuilder.Entity<Member>()
+               .HasIndex(m => m.Id)
+               .HasDatabaseName("IX_Member_Id");
+
+            modelBuilder.Entity<Member>()
+               .HasIndex(m => m.Code)
+               .HasDatabaseName("IX_Member_Code");
+
+            modelBuilder.Entity<MemberCell>()
+                   .HasIndex(m => m.Id)
+                   .HasDatabaseName("IX_MemberCell_Id");
+            modelBuilder.Entity<MemberCell>()
+                    .HasIndex(m => m.MemberCode)
+                    .HasDatabaseName("IX_MemberCell_MemberCode");
+
+            modelBuilder.Entity<MemberCell>()
+                    .HasIndex(m => m.CellCode)
+                    .HasDatabaseName("IX_MemberCell_CellCode");
+
+            modelBuilder.Entity<MemberMinistry>()
+                  .HasIndex(m => m.Id)
+                  .HasDatabaseName("IX_MemberMinistry_Id");
+            modelBuilder.Entity<MemberMinistry>()
+                    .HasIndex(m => m.MemberCode)
+                    .HasDatabaseName("IX_MemberMinistry_MemberCode");
+
+            modelBuilder.Entity<MemberMinistry>()
+                    .HasIndex(m => m.MinistryCode)
+                    .HasDatabaseName("IX_MemberMinistry_CellCode");
         }
 
     }
