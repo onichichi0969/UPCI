@@ -66,7 +66,18 @@ namespace UPCI.DAL.DTO.Response
         public string DepartmentCode { get; set; } = string.Empty;
         public string DepartmentDesc { get; set; } = string.Empty;
     }
-
+    public class MinistryStat
+    { 
+        public string Code {  get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int Count { get; set; } = 0;
+    }
+    public class CellStat
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int Count { get; set; } = 0;
+    }
     /// <summary>
     /// /
     /// </summary>

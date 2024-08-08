@@ -6,6 +6,9 @@
 }
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
+
+
+<link rel="stylesheet" href="~/assets/adminlte/plugins/chart.js/Chart.css" />
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -35,7 +38,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text text-md">Children</span>
                         <h2 class="info-box-number">
-                            10
+                            @Model.Stats.Age.Children
                         </h2>
                     </div> 
                 </div> 
@@ -47,7 +50,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text text-md">Youth</span>
                         <h2 class="info-box-number">
-                            10
+                            @Model.Stats.Age.Youth
                         </h2>
                     </div> 
                 </div> 
@@ -61,7 +64,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text text-md">Adult</span>
                         <h2 class="info-box-number">
-                            10
+                            @Model.Stats.Age.Adult
                         </h2>
                     </div> 
                 </div> 
@@ -73,14 +76,14 @@
                     <div class="info-box-content">
                         <span class="info-box-text text-md">Senior</span>
                         <h2 class="info-box-number">
-                            10
+                            @Model.Stats.Age.Senior
                         </h2>
                     </div> 
                 </div> 
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Active Members</h3>
@@ -93,22 +96,16 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="chart-responsive">
-                                    <canvas id="pieChartActive" height="150"></canvas>
+                                    <canvas id="chartActive" height="150"></canvas>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <ul class="chart-legend clearfix">
-                                    <li><i class="fas fa-square text-success"></i> Active</li>
-                                    <li><i class="fas fa-square text-danger"></i> Inactive</li> 
-                                </ul>
-                            </div>
+                            </div> 
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Gender</h3>
@@ -121,22 +118,16 @@
                     </div> 
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="chart-responsive">
-                                    <canvas id="pieChartGender" height="150"></canvas>
+                                    <canvas id="chartGender" height="150"></canvas>
                                 </div> 
-                            </div> 
-                            <div class="col-md-4">
-                                <ul class="chart-legend clearfix">
-                                    <li><i class="fas fa-square text-primary"></i> Male</li>
-                                    <li><i class="fas fa-square text-danger"></i> Female</li> 
-                                </ul>
-                            </div> 
+                            </div>  
                         </div> 
                     </div>  
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Involved to Cell Group</h3>
@@ -149,22 +140,16 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="chart-responsive">
-                                    <canvas id="pieChartCell" height="150"></canvas>
+                                    <canvas id="chartActiveCell" height="150"></canvas>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <ul class="chart-legend clearfix">
-                                    <li><i class="fas fa-square text-success"></i> Involved</li>
-                                    <li><i class="fas fa-square text-danger"></i> Not involved</li> 
-                                </ul>
-                            </div>
+                            </div> 
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Involved to Ministry</h3>
@@ -177,17 +162,57 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-12">
                                 <div class="chart-responsive">
-                                    <canvas id="pieChartMinistry" height="150"></canvas>
+                                    <canvas id="chartActiveMinistry" height="150"></canvas>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <ul class="chart-legend clearfix">
-                                    <li><i class="fas fa-square text-success"></i> Involved</li>
-                                    <li><i class="fas fa-square text-danger"></i> Not involved</li>
-                                </ul>
-                            </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ministries</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="chart-responsive">
+                                    <canvas id="chartMinistries"></canvas>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Cell Groups</h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button> 
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="chart-responsive">
+                                    <canvas id="chartCells"></canvas>
+                                </div>
+                            </div> 
                         </div>
                     </div>
                 </div>
@@ -195,8 +220,343 @@
         </div>
     </div>
 </section>
- 
-<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script>
-<script src="~/js/app/services/route.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
-<script src="~/js/app/services/user.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
-<script src="~/js/app/controllers/home.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>
+<style>
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    .chart-responsive {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    canvas {
+        width: 100% !important; /* Ensure the canvas scales with its container */
+        height: auto !important; /* Maintain aspect ratio */
+    }
+</style>
+<script src="~/assets/adminlte/plugins/chart.js/chart.min.js"></script> 
+<script src="~/lib/jquery-twbspagination/jquery.twbspagination.js"></script> 
+<script src="~/js/app/services/member.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script>  
+<script src="~/js/app/controllers/home.js?d=@DateTime.Now.ToString("yyyyMMddHHmmss")"></script> 
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const lightModeColors  = {
+              primary: '#007bff',
+              success: '#28a745',
+              secondary: '#6c757d',
+              danger: '#dc3545',
+              warning: '#ffc107',
+              info: '#17a2b8',
+              light: '#f8f9fa',
+              dark: '#343a40'
+            };
+         const darkModeColors = {
+              primary: '#1AD9FF',
+              success: '#2ecc71',
+              secondary: '#6c757d',
+              danger: '#FF726B',
+              warning: '#ffca2b',
+              info: '#3ba2b8',
+              light: '#e2e6ea',
+              dark: '#121416'
+            };
+        const otherColors = [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)' 
+        ];
+
+        function getRandomColor() {
+            const randomIndex = Math.floor(Math.random() * otherColors.length);
+            return otherColors[randomIndex];
+        }
+        function getColor(index) {
+            return otherColors[index % otherColors.length];
+        }
+        const chartActive = document.getElementById('chartActive').getContext('2d');
+        const chartGender = document.getElementById('chartGender').getContext('2d');
+        const chartActiveCell = document.getElementById('chartActiveCell').getContext('2d');
+        const chartActiveMinistry = document.getElementById('chartActiveMinistry').getContext('2d');
+        const chartMinistries = document.getElementById('chartMinistries').getContext('2d');
+        const chartCells = document.getElementById('chartCells').getContext('2d');
+       
+
+        //Active
+        const active = new Chart(chartActive, {
+          type: 'doughnut',
+          data: {
+            labels: ['Active', 'Inactive'], // Labels for the segments
+            datasets: [{
+              label: 'Active Members',
+              data: [@Model.Stats.ActiveMember.Active, @Model.Stats.ActiveMember.Inactive], // Replace with your data
+              backgroundColor: [darkModeColors.success, darkModeColors.danger],
+              borderColor: [darkModeColors.success, darkModeColors.danger],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right', // Position the legend on the right
+                    labels: {
+                         
+                        
+                    }
+                },
+                tooltip: {
+                    
+                }
+            },
+            cutout: '50%' // Adjust the donut hole size
+          }
+        });
+
+        //Gender
+        const gender = new Chart(chartGender, {
+          type: 'doughnut',
+          data: {
+            labels: ['Male', 'Female'],  
+            datasets: [{
+              label: 'Gender',
+              data: [@Model.Stats.Gender.Male, @Model.Stats.Gender.Female],  
+              backgroundColor: [lightModeColors.primary, darkModeColors.danger],
+              borderColor: [lightModeColors.primary, darkModeColors.danger],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right', // Position the legend on the right
+                    labels: {
+                         
+                        
+                    }
+                },
+                tooltip: {
+                    
+                }
+            },
+            cutout: '50%' // Adjust the donut hole size
+          }
+        });
+
+         //Active Cell
+        const activeCell = new Chart(chartActiveCell, {
+          type: 'doughnut',
+          data: {
+            labels: ['Yes', 'No'],  
+            datasets: [{
+              label: 'Active in Cell',
+              data: [@Model.Stats.InvolveCell.Yes, @Model.Stats.InvolveCell.No],  
+              backgroundColor: [lightModeColors.success, darkModeColors.danger],
+              borderColor: [lightModeColors.success, darkModeColors.danger],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right', // Position the legend on the right
+                    labels: {
+                         
+                        
+                    }
+                },
+                tooltip: {
+                    
+                }
+            },
+            cutout: '50%' // Adjust the donut hole size
+          }
+        });
+        //
+        // Active Ministry
+        const activeMinistry = new Chart(chartActiveMinistry, {
+          type: 'doughnut',
+          data: {
+            labels: ['Yes', 'No'],  
+            datasets: [{
+              label: 'Active in Ministry',
+              data: [@Model.Stats.InvolveMinistry.Yes, @Model.Stats.InvolveMinistry.No],  
+              backgroundColor: [darkModeColors.primary, darkModeColors.danger],
+              borderColor: [darkModeColors.primary, darkModeColors.danger],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right', // Position the legend on the right
+                    labels: {
+                         
+                        
+                    }
+                },
+                tooltip: {
+                    
+                }
+            },
+            cutout: '50%' // Adjust the donut hole size
+          }
+        });
+
+
+
+
+
+        
+        //Ministries
+        const ministryStats = @Html.Raw(Json.Serialize(Model.MinistryStats)); 
+        const labels = ministryStats.map(stat => stat.description);
+        const data = ministryStats.map(stat => stat.count);
+
+        const backgroundColors = data.map((_, index) => getColor(index));
+        const borderColors = backgroundColors.map(color => {
+            // Adjust opacity for border color
+            const rgba = color.replace('0.2', '1');
+            return rgba;
+        });
+
+        const ministries = new Chart(chartMinistries, {
+          type: 'bar',
+          data: {
+            labels: labels,  
+            datasets: [{
+              label: 'Count',
+              data: data,  
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                        display: false,
+                      
+                    },
+                tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+            },
+            scales: {
+                    x: {
+                        beginAtZero: true, // Ensure the x-axis starts at zero
+                    },
+                    y: {
+                        beginAtZero: true, // Ensure the y-axis starts at zero
+                        ticks: {
+                            precision: 0 // Display whole numbers on y-axis
+                        }
+                    }
+                }
+             
+          }
+        });
+
+
+         //Cells
+        const cellStats = @Html.Raw(Json.Serialize(Model.CellStats)); 
+        const celllabels = cellStats.map(stat => stat.description);
+        const celldata = cellStats.map(stat => stat.count);
+        // Generate random colors for each bar
+        const cellbackgroundColors = celldata.map((_, index) => getColor(index));
+        const cellborderColors = cellbackgroundColors.map(color => {
+            // Adjust opacity for border color
+            const rgba = color.replace('0.2', '1');
+            return rgba;
+        });
+
+        const cells = new Chart(chartCells, {
+          type: 'bar',
+          data: {
+              labels: celllabels,
+              datasets: [{
+              label: 'Count',
+              data: celldata,  
+              backgroundColor: cellbackgroundColors,
+              borderColor: cellborderColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+              layout: {
+                          padding: {
+                              right: 20 // Ensure space for the legend
+                          }
+                      },
+            plugins: {
+                legend: {
+                        display: false,
+                      
+                    },
+                tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+            },
+            scales: {
+                    x: {
+                        beginAtZero: true, // Ensure the x-axis starts at zero
+                    },
+                    y: {
+                        beginAtZero: true, // Ensure the y-axis starts at zero
+                        ticks: {
+                            precision: 0 // Display whole numbers on y-axis
+                        }
+                    }
+                }
+             
+          }
+        });
+  });
+
+</script>

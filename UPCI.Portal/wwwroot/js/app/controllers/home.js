@@ -1,9 +1,9 @@
-const { createApp, reactive, ref, computed, onMounted, filter } = Vue;
+const { createApp, reactive, ref, computed, onMounted, filter, watch } = Vue;
 const homeController = createApp({
     setup() {
         let isFormValid = ref(false);
         onMounted(() => {
-
+             
         });
         const actionMode = ref(''); 
         const datatable = reactive({
@@ -17,7 +17,7 @@ const homeController = createApp({
          
         const disableControl = reactive({});
 
-        const formData = reactive({
+        const statsData = ref({
         }); 
         const search = reactive({});
 
@@ -25,13 +25,11 @@ const homeController = createApp({
             mainCheckBox: false,
             childCheckBox: []
         });
-        const items = ref([]);  
-        const recentActivities = ref([]);  
+       
         const Search = () => {
             $(".preloader").show(); 
             datatable.filter = [];
-            
-            GetRouteSummary();
+             
             $('.preloader').fadeOut('slow');
         };
         const addFilterIfNotExists = (filters, newFilter) => {
@@ -42,40 +40,8 @@ const homeController = createApp({
             )) {
                 filters.push(newFilter);
             }
-        };
-        const GetRouteSummary = async () => {
-             
-            const result = await RouteService.Summary(datatable.filter, datatable.sortColumn, datatable.descending, datatable.pageNum, datatable.pageSize)
-
-            if (result.data != null && result.data.length != 0) {
-                items.value = result.data;
-                datatable.show_table = true;
-
-                if (result.data.totalPage > 1)
-                    initPages(result.data.totalPage);
-            }
-            else {
-                items.value = [];
-                datatable.show_table = false;
-                try {
-                    $('#sync-pagination').twbsPagination('destroy');
-                }
-                catch (error) { }
-            }
-             
-        };
-        const GetRecentSummary = async () => {
-
-            const result = await UserService.RecentActivity()
-
-            if (result.data != null && result.data.length != 0) {
-                recentActivities.value = result.data; 
-            }
-            else {
-                recentActivities.value = [];  
-            }
-
-        };
+        }; 
+       
         // Table Events
         const itemCountChange = () => {
             Search();
@@ -144,20 +110,18 @@ const homeController = createApp({
             datatable.pageNum = 1;
             Search();
         };
-         
+
+        
         // Execute function when Vue instance is created  
-        GetRouteSummary();
-        GetRecentSummary();
+       
         const returnProps = {
             actionMode,
             isFormValid,
             datatable,
             disableControl,
-            search,
-            formData, 
-            items,
-            checkBoxes,   
-            recentActivities,
+            search,  
+            checkBoxes,    
+            statsData,
         };
 
         // Return methods

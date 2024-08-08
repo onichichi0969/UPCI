@@ -4,6 +4,7 @@ var MemberService = {};
 MemberService.All = () => { 
     return axios.get(appUrl + '/Application/Membership/Index?handler=All');
 };
+ 
 MemberService.GetCodeAndName = (list) => { 
     return axios.post(appUrl + '/Application/Membership/Index?handler=GetCodeAndName',
         JSON.stringify(list),

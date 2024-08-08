@@ -4,6 +4,7 @@ using UPCI.Portal.Helpers;
 using UPCI.DAL.Models;
 using UPCI.BLL.Services.IService;
 using UPCI.DAL.DTO.Request;
+using UPCI.DAL.DTO.Response;
 namespace UPCI.Portal.Pages
 {
     public class HomeModel : PageModel
@@ -20,6 +21,15 @@ namespace UPCI.Portal.Pages
 
         [BindProperty]
         public string Actions { get; set; }
+
+        [BindProperty]
+        public MemberStatistics Stats { get; set; }
+
+        [BindProperty]
+        public List<UPCI.DAL.DTO.Response.MinistryStat> MinistryStats { get; set; }
+
+        [BindProperty]
+        public List<UPCI.DAL.DTO.Response.CellStat> CellStats { get; set; }
 
         public HomeModel(IConfiguration configuration, IUserService userService, IRouteService routeService, IReportService reportService, IMemberService memberService)
         {
@@ -58,8 +68,13 @@ namespace UPCI.Portal.Pages
                         {
                             Actions = (Helper.GetActions(modules, HttpContext.Request.Path));
 
-                            //var x = _reportService.HTTPLogSummary().Result;
-                            var x = _memberService.MemberStatistics();
+                            Stats = new MemberStatistics();
+                            MinistryStats = new List<MinistryStat>();
+                            CellStats = new List<CellStat>();
+
+                            Stats = _memberService.MemberStatistics().Result;
+                            MinistryStats = _memberService.GetMinistriesStats().Result;
+                            CellStats = _memberService.GetCellsStats().Result;
                             return Page();
                         }
                         else
@@ -83,7 +98,8 @@ namespace UPCI.Portal.Pages
             {
                 return Redirect(_appConfig.AppUrl);
             }
-        } 
+        }
+         
         public async Task<IActionResult> OnGetUserProfileImage()
         {
             try

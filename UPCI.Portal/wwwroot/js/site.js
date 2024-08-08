@@ -298,9 +298,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('moonIcon').classList.add('fas');
         document.getElementById('moonIcon').classList.remove('fa-moon');
         document.getElementById('moonIcon').classList.add('fa-sun');
-        document.body.classList.remove('dark-mode');
+        document.body.classList.remove('dark-mode'); 
     }
-
+    
     // Add click event listener to toggle between moon and sun icons and save state in local storage
     document.getElementById('toggleButton').addEventListener('click', function () {
         var moonIcon = document.getElementById('moonIcon');

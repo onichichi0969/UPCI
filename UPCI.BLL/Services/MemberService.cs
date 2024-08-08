@@ -79,7 +79,10 @@ namespace UPCI.BLL.Services
 
                 var genderGroups = members
                     .GroupBy(m => m.Gender)
-                    .ToDictionary(g => g.Key ?? "Unknown", g => g.Count());
+                    .ToDictionary(
+                        g => g.Key == "M" ? "Male" : g.Key == "F" ? "Female" : "Unknown",
+                        g => g.Count()
+                    );
 
                 var involveCell = members
                     .GroupBy(m => m.HasCell)
@@ -125,6 +128,47 @@ namespace UPCI.BLL.Services
                 return new();
             }
             
+        }
+        public async Task<List<UPCI.DAL.DTO.Response.CellStat>> GetCellsStats()
+        {
+            var query = from m in _applicationDbContext.Cell!
+                        where !m.Deleted
+                        join mm in _applicationDbContext.MemberCell! on m.Code equals mm.CellCode into mmGroup
+                        from mm in mmGroup.DefaultIfEmpty()
+                        join member in _applicationDbContext.Member! on mm.MemberCode equals member.Code into memberGroup
+                        from member in memberGroup.DefaultIfEmpty()
+                        where member == null || !member.Deleted
+                        group new { m, member } by new { m.Code, m.Description } into g
+                        select new UPCI.DAL.DTO.Response.CellStat
+                        {
+                            Code = g.Key.Code,
+                            Description = g.Key.Description.ToUpper(),
+                            Count = g.Count(x => x.member != null) // Only count non-null members
+                        };
+
+            var resultList = await query.ToListAsync();
+            return resultList;
+        }
+        public async Task<List<UPCI.DAL.DTO.Response.MinistryStat>> GetMinistriesStats()
+        {
+            var query = from m in _applicationDbContext.Ministry!
+                        where !m.Deleted
+                        join mm in _applicationDbContext.MemberMinistry! on m.Code equals mm.MinistryCode into mmGroup
+                        from mm in mmGroup.DefaultIfEmpty()
+                        join member in _applicationDbContext.Member! on mm.MemberCode equals member.Code into memberGroup
+                        from member in memberGroup.DefaultIfEmpty()
+                        where member == null || !member.Deleted
+                        group new { m, member } by new { m.Code, m.Description, m.DepartmentCode } into g
+                        orderby g.Key.DepartmentCode
+                        select new UPCI.DAL.DTO.Response.MinistryStat
+                        {
+                            Code = g.Key.Code,
+                            Description = g.Key.Description.ToUpper().Replace("MINISTRY", ""),
+                            Count = g.Count(x => x.member != null) // Only count non-null members
+                        };
+
+            var resultList = await query.ToListAsync();
+            return resultList;
         }
         public (string memberCode,int lastSequence) GenerateMemberCode(string chapterCode)
         {
