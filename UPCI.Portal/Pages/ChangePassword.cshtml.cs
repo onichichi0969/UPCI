@@ -56,7 +56,7 @@ namespace UPCI.Portal.Pages
                     var modules = HttpContext.Session.GetObject<List<DAL.DTO.Response.ModuleAccess>>("Modules");
                     var currentPage = HttpContext.Request.Path.Value;
 
-                    HttpContext.Session.SetString("Navs", Helper.LoadNav(modules, currentPage, _configuration));
+                    HttpContext.Session.SetString("Navs", Helper.LoadNav(modules, currentPage));
                     ViewData["Navigation"] = HttpContext.Session.GetString("Navs");
                       
                     return Page();

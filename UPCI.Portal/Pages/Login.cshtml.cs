@@ -105,7 +105,7 @@ namespace UPCI.Portal.Pages
                 }
                 var modules = _moduleService.GetUserModuleAccess(userInfo.RoleCode).Result;
 
-                HttpContext.Session.SetString("Username", userInfo.Username!);
+                HttpContext.Session.SetString("Username", Convert.ToString(userInfo.Username!));
                 HttpContext.Session.SetString("Email", userInfo.Email!);
                 HttpContext.Session.SetString("PasswordExpirationDate", Convert.ToDateTime(userInfo.PasswordExpirationDate!).ToString("yyyy-MM-dd"));
                 HttpContext.Session.SetString("UserRole", userInfo.RoleCode!);
@@ -130,7 +130,11 @@ namespace UPCI.Portal.Pages
                 if (HttpContext.Session.GetString("ActiveSession") == "0")
                 {
                     if (HttpContext.Session.GetString("ChangePassword") == "1")
+                    {
+                        //_userService.AddActiveSession(userRequest);
                         return Redirect(_appConfig.AppUrl + "/ChangePassword");
+                    }
+                        
                     else
                     {
                         HttpContext.Session.SetObject("Modules", modules);

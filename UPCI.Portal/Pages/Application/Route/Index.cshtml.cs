@@ -65,7 +65,7 @@ namespace UPCI.Portal.Pages.Application.Route
                         var hasAccess = false;
                         if (modules != null)
                         {
-                            ViewData["Navigation"] = Helper.LoadNav(modules, currentPage, _configuration);
+                            ViewData["Navigation"] = Helper.LoadNav(modules, currentPage);
                             hasAccess = Helper.HasAccess(modules, HttpContext.Request.Path);
                         }
                         else

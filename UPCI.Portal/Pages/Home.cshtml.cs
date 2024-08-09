@@ -58,7 +58,7 @@ namespace UPCI.Portal.Pages
                         var hasAccess = false;
                         if (modules != null)
                         {
-                            ViewData["Navigation"] = Helper.LoadNav(modules, currentPage, _configuration);
+                            ViewData["Navigation"] = Helper.LoadNav(modules, currentPage);
                             hasAccess = Helper.HasAccess(modules, HttpContext.Request.Path);
                         }
                         else
@@ -84,8 +84,8 @@ namespace UPCI.Portal.Pages
                     {
                         //original
                         //return Redirect(HttpContext.Session.GetString("AppUrl") + "/Error?code=801");
-                        HttpContext.Session.Clear();
-                        return Redirect(HttpContext.Session.GetString("AppUrl"));
+                        //HttpContext.Session.Clear();
+                        return Redirect(HttpContext.Session.GetString("AppUrl") + "/Error?code=801");
 
                     } 
                 }
@@ -147,7 +147,8 @@ namespace UPCI.Portal.Pages
         public JsonResult OnGetSessionExpired()
         {
             try
-            { 
+            {
+                var x = Convert.ToString(HttpContext.Session.GetString("Username"));
                 var userRequest = new DAL.DTO.Request.User() 
                 { 
                     Username = Convert.ToString(HttpContext.Session.GetString("Username")), 

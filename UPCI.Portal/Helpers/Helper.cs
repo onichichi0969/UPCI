@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Drawing.Imaging;
 using System.Drawing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UPCI.Portal.Helpers
 {
@@ -117,7 +118,7 @@ namespace UPCI.Portal.Helpers
             }
             return result;
         }
-        public static string LoadNav(List<ModuleAccess> modules, string currentPage, IConfiguration configuration)
+        public static string LoadNav(List<ModuleAccess> modules, string currentPage)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -220,7 +221,51 @@ namespace UPCI.Portal.Helpers
                 return sb.ToString();
             }
         }
+        public static Error ErrorMessage(string code)
+        {
+            var error = new Error();
 
+            error.Code = code;
+
+            switch (code)
+            {
+
+                case "400":
+                    error.Title = "Bad Request";
+                    error.Message = "Bad Request";
+                    break;
+
+                case "401":
+                case "403":
+                    error.Title = "Unauthorized";
+                    error.Message = "Access is denied due to invalid credentials.";
+                    break;
+
+                case "404":
+                    error.Title = "Not Found";
+                    error.Message = "We could not find the page you were looking for.";
+                    break;
+
+                case "800":
+                    error.Title = "Not Found";
+                    error.Message = "Bad Request";
+                    break;
+
+                case "801":
+                    error.Title = "Change Password Required";
+                    error.Message = "You are using a default or expired password.";
+                    break;
+
+                default:
+                    error.Code = "500";
+                    error.Title = "Internal Server Error";
+                    error.Message = "We will work on fixing that right away.";
+                    break;
+
+            }
+
+            return error;
+        }
 
     }
 
@@ -237,4 +282,11 @@ namespace UPCI.Portal.Helpers
             return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
         }
     }
+    public class Error
+    {
+        public string Code { get; set; }
+        public string Title { get; set; }
+        public string Message { get; set; }
+    }
+
 }
